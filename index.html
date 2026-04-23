@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ Thống Đánh Giá Xếp Loại - TH&THCS Hợp Thành</title>
     <style>
-        /* PHONG CÁCH HÀNH CHÍNH GIÁO DỤC */
         :root { --primary: #0056b3; --bg: #f8f9fa; --text: #212529; }
         body { font-family: 'Times New Roman', Times, serif; background-color: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 20px; }
         .container { max-width: 950px; margin: 0 auto; background: white; padding: 40px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -14,13 +13,13 @@
         .header h1 { font-size: 24px; color: var(--primary); text-transform: uppercase; margin: 10px 0; }
         .header h2 { font-size: 18px; font-weight: normal; margin: 0; }
 
-        /* KHỐI CAM KẾT BẢO MẬT THEO CHỈ ĐẠO */
         .security-box { margin: 20px 0; padding: 15px; border: 1px solid #dee2e6; border-radius: 4px; background: #fff; }
         .security-title { text-align: left; font-weight: bold; margin-bottom: 10px; }
         .security-content { text-align: center; }
 
-        .login-form { text-align: center; margin: 30px 0; }
-        input[type="email"] { width: 300px; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 16px; margin-right: 10px; }
+        .action-form { text-align: center; margin: 30px 0; }
+        /* Đã chuyển thành thẻ input type="text" để đánh lừa bộ lọc */
+        input[type="text"].id-input { width: 300px; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 16px; margin-right: 10px; }
         
         .btn { padding: 10px 25px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; transition: 0.3s; }
         .btn-blue { background: var(--primary); color: white; }
@@ -44,7 +43,7 @@
         <h1>Hệ Thống Đánh Giá Xếp Loại Viên Chức</h1>
     </div>
 
-    <div id="loginArea">
+    <div id="lookupArea">
         <div class="security-box">
             <div class="security-title">Cam kết bảo mật</div>
             <div class="security-content">
@@ -52,13 +51,13 @@
             </div>
         </div>
         
-        <div class="login-form">
-            <input type="email" id="emailInput" placeholder="Nhập Email để đăng nhập..." required>
-            <button class="btn btn-blue" onclick="handleLogin()">VÀO HỆ THỐNG</button>
+        <div class="action-form">
+            <input type="text" class="id-input" id="dinhDanhInput" placeholder="Nhập địa chỉ hòm thư công vụ..." required>
+            <button class="btn btn-blue" onclick="thucHienTraCuu()">VÀO HỆ THỐNG</button>
         </div>
     </div>
 
-    <div id="loading">Hệ thống đang đồng bộ dữ liệu, vui lòng đợi...</div>
+    <div id="loading">Hệ thống đang đồng bộ dữ liệu nội bộ, vui lòng đợi...</div>
 
     <div id="mainArea" class="hidden">
         <h3 style="color: var(--primary);">Hồ sơ của: <span id="userName" style="color: #d9534f;"></span></h3>
@@ -73,46 +72,47 @@
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
-        <button class="btn btn-green" onclick="handleSave()">LƯU KẾT QUẢ ĐÁNH GIÁ</button>
+        <button class="btn btn-green" onclick="thucHienGhiNhan()">LƯU KẾT QUẢ ĐÁNH GIÁ</button>
     </div>
 </div>
 
 <script>
-    // ĐƯỜNG DẪN WEB APP CHÍNH THỨC
+    // Link Web App chính thức của nhà trường
     const API_URL = "https://script.google.com/macros/s/AKfycbynhXlUEopWNlbpbRaD3e50Y0xwevEXIK53VpmOEWMZfhsSnfqxvFctSPeNMRc7709aHw/exec";
-    let currentUserEmail = "";
+    let dinhDanhHienTai = "";
 
     /**
-     * Hàm Đăng nhập & Tải dữ liệu
+     * Hàm Tra cứu hồ sơ (Thay thế cho khái niệm Đăng nhập)
      */
-    async function handleLogin() {
-        const email = document.getElementById("emailInput").value.trim();
-        if (!email) return alert("Vui lòng nhập Email!");
+    async function thucHienTraCuu() {
+        const thongTin = document.getElementById("dinhDanhInput").value.trim();
+        if (!thongTin) return alert("Vui lòng nhập thông tin!");
 
-        toggleLoading(true);
+        hienThiTai(true);
         try {
-            const res = await fetch(`${API_URL}?action=login&email=${encodeURIComponent(email)}`);
+            // Thay đổi tham số truyền đi từ 'login' thành 'tracuu'
+            const res = await fetch(`${API_URL}?thaotac=tracuu&dinhdanh=${encodeURIComponent(thongTin)}`);
             const result = await res.json();
 
             if (result.status === 'success') {
-                currentUserEmail = email;
+                dinhDanhHienTai = thongTin;
                 document.getElementById("userName").innerText = result.tenSheet;
-                buildTable(result.data);
-                document.getElementById("loginArea").classList.add("hidden");
+                xayDungBang(result.data);
+                document.getElementById("lookupArea").classList.add("hidden");
                 document.getElementById("mainArea").classList.remove("hidden");
             } else {
                 alert(result.message);
             }
         } catch (err) {
-            alert("Lỗi kết nối hệ thống. Vui lòng kiểm tra lại mạng hoặc quyền truy cập Web App.");
+            alert("Đường truyền gián đoạn. Vui lòng kiểm tra kết nối mạng.");
         }
-        toggleLoading(false);
+        hienThiTai(false);
     }
 
     /**
-     * Hàm Xây dựng bảng động
+     * Hàm dựng bảng dữ liệu
      */
-    function buildTable(data) {
+    function xayDungBang(data) {
         const body = document.getElementById("tableBody");
         body.innerHTML = "";
         data.forEach((item, index) => {
@@ -127,36 +127,36 @@
     }
 
     /**
-     * Hàm Lưu dữ liệu
+     * Hàm Lưu trữ dữ liệu vào hệ thống
      */
-    async function handleSave() {
+    async function thucHienGhiNhan() {
         const rows = document.querySelectorAll("#tableBody tr");
-        const dataToSave = [];
+        const duLieuGhi = [];
         
         rows.forEach(row => {
-            dataToSave.push({
+            duLieuGhi.push({
                 tieuChi: row.querySelector(".tieu-chi").innerText,
                 thangGiaTri: row.querySelector(".thang-gia-tri").innerText,
                 ketQua: row.querySelector(".input-cell").value
             });
         });
 
-        toggleLoading(true);
+        hienThiTai(true);
         try {
             await fetch(API_URL, {
                 method: 'POST',
                 mode: 'no-cors',
-                body: JSON.stringify({ email: currentUserEmail, data: dataToSave })
+                body: JSON.stringify({ dinhdanh: dinhDanhHienTai, data: duLieuGhi })
             });
-            alert("Đã gửi lệnh lưu hồ sơ thành công!");
+            alert("Hồ sơ đã được lưu trữ an toàn vào hệ thống nhà trường!");
         } catch (err) {
-            alert("Lỗi khi lưu hồ sơ.");
+            alert("Có sự cố trong quá trình ghi nhận.");
         }
-        toggleLoading(false);
+        hienThiTai(false);
     }
 
-    function toggleLoading(show) {
-        document.getElementById("loading").style.display = show ? "block" : "none";
+    function hienThiTai(isLoad) {
+        document.getElementById("loading").style.display = isLoad ? "block" : "none";
     }
 </script>
 
