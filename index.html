@@ -7,41 +7,28 @@
     <style>
         :root { --primary: #0056b3; --bg: #f4f7f6; --text: #333333; }
         body { font-family: 'Times New Roman', Times, serif; background-color: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 20px; }
-        .container { max-width: 1100px; margin: 0 auto; background: white; padding: 30px; border-radius: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        
+        .container { max-width: 1150px; margin: 0 auto; background: white; padding: 30px; border-radius: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid var(--primary); padding-bottom: 15px; }
         .header h1 { font-size: 24px; color: var(--primary); text-transform: uppercase; margin: 5px 0; }
         .header h2 { font-size: 18px; font-weight: normal; margin: 0; }
-
         .security-box { margin: 15px 0; padding: 15px; border: 1px solid #dee2e6; border-radius: 4px; background: #fff; border-left: 4px solid #17a2b8;}
-        .security-title { text-align: left; font-weight: bold; margin-bottom: 5px; }
-        .security-content { text-align: center; color: var(--primary); font-weight: bold;}
-
-        .action-form { text-align: center; margin: 25px 0; }
-        input[type="text"].id-input { width: 350px; padding: 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 16px; margin-right: 10px; font-family: inherit;}
-        
+        .action-form { text-align: center; margin: 25px 0; display: flex; justify-content: center; gap: 10px; align-items: center;}
+        input[type="text"].id-input { width: 350px; padding: 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 16px; font-family: inherit;}
+        select.role-select { padding: 12px; border-radius: 4px; border: 1px solid #ced4da; font-size: 16px; font-family: inherit; background: white;}
         .btn { padding: 12px 25px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; transition: 0.3s; font-size: 16px;}
         .btn-blue { background: var(--primary); color: white; }
-        .btn-blue:hover { background: #004494; }
         .btn-green { background: #28a745; color: white; width: 100%; margin-top: 20px; font-size: 18px; }
         .btn-small { padding: 8px 12px; font-size: 14px; margin-left: 5px; }
         .btn-red { background: #dc3545; color: white; }
-
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { border: 1px solid #dee2e6; padding: 12px; text-align: left; vertical-align: middle; }
         th { background: #e9ecef; color: var(--primary); text-align: center; font-size: 16px;}
         .input-cell { width: 100%; border: 1px solid #ddd; padding: 10px; box-sizing: border-box; font-family: inherit; font-size: 15px; }
-        
         .hs-panel { background: #f8fbff; border: 1px solid #b8daff; padding: 12px; border-radius: 4px; }
         .hs-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;}
-        .hs-controls select, .hs-controls input { padding: 8px; font-family: inherit; border: 1px solid #ccc; border-radius: 3px; }
-        .hs-controls label { font-weight: bold; color: var(--primary); margin-left: 5px; }
         .hs-ketqua { font-weight: bold; color: #d9534f; background: #fff; padding: 12px; border: 1px dashed #dc3545; white-space: pre-line; min-height: 25px; line-height: 1.8;}
-
         .live-result-box { background: #e9ecef; border-left: 5px solid var(--primary); padding: 15px 25px; margin-top: 30px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;}
-        .live-result-box h3 { margin: 0; color: #333; font-size: 18px;}
         .live-rating { font-size: 24px; font-weight: bold; color: #dc3545; text-align: right;}
-
         #loading { display: none; color: var(--primary); font-style: italic; text-align: center; margin: 20px; font-size: 16px;}
         .hidden { display: none; }
     </style>
@@ -56,12 +43,13 @@
     </div>
 
     <div id="lookupArea">
-        <div class="security-box">
-            <div class="security-title">Cam kết bảo mật:</div>
-            <div class="security-content">Hệ thống hoạt động trên phiên an toàn. Tuyệt đối không thu thập hay lưu trữ thông tin cá nhân.</div>
-        </div>
+        <div class="security-box"><b>Cam kết bảo mật:</b> Hệ thống hoạt động trên phiên an toàn. Tuyệt đối không thu thập hay lưu trữ thông tin cá nhân.</div>
         <div class="action-form">
-            <input type="text" class="id-input" id="dinhDanhInput" placeholder="Nhập định danh / hòm thư công vụ..." required>
+            <input type="text" class="id-input" id="dinhDanhInput" placeholder="Nhập định danh email hòm thư công vụ..." required>
+            <select id="doiTuongSelect" class="role-select">
+                <option value="giaovien">Đối tượng: Giáo viên</option>
+                <option value="nhanvien">Đối tượng: Nhân viên</option>
+            </select>
             <button class="btn btn-blue" onclick="thucHienTraCuu()">TRUY CẬP HỒ SƠ</button>
         </div>
     </div>
@@ -86,14 +74,8 @@
         </table>
 
         <div class="live-result-box">
-            <div>
-                <h3>DỰ KIẾN KẾT QUẢ ĐÁNH GIÁ:</h3>
-                <div style="font-size: 14px; color: #555; margin-top: 5px;"><i>(Hệ thống tự động nội suy từ bảng điểm)</i></div>
-            </div>
-            <div class="live-rating" id="hienThiXepLoai">
-                CHƯA HOÀN THÀNH NHIỆM VỤ<br>
-                <span style="font-size: 18px; color: #0056b3;">(Tổng điểm phần 2: 0đ)</span>
-            </div>
+            <div><h3>DỰ KIẾN KẾT QUẢ ĐÁNH GIÁ:</h3><div style="font-size: 14px; color: #555;"><i>(Hệ thống nội suy theo Quy chế)</i></div></div>
+            <div class="live-rating" id="hienThiXepLoai">CHƯA HOÀN THÀNH NHIỆM VỤ<br><span style="font-size: 18px; color: #0056b3;">(Tổng điểm Phần 2: 0đ)</span></div>
         </div>
 
         <button class="btn btn-green" onclick="thucHienGhiNhan()">LƯU KẾT QUẢ ĐÁNH GIÁ</button>
@@ -102,314 +84,135 @@
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbynhXlUEopWNlbpbRaD3e50Y0xwevEXIK53VpmOEWMZfhsSnfqxvFctSPeNMRc7709aHw/exec";
-    let dinhDanhHienTai = "";
-    let tenHoSoHienTai = "";
-    let cauHinhDiemHienTai = {};
+    let dinhDanhHienTai = "", tenHoSoHienTai = "", cauHinhDiemHienTai = {};
 
     async function thucHienTraCuu() {
         const thongTin = document.getElementById("dinhDanhInput").value.trim();
         if (!thongTin) return alert("Vui lòng nhập định danh!");
-
         hienThiTai(true);
         try {
             const res = await fetch(`${API_URL}?thaotac=tracuu&dinhdanh=${encodeURIComponent(thongTin)}`);
             const result = await res.json();
-
             if (result.status === 'success') {
                 dinhDanhHienTai = thongTin;
                 tenHoSoHienTai = result.tenSheet;
                 cauHinhDiemHienTai = result.config;
                 document.getElementById("userName").innerText = tenHoSoHienTai;
-                
                 xayDungBang(result.data);
-                
                 document.getElementById("lookupArea").classList.add("hidden");
                 document.getElementById("mainArea").classList.remove("hidden");
-                
-                // Kích hoạt tính toán ngay khi tải xong
                 tinhToanXepLoaiQuyChe();
             } else { alert(result.message); }
-        } catch (err) { alert("Đường truyền gián đoạn. Vui lòng kiểm tra mạng nội bộ."); }
+        } catch (err) { alert("Lỗi kết nối mạng."); }
         hienThiTai(false);
     }
 
     function xayDungBang(data) {
         const body = document.getElementById("tableBody");
         body.innerHTML = "";
-        
         data.forEach((item, index) => {
-            let thangGiaTri = (item.thangGiaTri === "undefined" || !item.thangGiaTri) ? "" : item.thangGiaTri.toString().trim();
-            let ketQuaLuu = item.ketQua || "";
-            let htmlNhapLieu = "";
+            let tg = (item.thangGiaTri === "undefined" || !item.thangGiaTri) ? "" : item.thangGiaTri.toString().trim();
+            let kq = item.ketQua || "";
+            let html = "";
 
-            if (thangGiaTri === "THANHTICH_HS_DONG") {
-                htmlNhapLieu = `
-                    <div class="hs-panel">
-                        <div class="hs-controls">
-                            <select id="hs_cap_${index}"><option value="QUOCGIA">Cấp Quốc gia</option><option value="TINH">Cấp Tỉnh</option><option value="XA">Cấp Xã/Cụm/KV</option></select>
-                            <select id="hs_giai_${index}"><option value="0">Giải Nhất</option><option value="1">Giải Nhì</option><option value="2">Giải Ba</option><option value="3">Khuyến khích</option></select>
-                            <select id="hs_loai_${index}"><option value="1">Cá nhân</option><option value="1.5">Tập thể (x1.5)</option></select>
-                            <label>Số lượng:</label>
-                            <input type="number" id="hs_sl_${index}" value="1" min="1" style="width: 60px;">
-                            <button class="btn btn-blue btn-small" onclick="congDiemHS(${index})">Cập nhật giải</button>
-                            <button class="btn btn-red btn-small" onclick="xoaDiemHS(${index})">Xóa làm lại</button>
-                        </div>
-                        <div id="hs_hienthi_${index}" class="hs-ketqua">${ketQuaLuu ? ketQuaLuu.replace(/\\n/g, '<br>') : 'Chưa ghi nhận dữ liệu thành tích...'}</div>
-                        <input type="hidden" class="input-cell trigger-calc" id="hs_hidden_${index}" value="${ketQuaLuu}">
-                    </div>
-                `;
-            } else if (thangGiaTri.includes("|")) {
-                let options = thangGiaTri.split(",");
-                htmlNhapLieu = `<select class="input-cell trigger-calc">`;
-                options.forEach(opt => {
-                    let parts = opt.split("|");
-                    let tenOption = parts[0] ? parts[0].trim() : "";
-                    let diemOption = parts[1] ? parts[1].trim() : "0"; 
-                    let trangThai = ketQuaLuu.includes(tenOption) ? "selected" : "";
-                    htmlNhapLieu += `<option value="${tenOption}" data-point="${diemOption}" ${trangThai}>${tenOption} (${diemOption} điểm)</option>`;
-                });
-                htmlNhapLieu += `</select>`;
+            if (tg === "THANHTICH_HS_DONG") {
+                html = `<div class="hs-panel"><div class="hs-controls"><select id="hs_cap_${index}"><option value="QUOCGIA">Quốc gia</option><option value="TINH">Cấp Tỉnh</option><option value="XA">Xã/Cụm</option></select><select id="hs_giai_${index}"><option value="0">Giải Nhất</option><option value="1">Giải Nhì</option><option value="2">Giải Ba</option><option value="3">KK</option></select><select id="hs_loai_${index}"><option value="1">Cá nhân</option><option value="1.5">Tập thể (x1.5)</option></select><input type="number" id="hs_sl_${index}" value="1" min="1" style="width: 50px;"><button class="btn btn-blue btn-small" onclick="congDiemHS(${index})">Thêm giải</button><button class="btn btn-red btn-small" onclick="xoaDiemHS(${index})">Xóa</button></div><div id="hs_hienthi_${index}" class="hs-ketqua">${kq ? kq.replace(/\\n/g, '<br>') : 'Chưa có dữ liệu...'}</div><input type="hidden" class="input-cell trigger-calc" id="hs_hidden_${index}" value="${kq}"></div>`;
+            } else if (tg.includes("|")) {
+                html = `<select class="input-cell trigger-calc">` + tg.split(",").map(opt => {
+                    let [n, d] = opt.split("|");
+                    return `<option value="${n.trim()}" data-point="${d.trim()}" ${kq.includes(n.trim())?'selected':''}>${n.trim()} (${d.trim()}đ)</option>`;
+                }).join("") + `</select>`;
             } else {
-                htmlNhapLieu = `<input type="text" class="input-cell trigger-calc" value="${ketQuaLuu}">`;
+                html = `<input type="text" class="input-cell trigger-calc" value="${kq}">`;
             }
 
-            const isTieude = !thangGiaTri && !item.tieuChi.toLowerCase().includes("phê bình"); 
-            const classRow = isTieude ? "background-color: #f1f8ff; color: var(--primary);" : "";
-
-            const row = `<tr style="${classRow}">
-                <td align="center"><b>${isTieude ? "" : index + 1}</b></td>
-                <td class="tieu-chi" style="${isTieude ? 'font-size: 18px; font-weight: bold; text-transform: uppercase;' : 'font-weight: bold;'}">${item.tieuChi}</td>
-                <td class="thang-gia-tri" align="center">${thangGiaTri === 'THANHTICH_HS_DONG' ? 'Quy chế T.Tích' : thangGiaTri}</td>
-                <td>${isTieude ? "" : htmlNhapLieu}</td>
-            </tr>`;
-            body.insertAdjacentHTML('beforeend', row);
+            let isTieuDe = !tg && !item.tieuChi.toLowerCase().includes("phê bình");
+            body.insertAdjacentHTML('beforeend', `<tr style="${isTieuDe?'background:#f1f8ff;font-weight:bold;color:var(--primary);':''}"><td align="center">${isTieuDe?"":index+1}</td><td class="tieu-chi">${item.tieuChi}</td><td align="center">${tg==='THANHTICH_HS_DONG'?'Quy chế':tg}</td><td>${isTieuDe?"":html}</td></tr>`);
         });
-
-        // Kích hoạt bộ cảm biến sự kiện: Bất kỳ thay đổi nào cũng gọi tính toán lại
-        document.querySelectorAll(".trigger-calc").forEach(el => {
-            el.addEventListener('input', tinhToanXepLoaiQuyChe);
-            el.addEventListener('change', tinhToanXepLoaiQuyChe);
-        });
+        document.querySelectorAll(".trigger-calc").forEach(el => { el.addEventListener('change', tinhToanXepLoaiQuyChe); el.addEventListener('input', tinhToanXepLoaiQuyChe); });
     }
 
-    function congDiemHS(index) {
-        const cap = document.getElementById(`hs_cap_${index}`).value;
-        const chiSoGiai = parseInt(document.getElementById(`hs_giai_${index}`).value);
-        const heSoTapThe = parseFloat(document.getElementById(`hs_loai_${index}`).value);
-        const sl = parseInt(document.getElementById(`hs_sl_${index}`).value) || 1;
-
-        const mangDiemCap = cauHinhDiemHienTai[`DIEM_HS_${cap}`] ? cauHinhDiemHienTai[`DIEM_HS_${cap}`].split(',') : [0,0,0,0];
-        const diemGoc = parseFloat(mangDiemCap[chiSoGiai].trim());
-        
-        let diemMotGiai = diemGoc * heSoTapThe;
-        let diemTong = diemMotGiai * sl;
-
-        const tenCapObj = document.getElementById(`hs_cap_${index}`);
-        const tenCap = tenCapObj.options[tenCapObj.selectedIndex].text;
-        const tenGiaiObj = document.getElementById(`hs_giai_${index}`);
-        const tenGiai = tenGiaiObj.options[tenGiaiObj.selectedIndex].text;
-        const loaiGiai = heSoTapThe > 1 ? "Tập thể" : "Cá nhân";
-
-        let chuoiGhiNhan = `+ ${sl} HS đạt ${tenGiai} ${tenCap} (${loaiGiai}: ${diemMotGiai}đ/giải) = ${diemTong} điểm\n`;
-
-        let currentVal = document.getElementById(`hs_hidden_${index}`).value;
-        if(currentVal.includes("Chưa ghi nhận")) currentVal = ""; 
-        
-        document.getElementById(`hs_hidden_${index}`).value = currentVal ? currentVal + chuoiGhiNhan : chuoiGhiNhan;
-        document.getElementById(`hs_hienthi_${index}`).innerHTML = document.getElementById(`hs_hidden_${index}`).value.replace(/\n/g, '<br>');
-        
+    function congDiemHS(idx) {
+        const cap = document.getElementById(`hs_cap_${idx}`).value, chiSo = parseInt(document.getElementById(`hs_giai_${idx}`).value), heSo = parseFloat(document.getElementById(`hs_loai_${idx}`).value), sl = parseInt(document.getElementById(`hs_sl_${idx}`).value) || 1;
+        const mangDiem = cauHinhDiemHienTai[`DIEM_HS_${cap}`] ? cauHinhDiemHienTai[`DIEM_HS_${cap}`].split(',') : [0,0,0,0];
+        let dMotGiai = parseFloat(mangDiem[chiSo].trim()) * heSo, dTong = dMotGiai * sl;
+        let tenCap = document.getElementById(`hs_cap_${idx}`).options[document.getElementById(`hs_cap_${idx}`).selectedIndex].text, tenGiai = document.getElementById(`hs_giai_${idx}`).options[document.getElementById(`hs_giai_${idx}`).selectedIndex].text;
+        let dong = `+ ${sl} HS đạt ${tenGiai} ${tenCap} (${heSo>1?'Tập thể':'Cá nhân'}: ${dMotGiai}đ/giải) = ${dTong} điểm\n`;
+        let hid = document.getElementById(`hs_hidden_${idx}`);
+        hid.value = (hid.value.includes("Chưa có") ? "" : hid.value) + dong;
+        document.getElementById(`hs_hienthi_${idx}`).innerHTML = hid.value.replace(/\n/g, '<br>');
         tinhToanXepLoaiQuyChe();
     }
 
-    function xoaDiemHS(index) {
-        document.getElementById(`hs_hidden_${index}`).value = "";
-        document.getElementById(`hs_hienthi_${index}`).innerHTML = "Chưa ghi nhận dữ liệu thành tích...";
-        tinhToanXepLoaiQuyChe();
-    }
+    function xoaDiemHS(idx) { document.getElementById(`hs_hidden_${idx}`).value = ""; document.getElementById(`hs_hienthi_${idx}`).innerHTML = "Chưa có dữ liệu..."; tinhToanXepLoaiQuyChe(); }
 
-    /**
-     * BỘ MÁY TÍNH TOÁN CỘNG ĐIỂM VÀ SUY LUẬN XẾP LOẠI 
-     * (BẢN VÁ LỖI CHÍNH XÁC 100% THEO FILE QUY CHẾ)
-     */
     function tinhToanXepLoaiQuyChe() {
-        const rows = document.querySelectorAll("#tableBody tr");
-        
-        let p = {
-            pheBinh: 0, thangXS: 0, thangTot: 0, thangHT: 0,
-            chuanNN: '', chuyenMon: '', chuyenBien: '', vsCD: 0, 
-            gvdg: '', kiemNhiem: '', sangKien: '', giaiHS: '',
-            hsHT: 0, hsXS: 0, hsTot: 0
-        };
-        
-        let has = {}; // Bộ dò tìm sự tồn tại của tiêu chí
-        let tongDiem = 0; 
-        let isGiaoVien = false;
-        let isNhanVien = false;
+        const rows = document.querySelectorAll("#tableBody tr"), role = document.getElementById("doiTuongSelect").value;
+        let p = { pb: 0, xs: 0, t: 0, ht: 0, cnn: '', cm: '', cb: '', vs: 0, gvdg: '', kn: '', sk: '', gHS: '', hsHT: 0, hsXS: 0, hsT: 0 }, d2 = 0;
 
         rows.forEach(row => {
-            let tcObj = row.querySelector(".tieu-chi");
-            if(!tcObj) return;
-            let tc = tcObj.innerText.toLowerCase();
-            
-            let inputObj = row.querySelector(".input-cell");
-            if(!inputObj) return;
-            let kq = inputObj.value.toLowerCase();
-            let so = parseFloat(kq.replace(/[^\d\.]/g, '')) || 0; 
+            let tc = row.querySelector(".tieu-chi")?.innerText.toLowerCase(), inp = row.querySelector(".input-cell");
+            if (!inp) return;
+            let val = inp.value.toLowerCase(), num = parseFloat(val.replace(/[^\d\.]/g, '')) || 0;
 
-            // === A. XỬ LÝ CỘNG DỒN TỔNG ĐIỂM ===
-            if (row.querySelector("select.input-cell")) {
-                let sel = row.querySelector("select.input-cell");
-                tongDiem += parseFloat(sel.options[sel.selectedIndex].getAttribute("data-point")) || 0;
-            } else if (tc.includes("vở sạch")) {
-                tongDiem += (so * 0.1);
-            } else if (tc.includes("thành tích") || (row.querySelector(".thang-gia-tri") && row.querySelector(".thang-gia-tri").innerText === 'Quy chế T.Tích')) {
-                let matches = inputObj.value.match(/=\s*([\d\.]+)\s*điểm/g);
-                if (matches) { matches.forEach(m => { tongDiem += parseFloat(m.replace(/[^\d\.]/g, '')) || 0; }); }
+            if (row.querySelector("select.input-cell")) d2 += parseFloat(row.querySelector("select.input-cell").options[row.querySelector("select.input-cell").selectedIndex].getAttribute("data-point")) || 0;
+            else if (tc.includes("vở sạch")) d2 += (num * 0.1);
+            else if (tc.includes("thành tích") || row.cells[2].innerText === 'Quy chế') {
+                let ms = inp.value.match(/=\s*([\d\.]+)\s*điểm/g);
+                if (ms) ms.forEach(m => d2 += parseFloat(m.replace(/[^\d\.]/g, '')) || 0);
             }
 
-            // === B. ĐỌC TỪ KHÓA ĐỂ ĐỐI CHIẾU QUY CHẾ ===
-            if(tc.includes("phê bình")) { p.pheBinh = so; has.pheBinh = true; }
-            else if(tc.includes("tháng") && tc.includes("xuất sắc")) { p.thangXS = so; has.thangXS = true; }
-            else if(tc.includes("tháng") && tc.includes("tốt")) { p.thangTot = so; has.thangTot = true; }
-            else if(tc.includes("tháng") && (tc.includes("hoàn thành") || tc.includes("ht")) && !tc.includes("tốt") && !tc.includes("xuất sắc")) { p.thangHT = so; has.thangHT = true; }
-            
-            // Đã mở rộng từ khóa: "Chuẩn NN" hay "Chuẩn nghề nghiệp" đều nhận
-            else if(tc.includes("chuẩn")) { p.chuanNN = kq; isGiaoVien = true; has.chuanNN = true; }
-            else if(tc.includes("chuyên môn")) { p.chuyenMon = kq; isGiaoVien = true; has.chuyenMon = true; }
-            else if(tc.includes("chuyển biến")) { p.chuyenBien = kq; has.chuyenBien = true; }
-            else if(tc.includes("vở sạch")) { p.vsCD = so; has.vsCD = true; }
-            else if(tc.includes("giáo viên giỏi") || tc.includes("gvdg")) { p.gvdg = kq; has.gvdg = true; }
-            
-            else if(tc.includes("học sinh") || tc.includes("hs") || tc.includes("tỷ lệ hs")) {
-                isGiaoVien = true;
-                if(tc.includes("xuất sắc")) { p.hsXS = so; has.hsXS = true; }
-                else if(tc.includes("tốt")) { p.hsTot = so; has.hsTot = true; }
-                else if(tc.includes("hoàn thành") || tc.includes("ht")) { p.hsHT = so; has.hsHT = true; }
+            if (tc.includes("phê bình")) p.pb = num;
+            else if (tc.includes("tháng") && tc.includes("xuất sắc")) p.xs = num;
+            else if (tc.includes("tháng") && tc.includes("tốt")) p.t = num;
+            else if (tc.includes("tháng") && (tc.includes("hoàn thành") || tc.includes("ht")) && !tc.includes("tốt")) p.ht = num;
+            else if (tc.includes("chuẩn")) p.cnn = val;
+            else if (tc.includes("chuyên môn")) p.cm = val;
+            else if (tc.includes("chuyển biến")) p.cb = val;
+            else if (tc.includes("vở sạch")) p.vs = num;
+            else if (tc.includes("giáo viên giỏi") || tc.includes("gvdg")) p.gvdg = val;
+            else if (tc.includes("học sinh") || tc.includes("hs")) {
+                if (tc.includes("xuất sắc")) p.hsXS = num;
+                else if (tc.includes("tốt")) p.hsT = num;
+                else if (tc.includes("hoàn thành") || tc.includes("ht")) p.hsHT = num;
             }
-            else if(tc.includes("thành tích") || (row.querySelector(".thang-gia-tri") && row.querySelector(".thang-gia-tri").innerText === 'Quy chế T.Tích')) {
-                p.giaiHS = inputObj.value; has.giaiHS = true;
-            }
-            
-            else if(tc.includes("sáng kiến")) { p.sangKien = kq; isNhanVien = true; has.sangKien = true; }
-            else if(tc.includes("kiêm nhiệm")) { p.kiemNhiem = kq; has.kiemNhiem = true; }
+            else if (tc.includes("thành tích") || row.cells[2].innerText === 'Quy chế') p.gHS = inp.value;
+            else if (tc.includes("sáng kiến")) p.sk = val;
+            else if (tc.includes("kiêm nhiệm")) p.kn = val;
         });
 
-        // BẢN VÁ LỖI LOGIC: Tự động dồn phần trăm (Đạt XS thì coi như đạt Tốt)
-        p.thangTot = p.thangTot + p.thangXS; 
-        p.thangHT = p.thangHT + p.thangTot; 
-
-        // === C. SUY LUẬN XẾP LOẠI SONG SONG (Bám sát PDF) ===
-        let gvLevel = 1; // 1: CHT, 2: HT, 3: Tốt, 4: XS
-        let nvLevel = 1;
+        let tT = p.xs + p.t, tH = tT + p.ht, xl = "CHƯA HOÀN THÀNH NHIỆM VỤ", c = "#dc3545";
         
-        // --- 1. XÉT DUYỆT CHUẨN GIÁO VIÊN ---
-        if (isGiaoVien) {
-            let datGiaiXS = /(nhất.*(xã|cụm|khu|tỉnh|quốc))|(nhì.*(cụm|khu|tỉnh|quốc))|(ba.*(tỉnh|quốc))/i.test(p.giaiHS);
-            
-            let gv_XS = (!has.pheBinh || p.pheBinh === 0) && 
-                        (!has.thangXS || p.thangXS >= 30) && 
-                        (!has.thangTot || p.thangTot >= 100) &&
-                        (!has.chuanNN || p.chuanNN.includes("tốt")) && 
-                        (!has.chuyenMon || p.chuyenMon.includes("giỏi")) && 
-                        (!has.chuyenBien || p.chuyenBien.includes("tốt")) &&
-                        (!has.vsCD || p.vsCD >= 60) && 
-                        (!has.gvdg || p.gvdg.includes("trường") || p.gvdg.includes("xã") || p.gvdg.includes("cụm") || p.gvdg.includes("tỉnh") || p.gvdg.includes("quốc")) &&
-                        (!has.giaiHS || datGiaiXS) && 
-                        (!has.hsHT || p.hsHT >= 100) && 
-                        (!has.hsXS || p.hsXS >= 20) && 
-                        (!has.hsTot || p.hsTot >= 25) &&
-                        (!has.kiemNhiem || p.kiemNhiem.includes("tốt") || p.kiemNhiem.includes("không"));
-
-            let gv_Tot = (!has.thangTot || p.thangTot >= 100) &&
-                         (!has.chuanNN || p.chuanNN.includes("khá") || p.chuanNN.includes("tốt")) && 
-                         (!has.chuyenMon || p.chuyenMon.includes("khá") || p.chuyenMon.includes("giỏi")) &&
-                         (!has.chuyenBien || p.chuyenBien.includes("khá") || p.chuyenBien.includes("tốt")) &&
-                         (!has.vsCD || p.vsCD >= 40) && 
-                         (!has.hsHT || p.hsHT >= 95) && 
-                         (!has.hsXS || p.hsXS >= 15) && 
-                         (!has.hsTot || p.hsTot >= 25) &&
-                         (!has.kiemNhiem || p.kiemNhiem.includes("khá") || p.kiemNhiem.includes("tốt") || p.kiemNhiem.includes("không"));
-
-            let gv_HT = (!has.thangHT || p.thangHT >= 100) &&
-                        (!has.chuanNN || p.chuanNN.includes("đạt") || p.chuanNN.includes("trung bình") || p.chuanNN.includes("khá") || p.chuanNN.includes("tốt")) &&
-                        (!has.chuyenMon || p.chuyenMon.includes("tb") || p.chuyenMon.includes("trung bình") || p.chuyenMon.includes("khá") || p.chuyenMon.includes("giỏi")) &&
-                        (!has.hsHT || p.hsHT >= 90) && 
-                        (!has.hsXS || p.hsXS >= 10) && 
-                        (!has.hsTot || p.hsTot >= 20) &&
-                        (!has.kiemNhiem || !p.kiemNhiem.includes("chưa hoàn thành"));
-
-            if (gv_XS) gvLevel = 4;
-            else if (gv_Tot) gvLevel = 3;
-            else if (gv_HT) gvLevel = 2;
+        if (role === "giaovien") {
+            let gXS = /(nhất.*(xã|cụm|khu|tỉnh|quốc))|(nhì.*(cụm|khu|tỉnh|quốc))|(ba.*(tỉnh|quốc))/i.test(p.gHS);
+            if (p.pb === 0 && p.xs >= 30 && tT >= 100 && p.cnn.includes("tốt") && p.cm.includes("giỏi") && p.cb.includes("tốt") && p.vs >= 60 && (p.gvdg.match(/trường|xã|cụm|khu|tỉnh|quốc/i)) && gXS && p.hsHT >= 100 && p.hsXS >= 20 && p.hsT >= 25 && (!p.kn || p.kn.includes("tốt"))) { xl = "HOÀN THÀNH XUẤT SẮC NHIỆM VỤ"; c = "#28a745"; }
+            else if (tT >= 100 && (p.cnn.match(/khá|tốt/i)) && (p.cm.match(/khá|giỏi/i)) && (p.cb.match(/khá|tốt/i)) && p.vs >= 40 && p.hsHT >= 95 && p.hsXS >= 15 && p.hsT >= 25 && (!p.kn || p.kn.match(/khá|tốt/i))) { xl = "HOÀN THÀNH TỐT NHIỆM VỤ"; c = "#007bff"; }
+            else if (tH >= 100 && (p.cnn.match(/đạt|tb|khá|tốt/i)) && (p.cm.match(/tb|khá|giỏi/i)) && p.hsHT >= 90 && p.hsXS >= 10 && p.hsT >= 20 && (!p.kn || !p.kn.includes("chưa hoàn thành"))) { xl = "HOÀN THÀNH NHIỆM VỤ"; c = "#fd7e14"; }
+        } else {
+            if (p.xs >= 30 && tT >= 100 && p.pb === 0 && (p.sk.match(/xã|tỉnh|quốc/i)) && (!p.kn || p.kn.includes("tốt"))) { xl = "HOÀN THÀNH XUẤT SẮC NHIỆM VỤ"; c = "#28a745"; }
+            else if (tT >= 100 && p.pb === 0 && (!p.kn || p.kn.match(/khá|tốt/i))) { xl = "HOÀN THÀNH TỐT NHIỆM VỤ"; c = "#007bff"; }
+            else if (tH >= 100 && p.pb <= 2 && (!p.kn || !p.kn.includes("chưa hoàn thành"))) { xl = "HOÀN THÀNH NHIỆM VỤ"; c = "#fd7e14"; }
         }
 
-        // --- 2. XÉT DUYỆT CHUẨN NHÂN VIÊN ---
-        if (isNhanVien || !isGiaoVien) { 
-            let nv_XS = (!has.thangXS || p.thangXS >= 30) && 
-                        (!has.thangTot || p.thangTot >= 100) && 
-                        (!has.pheBinh || p.pheBinh === 0) && 
-                        (!has.sangKien || p.sangKien.includes("xã") || p.sangKien.includes("tỉnh") || p.sangKien.includes("quốc")) &&
-                        (!has.kiemNhiem || p.kiemNhiem.includes("tốt") || p.kiemNhiem.includes("không"));
-
-            let nv_Tot = (!has.thangTot || p.thangTot >= 100) && 
-                         (!has.pheBinh || p.pheBinh === 0) &&
-                         (!has.kiemNhiem || p.kiemNhiem.includes("khá") || p.kiemNhiem.includes("tốt") || p.kiemNhiem.includes("không"));
-
-            let nv_HT = (!has.thangHT || p.thangHT >= 100) && 
-                        (!has.pheBinh || p.pheBinh <= 2) &&
-                        (!has.kiemNhiem || !p.kiemNhiem.includes("chưa hoàn thành"));
-
-            if (nv_XS) nvLevel = 4;
-            else if (nv_Tot) nvLevel = 3;
-            else if (nv_HT) nvLevel = 2;
-        }
-
-        // Chốt mức xếp loại cao nhất
-        let finalLevel = Math.max(gvLevel, nvLevel);
-        let textXepLoai = "CHƯA HOÀN THÀNH NHIỆM VỤ";
-        let color = "#dc3545"; // Đỏ
-
-        if (finalLevel === 4) { textXepLoai = "HOÀN THÀNH XUẤT SẮC NHIỆM VỤ"; color = "#28a745"; } // Xanh lá
-        if (finalLevel === 3) { textXepLoai = "HOÀN THÀNH TỐT NHIỆM VỤ"; color = "#007bff"; } // Xanh dương
-        if (finalLevel === 2) { textXepLoai = "HOÀN THÀNH NHIỆM VỤ"; color = "#fd7e14"; } // Cam
-
-        // Hiển thị trực quan Xếp loại và Tổng điểm
-        const elXepLoai = document.getElementById("hienThiXepLoai");
-        elXepLoai.innerHTML = `<span style="text-transform: uppercase;">${textXepLoai}</span> <br><span style="font-size: 18px; color: #0056b3;">(Tổng điểm phần 2: ${tongDiem.toFixed(1)} điểm)</span>`;
-        elXepLoai.style.color = color;
+        const el = document.getElementById("hienThiXepLoai");
+        el.innerHTML = `<span style="text-transform: uppercase;">${xl}</span> <br><span style="font-size: 18px; color: #0056b3;">(Tổng điểm Phần 2: ${d2.toFixed(1)} điểm)</span>`;
+        el.style.color = c;
     }
 
     async function thucHienGhiNhan() {
-        const rows = document.querySelectorAll("#tableBody tr");
-        const duLieuGhi = [];
-        
+        const rows = document.querySelectorAll("#tableBody tr"), data = [];
         rows.forEach(row => {
-            const tc = row.querySelector(".tieu-chi");
-            const tg = row.querySelector(".thang-gia-tri");
-            const kq = row.querySelector(".input-cell");
-            
-            if (tc && tg && kq) {
-                duLieuGhi.push({
-                    tieuChi: tc.innerText,
-                    thangGiaTri: tg.innerText === 'Quy chế T.Tích' ? 'THANHTICH_HS_DONG' : tg.innerText,
-                    ketQua: kq.value
-                });
-            }
+            const tc = row.querySelector(".tieu-chi"), tg = row.cells[2], kq = row.querySelector(".input-cell");
+            if (tc && tg && kq) data.push({ tieuChi: tc.innerText, thangGiaTri: tg.innerText === 'Quy chế' ? 'THANHTICH_HS_DONG' : tg.innerText, ketQua: kq.value });
         });
-
         hienThiTai(true);
         try {
-            await fetch(API_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ tenHoSo: tenHoSoHienTai, dinhDanh: dinhDanhHienTai, data: duLieuGhi })
-            });
-            alert("Đã lưu trữ kết quả đánh giá an toàn vào hệ thống nhà trường!");
-        } catch (err) { alert("Có sự cố trong quá trình đồng bộ."); }
+            await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ tenHoSo: tenHoSoHienTai, dinhDanh: dinhDanhHienTai, data: data }) });
+            alert("Đã lưu kết quả đánh giá thành công!");
+        } catch (err) { alert("Lỗi khi gửi dữ liệu."); }
         hienThiTai(false);
     }
-
-    function hienThiTai(isLoad) { document.getElementById("loading").style.display = isLoad ? "block" : "none"; }
+    function hienThiTai(l) { document.getElementById("loading").style.display = l ? "block" : "none"; }
 </script>
 
 </body>
