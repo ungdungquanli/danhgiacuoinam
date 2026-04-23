@@ -33,10 +33,11 @@
         .input-cell { width: 100%; border: 1px solid #ddd; padding: 8px; box-sizing: border-box; font-family: inherit; font-size: 15px; }
         
         .hs-panel { background: #f1f8ff; border: 1px solid #b8daff; padding: 10px; border-radius: 4px; }
-        .hs-controls select, .hs-controls input { padding: 5px; margin: 2px; font-family: inherit; }
-        .hs-ketqua { margin-top: 10px; font-weight: bold; color: #d9534f; white-space: pre-line; }
+        .hs-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .hs-controls select, .hs-controls input { padding: 6px; font-family: inherit; border: 1px solid #ccc; border-radius: 3px; }
+        .hs-controls label { font-weight: bold; color: var(--primary); margin-left: 5px; }
+        .hs-ketqua { margin-top: 10px; font-weight: bold; color: #d9534f; white-space: pre-line; background: #fff; padding: 8px; border: 1px dashed #dc3545; }
 
-        /* Khối hiển thị kết quả Live */
         .live-result-box { background: #e9ecef; border-left: 5px solid var(--primary); padding: 15px 20px; margin-top: 25px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;}
         .live-result-box h3 { margin: 0; color: #333; font-size: 18px;}
         .live-rating { font-size: 22px; font-weight: bold; color: #dc3545; text-transform: uppercase;}
@@ -75,9 +76,9 @@
             <thead>
                 <tr>
                     <th width="5%">STT</th>
-                    <th width="30%">Tên tiêu chí</th>
-                    <th width="20%">Thang giá trị</th>
-                    <th width="45%">Kết quả đạt được</th>
+                    <th width="25%">Tên tiêu chí</th>
+                    <th width="15%">Thang giá trị</th>
+                    <th width="55%">Kết quả đạt được</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -112,14 +113,14 @@
                 xayDungBang(result.data);
                 document.getElementById("lookupArea").classList.add("hidden");
                 document.getElementById("mainArea").classList.remove("hidden");
-                tinhToanXepLoaiQuyChe(); // Chạy tính toán lần đầu khi load form
+                tinhToanXepLoaiQuyChe();
             } else { alert(result.message); }
         } catch (err) { alert("Đường truyền gián đoạn. Vui lòng kiểm tra mạng."); }
         hienThiTai(false);
     }
 
     /**
-     * MÔ-ĐUN DỰNG BẢNG VÀ GẮN SỰ KIỆN LẮNG NGHE TỰ ĐỘNG
+     * MÔ-ĐUN DỰNG BẢNG
      */
     function xayDungBang(data) {
         const body = document.getElementById("tableBody");
@@ -134,15 +135,16 @@
                 htmlNhapLieu = `
                     <div class="hs-panel">
                         <div class="hs-controls">
-                            <select id="hs_cap_${index}"><option value="Quốc gia">Cấp Quốc gia</option><option value="Tỉnh">Cấp Tỉnh</option><option value="Xã">Cấp Xã/Cụm</option></select>
+                            <select id="hs_cap_${index}"><option value="Quốc gia">Cấp Quốc gia</option><option value="Tỉnh">Cấp Tỉnh</option><option value="Xã">Cấp Xã/Cụm/KV</option></select>
                             <select id="hs_giai_${index}"><option value="Nhất">Giải Nhất</option><option value="Nhì">Giải Nhì</option><option value="Ba">Giải Ba</option><option value="Khuyến khích">Khuyến khích</option></select>
                             <select id="hs_hinhthuc_${index}"><option value="Cá nhân">Cá nhân</option><option value="Tập thể">Tập thể (x1.5)</option></select>
-                            <input type="number" id="hs_sl_${index}" value="1" min="1" style="width: 50px;">
+                            <label>Số lượng HS:</label>
+                            <input type="number" id="hs_sl_${index}" value="1" min="1" style="width: 60px;">
                             <button class="btn btn-blue btn-small" onclick="congDiemHS(${index})">Thêm</button>
                             <button class="btn btn-red btn-small" onclick="xoaDiemHS(${index})">Xóa làm lại</button>
                         </div>
-                        <div id="hs_hienthi_${index}" class="hs-ketqua">${ketQuaLuu ? ketQuaLuu.replace(/\\n/g, '<br>') : ''}</div>
-                        <input type="hidden" class="input-cell" id="hs_hidden_${index}" value="${ketQuaLuu}">
+                        <div id="hs_hienthi_${index}" class="hs-ketqua">${ketQuaLuu ? ketQuaLuu.replace(/\\n/g, '<br>') : 'Chưa có dữ liệu thành tích...'}</div>
+                        <input type="hidden" class="input-cell trigger-calc" id="hs_hidden_${index}" value="${ketQuaLuu}">
                     </div>
                 `;
             } else if (thangGiaTri.includes("|")) {
@@ -168,7 +170,6 @@
             body.insertAdjacentHTML('beforeend', row);
         });
 
-        // Gắn sự kiện thay đổi dữ liệu để tự động xếp loại
         document.querySelectorAll(".trigger-calc").forEach(el => {
             el.addEventListener('input', tinhToanXepLoaiQuyChe);
             el.addEventListener('change', tinhToanXepLoaiQuyChe);
@@ -176,7 +177,7 @@
     }
 
     /**
-     * BỘ MÁY TÍNH ĐIỂM THÀNH TÍCH HỌC SINH TỰ ĐỘNG
+     * BỘ MÁY TÍNH ĐIỂM THÀNH TÍCH HỌC SINH TƯỜNG MINH
      */
     function congDiemHS(index) {
         const cap = document.getElementById(`hs_cap_${index}`).value;
@@ -184,28 +185,39 @@
         const hinhthuc = document.getElementById(`hs_hinhthuc_${index}`).value;
         const sl = parseInt(document.getElementById(`hs_sl_${index}`).value) || 1;
 
+        // Nội suy điểm gốc theo cấp và giải
         let diemGoc = (cap==="Quốc gia") ? (giai==="Nhất"?10:giai==="Nhì"?8:giai==="Ba"?6:4) : 
                       (cap==="Tỉnh") ? (giai==="Nhất"?8:giai==="Nhì"?6:giai==="Ba"?4:2) : 
                       (giai==="Nhất"?6:giai==="Nhì"?4:giai==="Ba"?2:1);
         
-        let diemTong = diemGoc * (hinhthuc === "Tập thể" ? 1.5 : 1) * sl;
-        let chuoiGhiNhan = `+ ${sl} Giải ${giai} cấp ${cap} (${hinhthuc}): ${diemTong}đ\n`;
+        // Nhân hệ số tập thể (1.5)
+        let diemMotGiai = diemGoc * (hinhthuc === "Tập thể" ? 1.5 : 1);
+        
+        // Tính tổng điểm cho số lượng học sinh đó
+        let diemTong = diemMotGiai * sl;
+
+        // Tạo chuỗi ghi nhận TƯỜNG MINH CÔNG THỨC THEO YÊU CẦU
+        let chuoiGhiNhan = `[Cấp ${cap} - ${hinhthuc}] ${sl} Học sinh x Giải ${giai} (${diemMotGiai}đ) = ${diemTong} điểm\n`;
 
         let currentVal = document.getElementById(`hs_hidden_${index}`).value;
+        
+        // Nếu đang hiện chữ báo trống thì xóa đi trước khi thêm
+        if(currentVal.includes("Chưa có dữ liệu")) currentVal = ""; 
+        
         document.getElementById(`hs_hidden_${index}`).value = currentVal ? currentVal + chuoiGhiNhan : chuoiGhiNhan;
         document.getElementById(`hs_hienthi_${index}`).innerHTML = document.getElementById(`hs_hidden_${index}`).value.replace(/\n/g, '<br>');
         
-        tinhToanXepLoaiQuyChe(); // Cập nhật xếp loại ngay lập tức
+        tinhToanXepLoaiQuyChe();
     }
 
     function xoaDiemHS(index) {
         document.getElementById(`hs_hidden_${index}`).value = "";
-        document.getElementById(`hs_hienthi_${index}`).innerHTML = "";
-        tinhToanXepLoaiQuyChe(); // Cập nhật xếp loại ngay lập tức
+        document.getElementById(`hs_hienthi_${index}`).innerHTML = "Chưa có dữ liệu thành tích...";
+        tinhToanXepLoaiQuyChe();
     }
 
     /**
-     * BỘ MÁY SUY LUẬN QUY CHẾ TỰ ĐỘNG (Heuristic Evaluator)
+     * BỘ MÁY SUY LUẬN QUY CHẾ TỰ ĐỘNG
      */
     function tinhToanXepLoaiQuyChe() {
         const rows = document.querySelectorAll("#tableBody tr");
@@ -215,19 +227,17 @@
             gvdg: '', kiemNhiem: '', sangKien: '', giaiHS: '',
             hsHT: 0, hsXS: 0, hsTot: 0
         };
-        let isGiaoVien = false; // Tự động nhận diện đối tượng
+        let isGiaoVien = false;
 
-        // Quét và nội suy giá trị từ bảng
         rows.forEach(row => {
             let tc = row.querySelector(".tieu-chi").innerText.toLowerCase();
             let kq = row.querySelector(".input-cell").value.toLowerCase();
-            let so = parseFloat(kq.match(/[\d\.]+/)?.[0]) || 0; // Tách số liệu
+            let so = parseFloat(kq.match(/[\d\.]+/)?.[0]) || 0; 
 
             if(tc.includes("phê bình")) p.pheBinh = so;
             else if(tc.includes("tháng") && tc.includes("xuất sắc")) p.thangXS = so;
             else if(tc.includes("tháng") && tc.includes("tốt")) p.thangTot = so;
             else if(tc.includes("tháng") && (tc.includes("hoàn thành") || tc.includes("ht"))) p.thangHT = so;
-            
             else if(tc.includes("chuẩn")) { p.chuanNN = kq; isGiaoVien = true; }
             else if(tc.includes("chuyên môn")) { p.chuyenMon = kq; isGiaoVien = true; }
             else if(tc.includes("chuyển biến")) p.chuyenBien = kq;
@@ -236,7 +246,7 @@
             else if(tc.includes("kiêm nhiệm")) p.kiemNhiem = kq;
             else if(tc.includes("sáng kiến")) p.sangKien = kq;
             else if(tc.includes("thành tích") || row.querySelector(".thang-gia-tri").innerText === 'Quy chế T.Tích') {
-                p.giaiHS = row.querySelector(".input-cell").value; // Giữ nguyên chữ hoa/thường để bắt chuỗi
+                p.giaiHS = row.querySelector(".input-cell").value; 
             }
             else if(tc.includes("học sinh") || tc.includes("hs")) {
                 if(tc.includes("xuất sắc")) p.hsXS = so;
@@ -246,13 +256,11 @@
         });
 
         let xepLoai = "Chưa hoàn thành nhiệm vụ";
-        let color = "#dc3545"; // Đỏ mặc định
+        let color = "#dc3545"; 
 
         if (isGiaoVien) {
-            // Check điều kiện giải học sinh cho Xếp loại Xuất sắc theo Quy chế
-            let datGiaiXS = /Nhất cấp Xã|Nhất cấp Tỉnh|Nhất cấp Quốc|Nhì cấp Xã|Nhì cấp Cụm|Nhì cấp Khu|Nhì cấp Tỉnh|Nhì cấp Quốc|Ba cấp Tỉnh|Ba cấp Quốc/i.test(p.giaiHS);
+            let datGiaiXS = /giải nhất cấp xã|giải nhất cấp tỉnh|giải nhất cấp quốc|giải nhì cấp xã|giải nhì cấp cụm|giải nhì cấp khu|giải nhì cấp tỉnh|giải nhì cấp quốc|giải ba cấp tỉnh|giải ba cấp quốc/i.test(p.giaiHS);
 
-            // XÉT DUYỆT GIÁO VIÊN
             if (p.pheBinh === 0 && p.thangXS >= 30 &&
                 p.chuanNN.includes("tốt") && p.chuyenMon.includes("giỏi") && p.chuyenBien.includes("tốt") &&
                 p.vsCD >= 60 && 
@@ -277,7 +285,6 @@
                 xepLoai = "Hoàn thành nhiệm vụ"; color = "#fd7e14";
             }
         } else {
-            // XÉT DUYỆT NHÂN VIÊN
             if (p.thangXS >= 30 && p.pheBinh === 0 && 
                 (p.sangKien.includes("xã") || p.sangKien.includes("tỉnh") || p.sangKien.includes("quốc gia")) &&
                 (!p.kiemNhiem || p.kiemNhiem.includes("tốt"))) {
@@ -298,9 +305,6 @@
         elXepLoai.style.color = color;
     }
 
-    /**
-     * MÔ-ĐUN GHI NHẬN HỒ SƠ
-     */
     async function thucHienGhiNhan() {
         const rows = document.querySelectorAll("#tableBody tr");
         const duLieuGhi = [];
