@@ -77,7 +77,7 @@
         </table>
 
         <div class="live-result-box">
-            <div><h3>DỰ KIẾN KẾT QUẢ ĐÁNH GIÁ:</h3><div style="font-size: 14px; color: #555; margin-top: 5px;"><i>(Tích hợp Bộ quét 30% vượt mức và Giàng buộc cứng)</i></div></div>
+            <div><h3>DỰ KIẾN KẾT QUẢ ĐÁNH GIÁ:</h3><div style="font-size: 14px; color: #555; margin-top: 5px;"><i>(Tuân thủ nghiêm ngặt 8 mục tối thiểu và Luật 30% vượt)</i></div></div>
             <div class="live-rating" id="hienThiXepLoai">CHƯA HOÀN THÀNH NHIỆM VỤ<br><span style="font-size: 18px; color: #0056b3;">(Tổng điểm Phần 2: 0đ)</span></div>
         </div>
 
@@ -86,7 +86,6 @@
 </div>
 
 <script>
-    // ĐƯỜNG DẪN WEB APP CHÍNH THỨC
     const API_URL = "https://script.google.com/macros/s/AKfycbynhXlUEopWNlbpbRaD3e50Y0xwevEXIK53VpmOEWMZfhsSnfqxvFctSPeNMRc7709aHw/exec";
     let dinhDanhHienTai = "", tenHoSoHienTai = "", cauHinhDiemHienTai = {};
     let ketQuaThangTuDong = ""; 
@@ -118,11 +117,10 @@
         const body = document.getElementById("tableBody");
         body.innerHTML = "";
         
-        // 1. Tự động tìm vị trí của dòng bị khoanh đỏ cũ để lấy mốc
         let dongKhoanhDo = data.findIndex(item => item.tieuChi.toLowerCase().includes("kết quả xếp loại hàng tháng") || item.tieuChi.toLowerCase().includes("bình quân cả năm"));
-        
-        // 2. Dịch mục tiêu lên dòng liền kề phía trên (index - 1)
         let dongMucTieu = dongKhoanhDo > 0 ? dongKhoanhDo - 1 : -1;
+
+        let sttCounter = 1; // Biến đếm STT độc lập
 
         data.forEach((item, index) => {
             let tg = (item.thangGiaTri === "undefined" || !item.thangGiaTri) ? "" : item.thangGiaTri.toString().trim();
@@ -130,16 +128,11 @@
             let html = "";
             let isTieuDe = !tg && !item.tieuChi.toLowerCase().includes("phê bình");
 
-            // KIỂM TRA: NẾU ĐÚNG LÀ DÒNG LIỀN KỀ TRÊN THÌ LOAD DỮ LIỆU
             let isAutoLoadField = (index === dongMucTieu);
 
             if (isAutoLoadField) {
                 kq = ketQuaThangTuDong !== "" ? ketQuaThangTuDong : kq;
-                
-                // Tách chữ và số bằng biểu thức chính quy (Thêm dấu cách)
                 if (kq) kq = kq.toString().replace(/([^\s\d])(\d)/g, '$1 $2');
-                
-                // Gắn class 'auto-loaded-data' để máy tính nhận diện khóa logic
                 html = `<input type="text" class="input-cell locked-input auto-loaded-data trigger-calc" value="${kq}" readonly title="Dữ liệu đồng bộ từ máy chủ, không thể chỉnh sửa">`;
             } 
             else if (tg === "THANHTICH_HS_DONG") {
@@ -153,7 +146,14 @@
                 html = `<input type="text" class="input-cell trigger-calc" value="${kq}">`;
             }
 
-            body.insertAdjacentHTML('beforeend', `<tr style="${isTieuDe?'background:#f1f8ff;font-weight:bold;color:var(--primary);':''}"><td align="center">${isTieuDe?"":index+1}</td><td class="tieu-chi">${item.tieuChi}</td><td align="center">${tg==='THANHTICH_HS_DONG'?'Quy chế':tg}</td><td>${isTieuDe?"":html}</td></tr>`);
+            // XỬ LÝ SỐ THỨ TỰ (STT) LIÊN TỤC MÀ BỎ QUA TIÊU ĐỀ
+            let hienThiSTT = "";
+            if (!isTieuDe && item.tieuChi.trim() !== "") {
+                hienThiSTT = sttCounter;
+                sttCounter++;
+            }
+
+            body.insertAdjacentHTML('beforeend', `<tr style="${isTieuDe?'background:#f1f8ff;font-weight:bold;color:var(--primary);':''}"><td align="center">${isTieuDe?"":hienThiSTT}</td><td class="tieu-chi">${item.tieuChi}</td><td align="center">${tg==='THANHTICH_HS_DONG'?'Quy chế':tg}</td><td>${isTieuDe?"":html}</td></tr>`);
         });
         document.querySelectorAll(".trigger-calc").forEach(el => { el.addEventListener('change', tinhToanXepLoaiQuyChe); el.addEventListener('input', tinhToanXepLoaiQuyChe); });
     }
@@ -173,7 +173,7 @@
     function xoaDiemHS(idx) { document.getElementById(`hs_hidden_${idx}`).value = ""; document.getElementById(`hs_hienthi_${idx}`).innerHTML = "Chưa có dữ liệu..."; tinhToanXepLoaiQuyChe(); }
 
     /* ====================================================================
-     * BỘ MÁY SUY LUẬN QUY CHẾ 
+     * BỘ MÁY SUY LUẬN QUY CHẾ
      * ==================================================================== */
     function tinhToanXepLoaiQuyChe() {
         const rows = document.querySelectorAll("#tableBody tr"), role = document.getElementById("doiTuongSelect").value;
@@ -190,7 +190,6 @@
             return false;
         };
 
-        // QUÉT TỪ GIAO DIỆN
         rows.forEach(row => {
             let tcObj = row.querySelector(".tieu-chi");
             if (!tcObj) return;
@@ -207,14 +206,13 @@
                 if (ms) ms.forEach(m => d2 += parseFloat(m.replace(/[^\d\.]/g, '')) || 0);
             }
 
-            // ĐỌC DỮ LIỆU TỪ Ô ĐƯỢC LOAD (Tránh nhầm lẫn với ô phê bình)
             let isAutoLoaded = row.querySelector(".auto-loaded-data") !== null;
 
             if (isAutoLoaded) {
                 if (check(val, /xuất sắc/i)) { p.xs = 100; has.xs = true; }
                 else if (check(val, /tốt/i)) { p.t = 100; has.t = true; }
                 else if (check(val, /hoàn thành|ht/i)) { p.ht = 100; has.ht = true; }
-                return; // Xong ô này thì chuyển dòng khác, không đọc từ khóa bên dưới
+                return;
             }
 
             if (tc.includes("phê bình")) { p.pb = num; has.pb = true; }
@@ -267,38 +265,45 @@
         if (role === "giaovien") {
             let gXS_San = check(p.gHS, /nhất.*(xã|cụm|khu|tỉnh|quốc)|nhì.*(cụm|khu|tỉnh|quốc)|ba.*(tỉnh|quốc)|quốc/i);
             
-            gv_XS = (!has.pb || p.pb === 0) && tongT >= 100 &&
-                    (!has.sk || check(p.sk, /xã|tỉnh|quốc/i)) && 
-                    (!has.cnn || check(p.cnn, /tốt/i)) && (!has.cm || check(p.cm, /giỏi/i)) && 
-                    (!has.cb || check(p.cb, /tốt/i)) && (!has.vs || p.vs >= 60) && 
-                    (!has.gvdg || check(p.gvdg, /trường|xã|cụm|khu|tỉnh|quốc/i)) &&
-                    (!has.gHS || (p.gHS.trim() !== "" && gXS_San)) && 
-                    (!has.hsHT || p.hsHT >= 100) && (!has.hsXS || p.hsXS >= 20) && (!has.hsTot || p.hsTot >= 25) &&
-                    passKN(p.kn, 'XS') && checkVuotMucXS(); 
+            gv_XS = (has.pb && p.pb === 0) && 
+                    (tongT >= 100) &&
+                    (has.cnn && check(p.cnn, /tốt/i)) && 
+                    (has.cm && check(p.cm, /giỏi/i)) && 
+                    (has.cb && check(p.cb, /tốt/i)) && 
+                    (has.vs && p.vs >= 60) && 
+                    (has.gvdg && check(p.gvdg, /trường|xã|cụm|khu|tỉnh|quốc/i)) &&
+                    (has.gHS && p.gHS.trim() !== "" && gXS_San) && 
+                    (has.hsHT && p.hsHT >= 100) && (has.hsXS && p.hsXS >= 20) && (has.hsTot && p.hsTot >= 25) &&
+                    (has.kn && passKN(p.kn, 'XS')) && 
+                    checkVuotMucXS(); 
 
-            gv_Tot = tongT >= 100 &&
-                     (!has.cnn || check(p.cnn, /khá|tốt/i)) && (!has.cm || check(p.cm, /khá|giỏi/i)) && 
-                     (!has.cb || check(p.cb, /khá|tốt/i)) && (!has.vs || p.vs >= 40) && 
-                     (!has.hsHT || p.hsHT >= 95) && (!has.hsXS || p.hsXS >= 15) && (!has.hsTot || p.hsTot >= 25) &&
-                     passKN(p.kn, 'Tốt');
+            gv_Tot = (tongT >= 100) &&
+                     (has.cnn && check(p.cnn, /khá|tốt/i)) && 
+                     (has.cm && check(p.cm, /khá|giỏi/i)) && 
+                     (has.cb && check(p.cb, /khá|tốt/i)) && 
+                     (has.vs && p.vs >= 40) && 
+                     (has.hsHT && p.hsHT >= 95) && (has.hsXS && p.hsXS >= 15) && (has.hsTot && p.hsTot >= 25) &&
+                     (has.kn && passKN(p.kn, 'Tốt'));
 
-            gv_HT = tongH >= 100 &&
-                    (!has.cnn || !check(p.cnn, /chưa đạt/i)) && (!has.cm || !check(p.cm, /yếu|kém/i)) &&
-                    (!has.hsHT || p.hsHT >= 90) && (!has.hsXS || p.hsXS >= 10) && (!has.hsTot || p.hsTot >= 20) &&
-                    passKN(p.kn, 'HT');
+            gv_HT = (tongH >= 100) &&
+                    (has.cnn && !check(p.cnn, /chưa đạt/i)) && 
+                    (has.cm && !check(p.cm, /yếu|kém/i)) &&
+                    (has.hsHT && p.hsHT >= 90) && (has.hsXS && p.hsXS >= 10) && (has.hsTot && p.hsTot >= 20) &&
+                    (has.kn && passKN(p.kn, 'HT'));
 
             if (gv_XS) { xl = "HOÀN THÀNH XUẤT SẮC NHIỆM VỤ"; c = "#28a745"; }
             else if (gv_Tot) { xl = "HOÀN THÀNH TỐT NHIỆM VỤ"; c = "#007bff"; }
             else if (gv_HT) { xl = "HOÀN THÀNH NHIỆM VỤ"; c = "#fd7e14"; }
             
         } else {
-            nv_XS = tongT >= 100 && (!has.pb || p.pb === 0) &&
-                    (!has.sk || (p.sk.trim() !== "" && check(p.sk, /xã|tỉnh|quốc/i))) && 
-                    passKN(p.kn, 'XS') && checkVuotMucXS();
+            nv_XS = tongT >= 100 && (has.pb && p.pb === 0) &&
+                    (has.sk && check(p.sk, /xã|tỉnh|quốc/i)) && 
+                    (has.kn && passKN(p.kn, 'XS')) && 
+                    checkVuotMucXS();
 
-            nv_Tot = tongT >= 100 && (!has.pb || p.pb === 0) && passKN(p.kn, 'Tốt');
+            nv_Tot = tongT >= 100 && (!has.pb || p.pb === 0) && (!has.kn || passKN(p.kn, 'Tốt'));
 
-            nv_HT = tongH >= 100 && (!has.pb || p.pb <= 2) && passKN(p.kn, 'HT');
+            nv_HT = tongH >= 100 && (!has.pb || p.pb <= 2) && (!has.kn || passKN(p.kn, 'HT'));
 
             if (nv_XS) { xl = "HOÀN THÀNH XUẤT SẮC NHIỆM VỤ"; c = "#28a745"; }
             else if (nv_Tot) { xl = "HOÀN THÀNH TỐT NHIỆM VỤ"; c = "#007bff"; }
