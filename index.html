@@ -74,7 +74,7 @@
         </table>
 
         <div class="live-result-box">
-            <div><h3>DỰ KIẾN KẾT QUẢ ĐÁNH GIÁ:</h3><div style="font-size: 14px; color: #555; margin-top: 5px;"><i>(Tự động nội suy luật 30% vượt mức)</i></div></div>
+            <div><h3>DỰ KIẾN KẾT QUẢ ĐÁNH GIÁ:</h3><div style="font-size: 14px; color: #555; margin-top: 5px;"><i>(Tuân thủ nghiêm ngặt điều kiện tối thiểu)</i></div></div>
             <div class="live-rating" id="hienThiXepLoai">CHƯA HOÀN THÀNH NHIỆM VỤ<br><span style="font-size: 18px; color: #0056b3;">(Tổng điểm Phần 2: 0đ)</span></div>
         </div>
 
@@ -147,7 +147,8 @@
     function xoaDiemHS(idx) { document.getElementById(`hs_hidden_${idx}`).value = ""; document.getElementById(`hs_hienthi_${idx}`).innerHTML = "Chưa có dữ liệu..."; tinhToanXepLoaiQuyChe(); }
 
     /* ====================================================================
-     * BỘ MÁY SUY LUẬN QUY CHẾ: VÁ LỖI LOGIC & CẬP NHẬT LUẬT 30% VƯỢT MỨC
+     * BỘ MÁY SUY LUẬN QUY CHẾ: GIÀNG BUỘC CỨNG THEO TIÊU CHUẨN TỐI THIỂU
+     * Đã bỏ điều kiện 30% Xuất sắc, giữ nguyên mọi thứ khác + Sáng kiến
      * ==================================================================== */
     function tinhToanXepLoaiQuyChe() {
         const rows = document.querySelectorAll("#tableBody tr"), role = document.getElementById("doiTuongSelect").value;
@@ -196,64 +197,18 @@
             else if (tc.includes("kiêm nhiệm")) { p.kn = val; has.kn = true; }
         });
 
+        // 2. Logic cộng dồn tỷ lệ bao hàm (Đạt XS cũng là đạt Tốt/HT)
         let tongT = p.xs + p.t;
         let tongH = tongT + p.ht;
 
-        // 2. BỘ ĐẾM LUẬT 30% VƯỢT MỨC CHUẨN
-        const checkVuotMuc = (level) => {
-            let tong = 0; let vuot = 0;
-            if (level === 4) { // XUẤT SẮC
-                if (has.t || has.xs) { tong++; if (p.xs > 0) vuot++; } // Có tháng XS là vượt chuẩn Tốt
-                if (has.cnn) tong++; 
-                if (has.cm) tong++; 
-                if (has.cb) tong++; 
-                if (role === "giaovien") {
-                    if (has.vs) { tong++; if (p.vs > 60) vuot++; }
-                    if (has.gvdg) { tong++; if (check(p.gvdg, /xã|cụm|khu|tỉnh|quốc/i)) vuot++; }
-                    if (has.gHS) { tong++; if (check(p.gHS, /quốc|tỉnh.*(nhất|nhì)|nhất.*(cụm|khu)/i)) vuot++; }
-                    if (has.hsHT) { tong++; if (p.hsHT > 100) vuot++; }
-                    if (has.hsXS) { tong++; if (p.hsXS > 20) vuot++; }
-                    if (has.hsTot) { tong++; if (p.hsTot > 25) vuot++; }
-                }
-                if (has.sk) { tong++; if (check(p.sk, /tỉnh|quốc/i)) vuot++; }
-                if (has.kn) tong++;
-            } else if (level === 3) { // TỐT
-                if (has.t || has.xs) { tong++; if (p.xs > 0) vuot++; }
-                if (has.cnn) { tong++; if (check(p.cnn, /tốt/i)) vuot++; }
-                if (has.cm) { tong++; if (check(p.cm, /giỏi/i)) vuot++; }
-                if (has.cb) { tong++; if (check(p.cb, /tốt/i)) vuot++; }
-                if (role === "giaovien") {
-                    if (has.vs) { tong++; if (p.vs > 40) vuot++; }
-                    if (has.hsHT) { tong++; if (p.hsHT > 95) vuot++; }
-                    if (has.hsXS) { tong++; if (p.hsXS > 15) vuot++; }
-                    if (has.hsTot) { tong++; if (p.hsTot > 25) vuot++; }
-                }
-                if (has.sk) { tong++; if (check(p.sk, /xã|tỉnh|quốc/i)) vuot++; }
-                if (has.kn) { tong++; if (check(p.kn, /tốt/i)) vuot++; }
-            } else if (level === 2) { // HOÀN THÀNH
-                if (has.ht || has.t || has.xs) { tong++; if (tongT > 0) vuot++; }
-                if (has.cnn) { tong++; if (check(p.cnn, /khá|tốt/i)) vuot++; }
-                if (has.cm) { tong++; if (check(p.cm, /khá|giỏi/i)) vuot++; }
-                if (role === "giaovien") {
-                    if (has.hsHT) { tong++; if (p.hsHT > 90) vuot++; }
-                    if (has.hsXS) { tong++; if (p.hsXS > 10) vuot++; }
-                    if (has.hsTot) { tong++; if (p.hsTot > 20) vuot++; }
-                }
-                if (has.pb) { tong++; if (p.pb < 2) vuot++; }
-                if (has.kn) { tong++; if (check(p.kn, /khá|tốt/i)) vuot++; }
-            }
-            if (tong === 0) return true;
-            return (vuot / tong) >= 0.3; // 30% điều kiện được coi là Vượt mức
-        };
-
-        // 3. ĐÁNH GIÁ THEO LUẬT MỚI
+        // 3. ĐÁNH GIÁ THEO ĐIỀU KIỆN GIÀNG BUỘC CỨNG (STRICT)
         let xl = "CHƯA HOÀN THÀNH NHIỆM VỤ", c = "#dc3545";
         let gv_XS = false, gv_Tot = false, gv_HT = false, nv_XS = false, nv_Tot = false, nv_HT = false;
         
         if (role === "giaovien") {
             let gXS = check(p.gHS, /nhất.*(xã|cụm|khu|tỉnh|quốc)|nhì.*(cụm|khu|tỉnh|quốc)|ba.*(tỉnh|quốc)/i);
             
-            // Lệnh bỏ 30% XS, thay bằng tongT >= 100 và thêm Sáng kiến
+            // XUẤT SẮC: Bỏ p.xs >= 30, yêu cầu tongT >= 100, bổ sung Sáng kiến (cấp xã trở lên)
             gv_XS = (!has.pb || p.pb === 0) && tongT >= 100 &&
                     (!has.sk || check(p.sk, /xã|tỉnh|quốc/i)) && 
                     (!has.cnn || check(p.cnn, /tốt/i)) && (!has.cm || check(p.cm, /giỏi/i)) && 
@@ -261,30 +216,35 @@
                     (!has.gvdg || check(p.gvdg, /trường|xã|cụm|khu|tỉnh|quốc/i)) &&
                     (!has.gHS || p.gHS.trim() === "" || gXS) && 
                     (!has.hsHT || p.hsHT >= 100) && (!has.hsXS || p.hsXS >= 20) && (!has.hsTot || p.hsTot >= 25) &&
-                    passKN(p.kn, 'XS') && checkVuotMuc(4);
+                    passKN(p.kn, 'XS');
 
+            // TỐT
             gv_Tot = tongT >= 100 &&
                      (!has.cnn || check(p.cnn, /khá|tốt/i)) && (!has.cm || check(p.cm, /khá|giỏi/i)) && 
                      (!has.cb || check(p.cb, /khá|tốt/i)) && (!has.vs || p.vs >= 40) && 
                      (!has.hsHT || p.hsHT >= 95) && (!has.hsXS || p.hsXS >= 15) && (!has.hsTot || p.hsTot >= 25) &&
-                     passKN(p.kn, 'Tốt') && checkVuotMuc(3);
+                     passKN(p.kn, 'Tốt');
 
+            // HOÀN THÀNH
             gv_HT = tongH >= 100 &&
                     (!has.cnn || !check(p.cnn, /chưa đạt/i)) && (!has.cm || !check(p.cm, /yếu|kém/i)) &&
                     (!has.hsHT || p.hsHT >= 90) && (!has.hsXS || p.hsXS >= 10) && (!has.hsTot || p.hsTot >= 20) &&
-                    passKN(p.kn, 'HT') && checkVuotMuc(2);
+                    passKN(p.kn, 'HT');
 
             if (gv_XS) { xl = "HOÀN THÀNH XUẤT SẮC NHIỆM VỤ"; c = "#28a745"; }
             else if (gv_Tot) { xl = "HOÀN THÀNH TỐT NHIỆM VỤ"; c = "#007bff"; }
             else if (gv_HT) { xl = "HOÀN THÀNH NHIỆM VỤ"; c = "#fd7e14"; }
             
         } else {
+            // XUẤT SẮC NHÂN VIÊN: Bỏ p.xs >= 30, yêu cầu tongT >= 100
             nv_XS = tongT >= 100 && (!has.pb || p.pb === 0) &&
-                    (!has.sk || check(p.sk, /xã|tỉnh|quốc/i)) && passKN(p.kn, 'XS') && checkVuotMuc(4);
+                    (!has.sk || check(p.sk, /xã|tỉnh|quốc/i)) && passKN(p.kn, 'XS');
 
-            nv_Tot = tongT >= 100 && (!has.pb || p.pb === 0) && passKN(p.kn, 'Tốt') && checkVuotMuc(3);
+            // TỐT
+            nv_Tot = tongT >= 100 && (!has.pb || p.pb === 0) && passKN(p.kn, 'Tốt');
 
-            nv_HT = tongH >= 100 && (!has.pb || p.pb <= 2) && passKN(p.kn, 'HT') && checkVuotMuc(2);
+            // HOÀN THÀNH
+            nv_HT = tongH >= 100 && (!has.pb || p.pb <= 2) && passKN(p.kn, 'HT');
 
             if (nv_XS) { xl = "HOÀN THÀNH XUẤT SẮC NHIỆM VỤ"; c = "#28a745"; }
             else if (nv_Tot) { xl = "HOÀN THÀNH TỐT NHIỆM VỤ"; c = "#007bff"; }
