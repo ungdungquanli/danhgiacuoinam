@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Đánh Giá Xếp Loại - TH&THCS Hợp Thành</title>
+    <style>
+        /* PHONG CÁCH HÀNH CHÍNH GIÁO DỤC */
+        :root { --primary: #0056b3; --bg: #f8f9fa; --text: #212529; }
+        body { font-family: 'Times New Roman', Times, serif; background-color: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 20px; }
+        .container { max-width: 950px; margin: 0 auto; background: white; padding: 40px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid var(--primary); padding-bottom: 20px; }
+        .header h1 { font-size: 24px; color: var(--primary); text-transform: uppercase; margin: 10px 0; }
+        .header h2 { font-size: 18px; font-weight: normal; margin: 0; }
+
+        /* KHỐI CAM KẾT BẢO MẬT THEO CHỈ ĐẠO */
+        .security-box { margin: 20px 0; padding: 15px; border: 1px solid #dee2e6; border-radius: 4px; background: #fff; }
+        .security-title { text-align: left; font-weight: bold; margin-bottom: 10px; }
+        .security-content { text-align: center; }
+
+        .login-form { text-align: center; margin: 30px 0; }
+        input[type="email"] { width: 300px; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 16px; margin-right: 10px; }
+        
+        .btn { padding: 10px 25px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; transition: 0.3s; }
+        .btn-blue { background: var(--primary); color: white; }
+        .btn-blue:hover { background: #004494; }
+        .btn-green { background: #28a745; color: white; width: 100%; margin-top: 20px; font-size: 18px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; }
+        th, td { border: 1px solid #dee2e6; padding: 12px; text-align: left; }
+        th { background: #e9ecef; color: var(--primary); text-align: center; }
+        .input-cell { width: 100%; border: 1px solid #ddd; padding: 8px; box-sizing: border-box; font-family: inherit; }
+        
+        #loading { display: none; color: var(--primary); font-style: italic; text-align: center; margin: 20px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>TRƯỜNG TH&THCS HỢP THÀNH</h2>
+        <h1>Hệ Thống Đánh Giá Xếp Loại Viên Chức</h1>
+    </div>
+
+    <div id="loginArea">
+        <div class="security-box">
+            <div class="security-title">Cam kết bảo mật</div>
+            <div class="security-content">
+                Tuyệt đối không thu thập hay lưu trữ thông tin người dùng.
+            </div>
+        </div>
+        
+        <div class="login-form">
+            <input type="email" id="emailInput" placeholder="Nhập Email để đăng nhập..." required>
+            <button class="btn btn-blue" onclick="handleLogin()">VÀO HỆ THỐNG</button>
+        </div>
+    </div>
+
+    <div id="loading">Hệ thống đang đồng bộ dữ liệu, vui lòng đợi...</div>
+
+    <div id="mainArea" class="hidden">
+        <h3 style="color: var(--primary);">Hồ sơ của: <span id="userName" style="color: #d9534f;"></span></h3>
+        <table id="evaluationTable">
+            <thead>
+                <tr>
+                    <th width="5%">STT</th>
+                    <th width="40%">Tên tiêu chí</th>
+                    <th width="20%">Thang giá trị</th>
+                    <th width="35%">Kết quả đạt được</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <button class="btn btn-green" onclick="handleSave()">LƯU KẾT QUẢ ĐÁNH GIÁ</button>
+    </div>
+</div>
+
+<script>
+    // ĐƯỜNG DẪN WEB APP SAU KHI TRIỂN KHAI
+    const API_URL = "DÁN_URL_WEB_APP_CỦA_ĐỒNG_CHÍ_VÀO_ĐÂY";
+    let currentUserEmail = "";
+
+    /**
+     * Hàm Đăng nhập & Tải dữ liệu
+     */
+    async function handleLogin() {
+        const email = document.getElementById("emailInput").value.trim();
+        if (!email) return alert("Vui lòng nhập Email!");
+
+        toggleLoading(true);
+        try {
+            const res = await fetch(`${API_URL}?action=login&email=${encodeURIComponent(email)}`);
+            const result = await res.json();
+
+            if (result.status === 'success') {
+                currentUserEmail = email;
+                document.getElementById("userName").innerText = result.tenSheet;
+                buildTable(result.data);
+                document.getElementById("loginArea").classList.add("hidden");
+                document.getElementById("mainArea").classList.remove("hidden");
+            } else {
+                alert(result.message);
+            }
+        } catch (err) {
+            alert("Lỗi kết nối hệ thống.");
+        }
+        toggleLoading(false);
+    }
+
+    /**
+     * Hàm Xây dựng bảng động
+     */
+    function buildTable(data) {
+        const body = document.getElementById("tableBody");
+        body.innerHTML = "";
+        data.forEach((item, index) => {
+            const row = `<tr>
+                <td align="center">${index + 1}</td>
+                <td class="tieu-chi">${item.tieuChi}</td>
+                <td class="thang-gia-tri" align="center">${item.thangGiaTri}</td>
+                <td><input type="text" class="input-cell" value="${item.ketQua}"></td>
+            </tr>`;
+            body.insertAdjacentHTML('beforeend', row);
+        });
+    }
+
+    /**
+     * Hàm Lưu dữ liệu
+     */
+    async function handleSave() {
+        const rows = document.querySelectorAll("#tableBody tr");
+        const dataToSave = [];
+        
+        rows.forEach(row => {
+            dataToSave.push({
+                tieuChi: row.querySelector(".tieu-chi").innerText,
+                thangGiaTri: row.querySelector(".thang-gia-tri").innerText,
+                ketQua: row.querySelector(".input-cell").value
+            });
+        });
+
+        toggleLoading(true);
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ email: currentUserEmail, data: dataToSave })
+            });
+            alert("Đã gửi lệnh lưu hồ sơ thành công!");
+        } catch (err) {
+            alert("Lỗi khi lưu hồ sơ.");
+        }
+        toggleLoading(false);
+    }
+
+    function toggleLoading(show) {
+        document.getElementById("loading").style.display = show ? "block" : "none";
+    }
+</script>
+
+</body>
+</html>
