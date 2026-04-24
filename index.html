@@ -91,7 +91,7 @@
             </div>
             
             <div class="live-rating" id="hienThiXepLoai" style="flex: 1.2; text-align: right;">
-                <div style="font-size: 24px; font-weight: bold; color: #dc3545; text-transform: uppercase;">CHƯA HOÀN THÀNH NHIỆM VỤ</div>
+                <div style="font-size: 24px; font-weight: bold; color: #dc3545; text-transform: uppercase; white-space: nowrap;">CHƯA HOÀN THÀNH NHIỆM VỤ</div>
                 <div style="font-size: 16px; color: #d9534f; font-weight: normal; margin-top: 5px;">Tổng điểm năm học: 0</div>
             </div>
         </div>
@@ -216,8 +216,6 @@
         let tonTai = { phBinh: false, chNghiep: false, chMon: false, chBien: false, vSach: false, gvDG: false, kNhiem: false, sKien: false, hsGiai: false, hsHT: false, hsXS: false, hsTot: false };
         let tongDiemP2 = 0;
         
-        // ĐÃ SỬA LỖI TRÍCH XUẤT ĐIỂM GÂY TRƯỢT KẾT QUẢ
-        // Biến cờ này sẽ xác định "Có chữ Hoàn thành tốt hoặc Xuất sắc hay không" hoàn toàn độc lập với con số.
         let passThangTot = false;
         let passThangHT = false;
 
@@ -248,7 +246,6 @@
                 if (mangDiem) mangDiem.forEach(m => tongDiemP2 += parseFloat(m.replace(/[^\d\.]/g, '')) || 0);
             }
 
-            // KIỂM TRA DÒNG KẾT QUẢ THÁNG (Loại bỏ ảnh hưởng của điểm số đến kết quả pass/fail)
             let laAutoLoad = dongKiemTra.querySelector(".auto-loaded-data") !== null;
             if (laAutoLoad || tenTC.includes("tháng")) {
                 let numMatch = gTri.match(/\d+([.,]\d+)?/);
@@ -274,10 +271,9 @@
                 }
                 
                 if (laAutoLoad) thamSo.hasAutoLoad = true;
-                return; // Xử lý xong dòng Tháng thì bỏ qua các bước kiểm tra Tên TC khác
+                return; 
             }
 
-            // Xử lý các dòng còn lại
             if (tenTC.includes("phê bình")) { thamSo.phBinh = soLieu; tonTai.phBinh = true; }
             else if (tenTC.includes("chuẩn")) { thamSo.chNghiep = gTri; tonTai.chNghiep = true; }
             else if (tenTC.includes("chuyên môn")) { thamSo.chMon = gTri; tonTai.chMon = true; }
@@ -285,7 +281,6 @@
             else if (tenTC.includes("vở sạch")) { thamSo.vSach = soLieu; tonTai.vSach = true; }
             else if (tenTC.includes("giáo viên giỏi") || tenTC.includes("gvdg")) { thamSo.gvDG = gTri; tonTai.gvDG = true; }
             
-            // CẬP NHẬT: Đưa khối điều kiện "thành tích" lên trước "học sinh" để giải quyết xung đột từ khóa
             else if (tenTC.includes("thành tích") || dongKiemTra.cells[2].innerText === 'Quy chế T.Tích' || dongKiemTra.cells[2].innerText === 'Quy chế') { thamSo.hsGiai = gTri; tonTai.hsGiai = true; }
             else if (tenTC.includes("học sinh") || tenTC.includes("hs") || tenTC.includes("tỷ lệ hs")) {
                 if (tenTC.includes("xuất sắc")) { thamSo.hsXS = soLieu; tonTai.hsXS = true; }
@@ -318,7 +313,6 @@
         if (nhomDoiTuong === "giaovien") {
             let chuanGiai = kiemTraChuoi(thamSo.hsGiai, /quốc|tỉnh|nhất.*(xã|cụm|khu|huyện)|nhì.*(cụm|khu|huyện)/i);
             
-            // THAY THẾ TOÀN BỘ ĐIỀU KIỆN (mucDoT >= 100) BẰNG CỜ passThangTot / passThangHT
             gv_XS = (!tonTai.phBinh || thamSo.phBinh === 0) && 
                     passThangTot &&
                     (tonTai.chNghiep && kiemTraChuoi(thamSo.chNghiep, /tốt/i)) && 
@@ -363,7 +357,6 @@
             else if (nv_HT) { kqThanhLieu = "HOÀN THÀNH NHIỆM VỤ"; mauHienThi = "#fd7e14"; }
         }
 
-        // Dự phòng tính điểm Phần 1 nếu không phải dòng lấy từ API về
         let diemP1HienThi = thamSo.hasAutoLoad ? thamSo.diemPhan1 : (passThangTot ? 100 : (passThangHT ? 60 : 0));
         let diemNamHoc = diemP1HienThi + tongDiemP2;
 
@@ -376,7 +369,7 @@
         
         const khuVucHT = document.getElementById("hienThiXepLoai");
         khuVucHT.innerHTML = `
-            <div style="font-size: 24px; font-weight: bold; color: ${mauHienThi}; text-transform: uppercase;">${kqThanhLieu}</div>
+            <div style="font-size: 24px; font-weight: bold; color: ${mauHienThi}; text-transform: uppercase; white-space: nowrap;">${kqThanhLieu}</div>
             <div style="font-size: 16px; color: #d9534f; font-weight: normal; margin-top: 5px;">Tổng điểm năm học: ${strDiemNH}</div>
         `;
     }
