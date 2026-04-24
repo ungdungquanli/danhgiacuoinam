@@ -92,8 +92,7 @@
             
             <div class="live-rating" id="hienThiXepLoai" style="flex: 1;">
                 CHƯA HOÀN THÀNH NHIỆM VỤ<br>
-                <span style="font-size: 16px; color: #d9534f; font-weight: normal;">Tổng điểm năm học:</span><br>
-                <span style="font-size: 18px; color: #0056b3;">(Tổng điểm Phần 2: 0đ)</span>
+                <span style="font-size: 16px; color: #d9534f; font-weight: normal;">Tổng điểm năm học: 0</span>
             </div>
         </div>
 
@@ -345,11 +344,12 @@
         document.getElementById("hienThiDiemP1").innerText = `Tổng điểm phần 1: ${mucDoH}`;
         document.getElementById("hienThiDiemP2").innerText = `Tổng điểm phần 2: ${tongDiemP2.toFixed(1)}`;
         
+        let diemNamHoc = (mucDoH + tongDiemP2).toFixed(1);
+        
         const khuVucHT = document.getElementById("hienThiXepLoai");
         khuVucHT.innerHTML = `
             <span style="text-transform: uppercase; color: ${mauHienThi};">${kqThanhLieu}</span><br>
-            <span style="font-size: 16px; color: #d9534f; font-weight: normal;">Tổng điểm năm học:</span><br>
-            <span style="font-size: 18px; color: #0056b3;">(Tổng điểm Phần 2: ${tongDiemP2.toFixed(1)} điểm)</span>
+            <span style="font-size: 16px; color: #d9534f; font-weight: normal;">Tổng điểm năm học: ${diemNamHoc}</span>
         `;
     }
 
