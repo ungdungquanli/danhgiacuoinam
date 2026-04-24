@@ -1,0 +1,35 @@
+<script>
+// KHỐI LOGIC ĐÁNH GIÁ CHUYÊN BIỆT: NHÂN VIÊN
+function danhGiaNhanVien(thamSo, tonTai, passThangTot, passThangHT) {
+    const kiemTraVuotMucNV = () => {
+        let tuSo = 0;
+        if (kiemTraChuoi(thamSo.sKien, /huyện|tỉnh|quốc/i)) tuSo++;
+        if (kiemTraChuoi(thamSo.kNhiem, /xuất sắc/i)) tuSo++;
+        return tuSo >= (3 * 0.3); // Mẫu số là 3
+    };
+
+    let nv_XS = passThangTot && (!tonTai.phBinh || thamSo.phBinh === 0) &&
+            (tonTai.chNghiep && kiemTraChuoi(thamSo.chNghiep, /tốt/i)) && 
+            (tonTai.chMon && kiemTraChuoi(thamSo.chMon, /giỏi/i)) && 
+            (tonTai.chBien && kiemTraChuoi(thamSo.chBien, /tốt/i)) && 
+            (tonTai.sKien && thamSo.sKien.trim() !== "" && kiemTraChuoi(thamSo.sKien, /xã|huyện|cụm|tỉnh|quốc/i)) && 
+            xetKiemNhiem(thamSo.kNhiem, 'XS') && kiemTraVuotMucNV();
+
+    let nv_Tot = passThangTot && (!tonTai.phBinh || thamSo.phBinh === 0) && 
+             (tonTai.chNghiep && kiemTraChuoi(thamSo.chNghiep, /khá|tốt/i)) && 
+             (tonTai.chMon && kiemTraChuoi(thamSo.chMon, /khá|giỏi/i)) && 
+             (tonTai.chBien && kiemTraChuoi(thamSo.chBien, /khá|tốt/i)) && 
+             xetKiemNhiem(thamSo.kNhiem, 'Tốt');
+
+    let nv_HT = passThangHT && (!tonTai.phBinh || thamSo.phBinh <= 2) && 
+            (tonTai.chNghiep && !kiemTraChuoi(thamSo.chNghiep, /chưa đạt|kém/i)) && 
+            (tonTai.chMon && !kiemTraChuoi(thamSo.chMon, /yếu|kém/i)) &&
+            xetKiemNhiem(thamSo.kNhiem, 'HT');
+
+    if (nv_XS) return { kqThanhLieu: "HOÀN THÀNH XUẤT SẮC NHIỆM VỤ", mauHienThi: "#28a745" };
+    if (nv_Tot) return { kqThanhLieu: "HOÀN THÀNH TỐT NHIỆM VỤ", mauHienThi: "#007bff" };
+    if (nv_HT) return { kqThanhLieu: "HOÀN THÀNH NHIỆM VỤ", mauHienThi: "#fd7e14" };
+    
+    return { kqThanhLieu: "CHƯA HOÀN THÀNH NHIỆM VỤ", mauHienThi: "#dc3545" };
+}
+</script>

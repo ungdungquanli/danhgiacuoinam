@@ -1,0 +1,47 @@
+<script>
+// KHỐI LOGIC ĐÁNH GIÁ CHUYÊN BIỆT: GIÁO VIÊN
+function danhGiaGiaoVien(thamSo, tonTai, passThangTot, passThangHT) {
+    const kiemTraVuotMucGV = () => {
+        let tuSo = 0;
+        if (thamSo.vSach > 60) tuSo++; 
+        if (kiemTraChuoi(thamSo.gvDG, /xã|huyện|cụm|khu|tỉnh|quốc/i)) tuSo++; 
+        if (kiemTraChuoi(thamSo.hsGiai, /quốc|tỉnh|nhất.*(cụm|khu|huyện|xã)/i)) tuSo++; 
+        if (thamSo.hsXS > 20 || thamSo.hsTot > 25) tuSo++; 
+        return tuSo >= (8 * 0.3); // Mẫu số là 8
+    };
+
+    let chuanGiai = kiemTraChuoi(thamSo.hsGiai, /quốc|tỉnh|nhất.*(xã|cụm|khu|huyện)|nhì.*(cụm|khu|huyện)/i);
+    
+    let gv_XS = (!tonTai.phBinh || thamSo.phBinh === 0) && 
+            passThangTot &&
+            (tonTai.chNghiep && kiemTraChuoi(thamSo.chNghiep, /tốt/i)) && 
+            (tonTai.chMon && kiemTraChuoi(thamSo.chMon, /giỏi/i)) && 
+            (tonTai.chBien && kiemTraChuoi(thamSo.chBien, /tốt/i)) && 
+            (tonTai.vSach && thamSo.vSach >= 60) && 
+            (tonTai.gvDG && kiemTraChuoi(thamSo.gvDG, /trường|xã|huyện|cụm|khu|tỉnh|quốc/i)) &&
+            (tonTai.hsGiai && thamSo.hsGiai.trim() !== "" && chuanGiai) && 
+            (tonTai.hsHT && thamSo.hsHT >= 100) && (tonTai.hsXS && thamSo.hsXS >= 20) && (tonTai.hsTot && thamSo.hsTot >= 25) &&
+            (tonTai.kNhiem && xetKiemNhiem(thamSo.kNhiem, 'XS')) && 
+            kiemTraVuotMucGV(); 
+
+    let gv_Tot = passThangTot &&
+             (tonTai.chNghiep && kiemTraChuoi(thamSo.chNghiep, /khá|tốt/i)) && 
+             (tonTai.chMon && kiemTraChuoi(thamSo.chMon, /khá|giỏi/i)) && 
+             (tonTai.chBien && kiemTraChuoi(thamSo.chBien, /khá|tốt/i)) && 
+             (tonTai.vSach && thamSo.vSach >= 40) && 
+             (tonTai.hsHT && thamSo.hsHT >= 95) && (tonTai.hsXS && thamSo.hsXS >= 15) && (tonTai.hsTot && thamSo.hsTot >= 25) &&
+             (tonTai.kNhiem && xetKiemNhiem(thamSo.kNhiem, 'Tốt'));
+
+    let gv_HT = passThangTot && 
+            (tonTai.chNghiep && !kiemTraChuoi(thamSo.chNghiep, /chưa đạt|kém/i)) && 
+            (tonTai.chMon && !kiemTraChuoi(thamSo.chMon, /yếu|kém/i)) &&
+            (tonTai.hsHT && thamSo.hsHT >= 90) && (tonTai.hsXS && thamSo.hsXS >= 10) && (tonTai.hsTot && thamSo.hsTot >= 20) &&
+            (tonTai.kNhiem && xetKiemNhiem(thamSo.kNhiem, 'HT'));
+
+    if (gv_XS) return { kqThanhLieu: "HOÀN THÀNH XUẤT SẮC NHIỆM VỤ", mauHienThi: "#28a745" };
+    if (gv_Tot) return { kqThanhLieu: "HOÀN THÀNH TỐT NHIỆM VỤ", mauHienThi: "#007bff" };
+    if (gv_HT) return { kqThanhLieu: "HOÀN THÀNH NHIỆM VỤ", mauHienThi: "#fd7e14" };
+    
+    return { kqThanhLieu: "CHƯA HOÀN THÀNH NHIỆM VỤ", mauHienThi: "#dc3545" };
+}
+</script>
