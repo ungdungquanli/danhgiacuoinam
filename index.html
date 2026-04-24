@@ -104,6 +104,10 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbynhXlUEopWNlbpbRaD3e50Y0xwevEXIK53VpmOEWMZfhsSnfqxvFctSPeNMRc7709aHw/exec";
     let dinhDanhHienTai = "", tenHoSoHienTai = "", cauHinhDiemHienTai = {};
     let ketQuaThangTuDong = ""; 
+    
+    // BIẾN TOÀN CỤC MỚI ĐỂ LƯU CHỮ KẾT QUẢ XẾP LOẠI 
+    let ketQuaXepLoaiCuoiCung = ""; 
+    let tongDiemCuoiCung = "";
 
     async function thucHienTraCuu() {
         const thongTin = document.getElementById("dinhDanhInput").value.trim();
@@ -364,6 +368,10 @@
         let strDiemP2 = tongDiemP2 % 1 === 0 ? tongDiemP2 : tongDiemP2.toFixed(1);
         let strDiemNH = diemNamHoc % 1 === 0 ? diemNamHoc : diemNamHoc.toFixed(1);
 
+        // Ghi lại biến môi trường trước khi thiết lập giao diện
+        ketQuaXepLoaiCuoiCung = kqThanhLieu;
+        tongDiemCuoiCung = strDiemNH;
+
         document.getElementById("hienThiDiemP1").innerText = `Tổng điểm phần 1: ${strDiemP1}`;
         document.getElementById("hienThiDiemP2").innerText = `Tổng điểm phần 2: ${strDiemP2}`;
         
@@ -382,7 +390,18 @@
         });
         hienThiTai(true);
         try {
-            await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ tenHoSo: tenHoSoHienTai, dinhDanh: dinhDanhHienTai, data: khoDuLieu }) });
+            // Đã bổ sung 2 trường xepLoai và tongDiem vào gói tin gửi tới Server
+            await fetch(API_URL, { 
+                method: 'POST', 
+                mode: 'no-cors', 
+                body: JSON.stringify({ 
+                    tenHoSo: tenHoSoHienTai, 
+                    dinhDanh: dinhDanhHienTai, 
+                    data: khoDuLieu,
+                    xepLoai: ketQuaXepLoaiCuoiCung,
+                    tongDiem: tongDiemCuoiCung
+                }) 
+            });
             alert("Đã lưu kết quả đánh giá thành công!");
         } catch (err) { alert("Lỗi khi gửi dữ liệu."); }
         hienThiTai(false);
