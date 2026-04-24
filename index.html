@@ -81,7 +81,7 @@
 
         <div class="live-result-box" style="align-items: center;">
             <div style="flex: 1.2;">
-                <h3 style="margin: 0 0 5px 0;">KẾT QUẢ ĐÁNH GIÁ:</h3>
+                <h3 style="margin: 0 0 5px 0;">DỰ KIẾN KẾT QUẢ ĐÁNH GIÁ:</h3>
                 <div style="font-size: 14px; color: #555;"><i>(Xếp loại xuất sắc phải có 30% các tiêu chí phần 2 vượt chỉ tiêu)</i></div>
             </div>
             
@@ -92,7 +92,7 @@
             
             <div class="live-rating" id="hienThiXepLoai" style="flex: 1.2; text-align: right;">
                 <div style="font-size: 24px; font-weight: bold; color: #dc3545; text-transform: uppercase; white-space: nowrap;">CHƯA HOÀN THÀNH NHIỆM VỤ</div>
-                <div style="font-size: 16px; color: #d9534f; font-weight: normal; margin-top: 5px;">Tổng điểm năm học: 0</div>
+                <div style="font-size: 20px; color: #b30000; font-weight: bold; margin-top: 5px;">Tổng điểm năm học: 0</div>
             </div>
         </div>
 
@@ -123,7 +123,7 @@
                 cauHinhDiemHienTai = result.config;
                 ketQuaThangTuDong = result.ketQuaThang || ""; 
                 
-                // CẬP NHẬT: Chỉ đổi tên hiển thị giao diện sang biến tenHienThi (Cột C)
+                // Chỉ đổi tên hiển thị giao diện sang biến tenHienThi (Cột C)
                 document.getElementById("userName").innerText = result.tenHienThi || tenHoSoHienTai;
                 
                 xayDungBang(result.data);
@@ -159,7 +159,9 @@
             else if (tg === "THANHTICH_HS_DONG") {
                 html = `<div class="hs-panel"><div class="hs-controls"><select id="hs_cap_${index}"><option value="QUOCGIA">Quốc gia</option><option value="TINH">Cấp Tỉnh</option><option value="XA">Xã/Cụm</option></select><select id="hs_giai_${index}"><option value="0">Giải Nhất</option><option value="1">Giải Nhì</option><option value="2">Giải Ba</option><option value="3">KK</option></select><select id="hs_loai_${index}"><option value="1">Cá nhân</option><option value="1.5">Tập thể (x1.5)</option></select><input type="number" id="hs_sl_${index}" value="1" min="1" style="width: 50px;"><button class="btn btn-blue btn-small" onclick="congDiemHS(${index})">Thêm giải</button><button class="btn btn-red btn-small" onclick="xoaDiemHS(${index})">Xóa</button></div><div id="hs_hienthi_${index}" class="hs-ketqua">${kq ? kq.replace(/\\n/g, '<br>') : 'Chưa có dữ liệu...'}</div><input type="hidden" class="input-cell trigger-calc" id="hs_hidden_${index}" value="${kq}"></div>`;
             } else if (tg.includes("|")) {
-                html = `<select class="input-cell trigger-calc">` + tg.split(",").map(opt => {
+                // SỬA LỖI #1: Nếu kq trống, chèn option "-- Chọn mức --" mặc định để không tự động ăn điểm tuyệt đối
+                let optDefault = kq ? "" : `<option value="" data-point="0" disabled selected>-- Chọn mức --</option>`;
+                html = `<select class="input-cell trigger-calc">` + optDefault + tg.split(",").map(opt => {
                     let [n, d] = opt.split("|");
                     return `<option value="${n.trim()}" data-point="${d.trim()}" ${kq.includes(n.trim())?'selected':''}>${n.trim()} (${d.trim()}đ)</option>`;
                 }).join("") + `</select>`;
@@ -351,13 +353,24 @@
             else if (gv_HT) { kqThanhLieu = "HOÀN THÀNH NHIỆM VỤ"; mauHienThi = "#fd7e14"; }
             
         } else {
+            // SỬA LỖI #2: Bổ sung 3 lệnh rào cản xét Chuẩn nghề nghiệp, Chuyên môn và Chuyển biến cho đối tượng NHÂN VIÊN.
             nv_XS = passThangTot && (!tonTai.phBinh || thamSo.phBinh === 0) &&
+                    (tonTai.chNghiep && kiemTraChuoi(thamSo.chNghiep, /tốt/i)) && 
+                    (tonTai.chMon && kiemTraChuoi(thamSo.chMon, /giỏi/i)) && 
+                    (tonTai.chBien && kiemTraChuoi(thamSo.chBien, /tốt/i)) && 
                     (tonTai.sKien && thamSo.sKien.trim() !== "" && kiemTraChuoi(thamSo.sKien, /xã|huyện|cụm|tỉnh|quốc/i)) && 
                     xetKiemNhiem(thamSo.kNhiem, 'XS') && kiemTraVuotMuc();
 
-            nv_Tot = passThangTot && (!tonTai.phBinh || thamSo.phBinh === 0) && xetKiemNhiem(thamSo.kNhiem, 'Tốt');
+            nv_Tot = passThangTot && (!tonTai.phBinh || thamSo.phBinh === 0) && 
+                     (tonTai.chNghiep && kiemTraChuoi(thamSo.chNghiep, /khá|tốt/i)) && 
+                     (tonTai.chMon && kiemTraChuoi(thamSo.chMon, /khá|giỏi/i)) && 
+                     (tonTai.chBien && kiemTraChuoi(thamSo.chBien, /khá|tốt/i)) && 
+                     xetKiemNhiem(thamSo.kNhiem, 'Tốt');
 
-            nv_HT = passThangHT && (!tonTai.phBinh || thamSo.phBinh <= 2) && xetKiemNhiem(thamSo.kNhiem, 'HT');
+            nv_HT = passThangHT && (!tonTai.phBinh || thamSo.phBinh <= 2) && 
+                    (tonTai.chNghiep && !kiemTraChuoi(thamSo.chNghiep, /chưa đạt|kém/i)) && 
+                    (tonTai.chMon && !kiemTraChuoi(thamSo.chMon, /yếu|kém/i)) &&
+                    xetKiemNhiem(thamSo.kNhiem, 'HT');
 
             if (nv_XS) { kqThanhLieu = "HOÀN THÀNH XUẤT SẮC NHIỆM VỤ"; mauHienThi = "#28a745"; }
             else if (nv_Tot) { kqThanhLieu = "HOÀN THÀNH TỐT NHIỆM VỤ"; mauHienThi = "#007bff"; }
