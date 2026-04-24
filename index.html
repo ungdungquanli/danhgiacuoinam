@@ -169,7 +169,6 @@
         document.querySelectorAll(".trigger-calc").forEach(el => { el.addEventListener('change', tinhToanXepLoaiQuyChe); el.addEventListener('input', tinhToanXepLoaiQuyChe); });
     }
 
-    // HÀM TÍNH ĐIỂM ĐÃ ĐƯỢC CHUẨN HOÁ THEO YÊU CẦU LẦN TRƯỚC
     function congDiemHS(idx) {
         const cap = document.getElementById(`hs_cap_${idx}`).value;
         const chiSo = parseInt(document.getElementById(`hs_giai_${idx}`).value);
@@ -211,7 +210,7 @@
         const danhSachDong = document.querySelectorAll("#tableBody tr");
         const nhomDoiTuong = document.getElementById("doiTuongSelect").value;
         
-        let thamSo = { phBinh: 0, thXS: 0, thTot: 0, thHT: 0, chNghiep: '', chMon: '', chBien: '', vSach: 0, gvDG: '', kNhiem: '', sKien: '', hsGiai: '', hsHT: 0, hsXS: 0, hsTot: 0 };
+        let thamSo = { phBinh: 0, thXS: 0, thTot: 0, thHT: 0, chNghiep: '', chMon: '', chBien: '', vSach: 0, gvDG: '', kNhiem: '', sKien: '', hsGiai: '', hsHT: 0, hsXS: 0, hsTot: 0, diemPhan1: 0, hasAutoLoad: false };
         let tongDiemP2 = 0;
         let tonTai = { phBinh: false, thXS: false, thTot: false, thHT: false, chNghiep: false, chMon: false, chBien: false, vSach: false, gvDG: false, kNhiem: false, sKien: false, hsGiai: false, hsHT: false, hsXS: false, hsTot: false };
 
@@ -242,11 +241,30 @@
                 if (mangDiem) mangDiem.forEach(m => tongDiemP2 += parseFloat(m.replace(/[^\d\.]/g, '')) || 0);
             }
 
+            // XỬ LÝ KHỐI DỮ LIỆU TỰ ĐỘNG THEO QUY TẮC TÍNH ĐIỂM MỚI (Lọc triệt để "Chưa hoàn thành")
             let laAutoLoad = dongKiemTra.querySelector(".auto-loaded-data") !== null;
             if (laAutoLoad) {
-                if (kiemTraChuoi(gTri, /xuất sắc/i)) { thamSo.thXS = 100; tonTai.thXS = true; }
-                else if (kiemTraChuoi(gTri, /tốt/i)) { thamSo.thTot = 100; tonTai.thTot = true; }
-                else if (kiemTraChuoi(gTri, /hoàn thành|ht/i)) { thamSo.thHT = 100; tonTai.thHT = true; }
+                let numMatch = gTri.match(/\d+([.,]\d+)?/);
+                let diemCoSan = numMatch ? parseFloat(numMatch[0].replace(',', '.')) : 0;
+
+                if (kiemTraChuoi(gTri, /xuất sắc/i)) { 
+                    thamSo.thXS = 100; tonTai.thXS = true; 
+                    thamSo.diemPhan1 = 100 + diemCoSan;
+                }
+                else if (kiemTraChuoi(gTri, /tốt/i)) { 
+                    thamSo.thTot = 100; tonTai.thTot = true; 
+                    thamSo.diemPhan1 = 80 + diemCoSan;
+                }
+                else if (kiemTraChuoi(gTri, /chưa hoàn thành|không hoàn thành|cht/i)) { 
+                    thamSo.diemPhan1 = 0 + diemCoSan;
+                }
+                else if (kiemTraChuoi(gTri, /hoàn thành|ht/i)) { 
+                    thamSo.thHT = 100; tonTai.thHT = true; 
+                    thamSo.diemPhan1 = 60 + diemCoSan;
+                } else {
+                    thamSo.diemPhan1 = diemCoSan;
+                }
+                thamSo.hasAutoLoad = true;
                 return; 
             }
 
@@ -340,16 +358,21 @@
             else if (nv_HT) { kqThanhLieu = "HOÀN THÀNH NHIỆM VỤ"; mauHienThi = "#fd7e14"; }
         }
 
-        // CẬP NHẬT DỮ LIỆU VÀO BỐ CỤC MỚI THEO YÊU CẦU CỦA ẢNH
-        document.getElementById("hienThiDiemP1").innerText = `Tổng điểm phần 1: ${mucDoH}`;
-        document.getElementById("hienThiDiemP2").innerText = `Tổng điểm phần 2: ${tongDiemP2.toFixed(1)}`;
-        
-        let diemNamHoc = (mucDoH + tongDiemP2).toFixed(1);
+        // TÍNH TOÁN HIỂN THỊ THEO YÊU CẦU
+        let diemP1HienThi = thamSo.hasAutoLoad ? thamSo.diemPhan1 : mucDoH;
+        let diemNamHoc = diemP1HienThi + tongDiemP2;
+
+        let strDiemP1 = diemP1HienThi % 1 === 0 ? diemP1HienThi : diemP1HienThi.toFixed(1);
+        let strDiemP2 = tongDiemP2 % 1 === 0 ? tongDiemP2 : tongDiemP2.toFixed(1);
+        let strDiemNH = diemNamHoc % 1 === 0 ? diemNamHoc : diemNamHoc.toFixed(1);
+
+        document.getElementById("hienThiDiemP1").innerText = `Tổng điểm phần 1: ${strDiemP1}`;
+        document.getElementById("hienThiDiemP2").innerText = `Tổng điểm phần 2: ${strDiemP2}`;
         
         const khuVucHT = document.getElementById("hienThiXepLoai");
         khuVucHT.innerHTML = `
             <span style="text-transform: uppercase; color: ${mauHienThi};">${kqThanhLieu}</span><br>
-            <span style="font-size: 16px; color: #d9534f; font-weight: normal;">Tổng điểm năm học: ${diemNamHoc}</span>
+            <span style="font-size: 16px; color: #d9534f; font-weight: normal;">Tổng điểm năm học: ${strDiemNH}</span>
         `;
     }
 
