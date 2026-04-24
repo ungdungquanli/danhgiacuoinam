@@ -10,6 +10,8 @@ function danhGiaGiaoVien(thamSo, tonTai, passThangTot, passThangHT) {
         return tuSo >= (8 * 0.3); // Mẫu số là 8
     };
 
+    // BỔ SUNG: Hàm kiểm tra giá trị tồn tại
+    const coGiaTri = (chuoi) => chuoi && chuoi.trim() !== "";
     let chuanGiai = kiemTraChuoi(thamSo.hsGiai, /quốc|tỉnh|nhất.*(xã|cụm|khu|huyện)|nhì.*(cụm|khu|huyện)/i);
     
     let gv_XS = (!tonTai.phBinh || thamSo.phBinh === 0) && 
@@ -32,9 +34,11 @@ function danhGiaGiaoVien(thamSo, tonTai, passThangTot, passThangHT) {
              (tonTai.hsHT && thamSo.hsHT >= 95) && (tonTai.hsXS && thamSo.hsXS >= 15) && (tonTai.hsTot && thamSo.hsTot >= 25) &&
              (tonTai.kNhiem && xetKiemNhiem(thamSo.kNhiem, 'Tốt'));
 
-    let gv_HT = passThangTot && 
-            (tonTai.chNghiep && !kiemTraChuoi(thamSo.chNghiep, /chưa đạt|kém/i)) && 
-            (tonTai.chMon && !kiemTraChuoi(thamSo.chMon, /yếu|kém/i)) &&
+    // CẬP NHẬT: Bắt buộc Chuẩn nghề nghiệp, Chuyên môn, Chuyển biến phải "coGiaTri" mới được tính là Hoàn thành
+    let gv_HT = passThangHT && 
+            (tonTai.chNghiep && coGiaTri(thamSo.chNghiep) && !kiemTraChuoi(thamSo.chNghiep, /chưa đạt|kém/i)) && 
+            (tonTai.chMon && coGiaTri(thamSo.chMon) && !kiemTraChuoi(thamSo.chMon, /yếu|kém/i)) &&
+            (tonTai.chBien && coGiaTri(thamSo.chBien) && !kiemTraChuoi(thamSo.chBien, /chưa đạt|kém/i)) &&
             (tonTai.hsHT && thamSo.hsHT >= 90) && (tonTai.hsXS && thamSo.hsXS >= 10) && (tonTai.hsTot && thamSo.hsTot >= 20) &&
             (tonTai.kNhiem && xetKiemNhiem(thamSo.kNhiem, 'HT'));
 
