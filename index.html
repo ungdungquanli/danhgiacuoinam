@@ -144,7 +144,10 @@
 
             if (isAutoLoadField) {
                 kq = ketQuaThangTuDong !== "" ? ketQuaThangTuDong : kq;
-                if (kq) kq = kq.toString().replace(/([^\s\d.,])(\d)/g, '$1 $2');
+                if (kq) {
+                    // Cập nhật nguyên tắc thêm dấu hai chấm (:) ngăn cách xếp loại và điểm số
+                    kq = kq.toString().replace(/([^\s\d.,:])\s*(\d)/, '$1:$2');
+                }
                 html = `<input type="text" class="input-cell locked-input auto-loaded-data trigger-calc" value="${kq}" readonly title="Dữ liệu đồng bộ từ máy chủ, không thể chỉnh sửa">`;
             } 
             else if (tg === "THANHTICH_HS_DONG") {
@@ -241,7 +244,6 @@
                 if (mangDiem) mangDiem.forEach(m => tongDiemP2 += parseFloat(m.replace(/[^\d\.]/g, '')) || 0);
             }
 
-            // XỬ LÝ KHỐI DỮ LIỆU TỰ ĐỘNG THEO QUY TẮC TÍNH ĐIỂM MỚI (Lọc triệt để "Chưa hoàn thành")
             let laAutoLoad = dongKiemTra.querySelector(".auto-loaded-data") !== null;
             if (laAutoLoad) {
                 let numMatch = gTri.match(/\d+([.,]\d+)?/);
@@ -358,7 +360,6 @@
             else if (nv_HT) { kqThanhLieu = "HOÀN THÀNH NHIỆM VỤ"; mauHienThi = "#fd7e14"; }
         }
 
-        // TÍNH TOÁN HIỂN THỊ THEO YÊU CẦU
         let diemP1HienThi = thamSo.hasAutoLoad ? thamSo.diemPhan1 : mucDoH;
         let diemNamHoc = diemP1HienThi + tongDiemP2;
 
