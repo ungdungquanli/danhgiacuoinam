@@ -8,6 +8,9 @@ function danhGiaNhanVien(thamSo, tonTai, passThangTot, passThangHT) {
         return tuSo >= (3 * 0.3); // Mẫu số là 3
     };
 
+    // BỔ SUNG: Hàm kiểm tra giá trị tồn tại (tránh việc để trống "-- Chọn mức --" vẫn được ghi nhận)
+    const coGiaTri = (chuoi) => chuoi && chuoi.trim() !== "";
+
     let nv_XS = passThangTot && (!tonTai.phBinh || thamSo.phBinh === 0) &&
             (tonTai.chNghiep && kiemTraChuoi(thamSo.chNghiep, /tốt/i)) && 
             (tonTai.chMon && kiemTraChuoi(thamSo.chMon, /giỏi/i)) && 
@@ -21,9 +24,11 @@ function danhGiaNhanVien(thamSo, tonTai, passThangTot, passThangHT) {
              (tonTai.chBien && kiemTraChuoi(thamSo.chBien, /khá|tốt/i)) && 
              xetKiemNhiem(thamSo.kNhiem, 'Tốt');
 
+    // CẬP NHẬT: Bắt buộc Chuẩn nghề nghiệp, Chuyên môn, Chuyển biến phải "coGiaTri" mới được tính là Hoàn thành
     let nv_HT = passThangHT && (!tonTai.phBinh || thamSo.phBinh <= 2) && 
-            (tonTai.chNghiep && !kiemTraChuoi(thamSo.chNghiep, /chưa đạt|kém/i)) && 
-            (tonTai.chMon && !kiemTraChuoi(thamSo.chMon, /yếu|kém/i)) &&
+            (tonTai.chNghiep && coGiaTri(thamSo.chNghiep) && !kiemTraChuoi(thamSo.chNghiep, /chưa đạt|kém/i)) && 
+            (tonTai.chMon && coGiaTri(thamSo.chMon) && !kiemTraChuoi(thamSo.chMon, /yếu|kém/i)) &&
+            (tonTai.chBien && coGiaTri(thamSo.chBien) && !kiemTraChuoi(thamSo.chBien, /chưa đạt|kém/i)) &&
             xetKiemNhiem(thamSo.kNhiem, 'HT');
 
     if (nv_XS) return { kqThanhLieu: "HOÀN THÀNH XUẤT SẮC NHIỆM VỤ", mauHienThi: "#28a745" };
