@@ -284,12 +284,14 @@
             else if (tenTC.includes("chuyển biến")) { thamSo.chBien = gTri; tonTai.chBien = true; }
             else if (tenTC.includes("vở sạch")) { thamSo.vSach = soLieu; tonTai.vSach = true; }
             else if (tenTC.includes("giáo viên giỏi") || tenTC.includes("gvdg")) { thamSo.gvDG = gTri; tonTai.gvDG = true; }
+            
+            // CẬP NHẬT: Đưa khối điều kiện "thành tích" lên trước "học sinh" để giải quyết xung đột từ khóa
+            else if (tenTC.includes("thành tích") || dongKiemTra.cells[2].innerText === 'Quy chế T.Tích' || dongKiemTra.cells[2].innerText === 'Quy chế') { thamSo.hsGiai = gTri; tonTai.hsGiai = true; }
             else if (tenTC.includes("học sinh") || tenTC.includes("hs") || tenTC.includes("tỷ lệ hs")) {
                 if (tenTC.includes("xuất sắc")) { thamSo.hsXS = soLieu; tonTai.hsXS = true; }
                 else if (tenTC.includes("tốt")) { thamSo.hsTot = soLieu; tonTai.hsTot = true; }
                 else if ((tenTC.includes("hoàn thành") || tenTC.includes("ht")) && !tenTC.includes("tốt") && !tenTC.includes("xuất sắc")) { thamSo.hsHT = soLieu; tonTai.hsHT = true; }
             }
-            else if (tenTC.includes("thành tích") || dongKiemTra.cells[2].innerText === 'Quy chế T.Tích' || dongKiemTra.cells[2].innerText === 'Quy chế') { thamSo.hsGiai = gTri; tonTai.hsGiai = true; }
             else if (tenTC.includes("sáng kiến")) { thamSo.sKien = gTri; tonTai.sKien = true; }
             else if (tenTC.includes("kiêm nhiệm")) { thamSo.kNhiem = gTri; tonTai.kNhiem = true; }
         });
