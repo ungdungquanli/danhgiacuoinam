@@ -292,28 +292,34 @@
         let mucDoT = thamSo.thXS + thamSo.thTot;
         let mucDoH = mucDoT + thamSo.thHT;
 
+        // ĐÃ CHUẨN HÓA LẠI TÍNH TOÁN VƯỢT MỨC VÀ KIỂM TRA ĐIỀU KIỆN
         const kiemTraVuotMuc = () => {
             let mauSo = 0; let tuSo = 0;
             if (nhomDoiTuong === "giaovien") {
                 mauSo = 8;
+                // Tiêu chí 4: VSCĐ > 60%
                 if (thamSo.vSach > 60) tuSo++; 
+                // Tiêu chí 5: GVDG đạt xã, cụm, khu, huyện, tỉnh, quốc gia
                 if (kiemTraChuoi(thamSo.gvDG, /xã|huyện|cụm|khu|tỉnh|quốc/i)) tuSo++; 
-                if (kiemTraChuoi(thamSo.hsGiai, /quốc|tỉnh.*(nhất|nhì)|nhất.*(cụm|khu|huyện)/i)) tuSo++; 
-                if (thamSo.hsXS > 20) tuSo++; 
-                if (thamSo.hsTot > 25) tuSo++; 
+                // Tiêu chí 6: Giải HS. Bất kỳ giải Tỉnh/Quốc gia (kể cả KK) hoặc Nhất Cụm/Huyện/Xã
+                if (kiemTraChuoi(thamSo.hsGiai, /quốc|tỉnh|nhất.*(cụm|khu|huyện|xã)/i)) tuSo++; 
+                // Tiêu chí 7: HS Xuất sắc > 20% HOẶC HS Tốt > 25%
+                if (thamSo.hsXS > 20 || thamSo.hsTot > 25) tuSo++; 
             } else {
                 mauSo = 3;
                 if (kiemTraChuoi(thamSo.sKien, /huyện|tỉnh|quốc/i)) tuSo++;
                 if (kiemTraChuoi(thamSo.kNhiem, /xuất sắc/i)) tuSo++;
             }
-            return mauSo === 0 ? true : (tuSo / mauSo) >= 0.3;
+            // 30% của 8 chỉ tiêu tương đương yêu cầu tuSo >= 2.4 
+            return mauSo === 0 ? true : tuSo >= (mauSo * 0.3); 
         };
 
         let kqThanhLieu = "CHƯA HOÀN THÀNH NHIỆM VỤ", mauHienThi = "#dc3545";
         let gv_XS = false, gv_Tot = false, gv_HT = false, nv_XS = false, nv_Tot = false, nv_HT = false;
         
         if (nhomDoiTuong === "giaovien") {
-            let chuanGiai = kiemTraChuoi(thamSo.hsGiai, /nhất.*(xã|cụm|khu|huyện|tỉnh|quốc)|nhì.*(cụm|khu|huyện|tỉnh|quốc)|ba.*(tỉnh|quốc)|quốc/i);
+            // Mở rộng chuẩn giải để chấp nhận cả giải KK cấp Tỉnh
+            let chuanGiai = kiemTraChuoi(thamSo.hsGiai, /quốc|tỉnh|nhất.*(xã|cụm|khu|huyện)|nhì.*(cụm|khu|huyện)/i);
             
             gv_XS = (!tonTai.phBinh || thamSo.phBinh === 0) && 
                     (mucDoT >= 100) &&
@@ -370,7 +376,6 @@
         document.getElementById("hienThiDiemP2").innerText = `Tổng điểm phần 2: ${strDiemP2}`;
         
         const khuVucHT = document.getElementById("hienThiXepLoai");
-        // ĐÃ CHUYỂN SANG DÙNG DIV ĐỂ KIỂM SOÁT VỊ TRÍ, KÍCH THƯỚC CHUẨN XÁC
         khuVucHT.innerHTML = `
             <div style="font-size: 24px; font-weight: bold; color: ${mauHienThi}; text-transform: uppercase;">${kqThanhLieu}</div>
             <div style="font-size: 16px; color: #d9534f; font-weight: normal; margin-top: 5px;">Tổng điểm năm học: ${strDiemNH}</div>
