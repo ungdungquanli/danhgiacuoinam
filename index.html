@@ -86,8 +86,8 @@
             </div>
             
             <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; color: #d9534f; font-size: 18px; line-height: 1.6;">
-                <div id="hienThiDiemP1">Tổng điểm phần 1: </div>
-                <div id="hienThiDiemP2">Tổng điểm phần 2: </div>
+                <div id="hienThiDiemP1" style="font-size: 20px; font-weight: bold; color: #0056b3;">Tổng điểm phần 1: </div>
+                <div id="hienThiDiemP2" style="font-size: 20px; font-weight: bold; color: #0056b3;">Tổng điểm phần 2: </div>
             </div>
             
             <div class="live-rating" id="hienThiXepLoai" style="flex: 1.2; text-align: right;">
@@ -381,7 +381,7 @@
         const khuVucHT = document.getElementById("hienThiXepLoai");
         khuVucHT.innerHTML = `
             <div style="font-size: 24px; font-weight: bold; color: ${mauHienThi}; text-transform: uppercase; white-space: nowrap;">${kqThanhLieu}</div>
-            <div style="font-size: 16px; color: #d9534f; font-weight: normal; margin-top: 5px;">Tổng điểm năm học: ${strDiemNH}</div>
+            <div style="font-size: 20px; color: #b30000; font-weight: bold; margin-top: 5px;">Tổng điểm năm học: ${strDiemNH}</div>
         `;
     }
 
