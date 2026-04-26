@@ -13,6 +13,7 @@
         body { font-family: 'Times New Roman', Times, serif; background-color: var(--mau-n); color: var(--mau-t); line-height: 1.4; margin: 0; padding: 5px 20px 20px 20px; }
         .k-ngoai { max-width: 1150px; margin: 0 auto; background: white; padding: 0 30px 25px 30px; border-radius: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; }
         
+        /* KHU VỰC CỐ ĐỊNH ĐẦU TRANG */
         .k-header-sticky {
             position: sticky; 
             top: 0; 
@@ -341,7 +342,6 @@
                 }).join("") + `</select>`;
             } else {
                 if (isFirstDataRow) {
-                    // Dòng đầu tiên chỉ khóa và nhận giá trị, tuyệt đối KHÔNG gán class h-dong-bo
                     html = `<input type="text" class="o-n-bang k-hoat-t k-o-n" value="${kq}" readonly title="Khóa - Dữ liệu tự động">`;
                 } else {
                     html = `<input type="text" class="o-n-bang k-hoat-t" value="${kq}">`;
@@ -466,6 +466,12 @@
 
         let k_t_a = m_k_a.n ? m_k_a.m : (b_x_l ? 100 : (b_x_d ? 60 : 0));
         let k_t_t = k_t_a + k_t_c;
+
+        // --- THUẬT TOÁN MỚI: Trừ 2 điểm cho mỗi lần bị nhắc nhở/phê bình ---
+        if (m_k_b.a && m_k_a.a > 0) {
+            k_t_t -= (m_k_a.a * 2);
+        }
+        // ------------------------------------------------------------------
 
         let c_s_a = k_t_a % 1 === 0 ? k_t_a : k_t_a.toFixed(1);
         let c_s_c = k_t_c % 1 === 0 ? k_t_c : k_t_c.toFixed(1);
