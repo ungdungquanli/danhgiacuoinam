@@ -31,7 +31,7 @@ function f_x_m_chinh(dataRows) {
         let c_g_1 = r.giaTri;
         let c_s_1 = r.so;
         
-        // 1. Nhận diện tính điểm thành phần
+        // 1. Nhận diện tính điểm thành phần (Điểm phần 2)
         if (r.isSelect) {
             k_t_c += r.selectDataP;
         } else if (c_t_1.includes("vở sạch")) {
@@ -43,7 +43,7 @@ function f_x_m_chinh(dataRows) {
             }
         }
         
-        // 2. Nhận diện kết quả xếp loại hàng tháng
+        // 2. Nhận diện kết quả xếp loại hàng tháng (Điểm phần 1)
         if (r.isDongBo || c_t_1.includes("tháng")) {
             let c_n_1 = c_g_1.match(/\d+([.,]\d+)?/);
             let c_d_1 = c_n_1 ? parseFloat(c_n_1[0].replace(',', '.')) : 0;
@@ -51,22 +51,22 @@ function f_x_m_chinh(dataRows) {
             if (f_x_a_nv(c_g_1, /xuất sắc/i)) { 
                 b_x_l = true; 
                 b_x_d = true; 
-                if (r.isDongBo) m_k_a.m = 100 + c_d_1; 
+                if (r.isDongBo) m_k_a.m = c_d_1; 
             } 
             else if (f_x_a_nv(c_g_1, /tốt/i)) { 
                 b_x_l = true; 
                 b_x_d = true; 
-                if (r.isDongBo) m_k_a.m = 80 + c_d_1; 
+                if (r.isDongBo) m_k_a.m = c_d_1; 
             } 
             else if (f_x_a_nv(c_g_1, /chưa hoàn thành|không hoàn thành|cht/i)) { 
                 b_x_l = false; 
                 b_x_d = false; 
-                if (r.isDongBo) m_k_a.m = 0 + c_d_1; 
+                if (r.isDongBo) m_k_a.m = c_d_1; 
             } 
             else if (f_x_a_nv(c_g_1, /hoàn thành|ht/i)) { 
                 b_x_l = false; 
                 b_x_d = true; 
-                if (r.isDongBo) m_k_a.m = 60 + c_d_1; 
+                if (r.isDongBo) m_k_a.m = c_d_1; 
             } 
             else { 
                 if (r.isDongBo) m_k_a.m = c_d_1; 
@@ -77,7 +77,7 @@ function f_x_m_chinh(dataRows) {
         }
         
         // 3. Phân bổ các tiêu chí
-        if (c_t_1.includes("phê bình")) { 
+        if (c_t_1.includes("phê bình") || c_t_1.includes("nhắc nhở")) { 
             m_k_a.a = c_s_1; 
             m_k_b.a = true; 
         }
@@ -107,35 +107,33 @@ function f_x_m_chinh(dataRows) {
         let v_s = 0;
         if (f_x_a_nv(m_k_a.h, /huyện|tỉnh|quốc/i)) v_s++;
         if (f_x_a_nv(m_k_a.g, /xuất sắc/i)) v_s++;
-        return v_s >= (3 * 0.3); 
+        return v_s >= 1; 
     };
 
     const h_c_c_n = (c_h) => c_h && c_h.trim() !== "";
 
     // ĐIỀU KIỆN HOÀN THÀNH XUẤT SẮC
-    let c_m_a = (!m_k_b.a || m_k_a.a < 1) && 
-                b_x_l && 
-                (m_k_b.b && f_x_a_nv(m_k_a.b, /tốt/i)) && 
-                (m_k_b.c && f_x_a_nv(m_k_a.c, /giỏi/i)) && 
-                (m_k_b.d && f_x_a_nv(m_k_a.d, /tốt/i)) && 
-                (m_k_b.h && m_k_a.h.trim() !== "" && f_x_a_nv(m_k_a.h, /xã|huyện|cụm|tỉnh|quốc/i)) && 
+    let c_m_a = (!m_k_b.a || m_k_a.a < 2) && 
+                (b_x_l || (m_k_a.n && m_k_a.m >= 180)) && 
+                (!m_k_b.c || f_x_a_nv(m_k_a.c, /xuất sắc/i)) && 
+                (!m_k_b.d || f_x_a_nv(m_k_a.d, /tốt|xuất sắc/i)) && 
+                (m_k_b.h && m_k_a.h.trim() !== "" && f_x_a_nv(m_k_a.h, /xã|cụm|huyện|tỉnh|quốc/i)) && 
                 f_x_b_nv(m_k_a.g, 'XS') && 
                 h_k_l_n();
 
     // ĐIỀU KIỆN HOÀN THÀNH TỐT
-    let c_m_b = (!m_k_b.a || m_k_a.a < 3) && 
+    let c_m_b = (!m_k_b.a || m_k_a.a < 4) && 
                 b_x_l && 
-                (m_k_b.b && f_x_a_nv(m_k_a.b, /khá|tốt/i)) && 
-                (m_k_b.c && f_x_a_nv(m_k_a.c, /khá|giỏi/i)) && 
-                (m_k_b.d && f_x_a_nv(m_k_a.d, /khá|tốt/i)) && 
+                (!m_k_b.c || f_x_a_nv(m_k_a.c, /khá|giỏi|xuất sắc/i)) && 
+                (!m_k_b.d || f_x_a_nv(m_k_a.d, /khá|tốt|xuất sắc/i)) && 
                 f_x_b_nv(m_k_a.g, 'Tốt');
 
     // ĐIỀU KIỆN HOÀN THÀNH
-    let c_m_c = (!m_k_b.a || m_k_a.a < 5) && 
+    let c_m_c = (!m_k_b.a || m_k_a.a < 6) && 
                 b_x_d && 
-                (m_k_b.b && h_c_c_n(m_k_a.b) && !f_x_a_nv(m_k_a.b, /chưa đạt|kém/i)) && 
-                (m_k_b.c && h_c_c_n(m_k_a.c) && !f_x_a_nv(m_k_a.c, /yếu|kém/i)) && 
-                (m_k_b.d && h_c_c_n(m_k_a.d) && !f_x_a_nv(m_k_a.d, /chưa đạt|kém/i)) && 
+                (!m_k_b.b || (h_c_c_n(m_k_a.b) && !f_x_a_nv(m_k_a.b, /chưa đạt|kém/i))) && 
+                (!m_k_b.c || (h_c_c_n(m_k_a.c) && !f_x_a_nv(m_k_a.c, /yếu|kém/i))) && 
+                (!m_k_b.d || (h_c_c_n(m_k_a.d) && !f_x_a_nv(m_k_a.d, /chưa đạt|kém/i))) && 
                 f_x_b_nv(m_k_a.g, 'HT');
 
     // KẾT QUẢ ĐÁNH GIÁ CUỐI CÙNG
