@@ -142,12 +142,13 @@ function f_x_m_chinh(dataRows) {
 
     // TÍNH TOÁN ĐIỂM SỐ
     let k_t_a = m_k_a.n ? m_k_a.m : (b_x_l ? 100 : (b_x_d ? 60 : 0));
-    let k_t_t = k_t_a + k_t_c;
     
-    // Trừ 2 điểm cho mỗi lần bị nhắc nhở/phê bình
+    // Trừ 2 điểm cho mỗi lần bị nhắc nhở/phê bình trực tiếp vào Điểm phần 2
     if (m_k_b.a && m_k_a.a > 0) {
-        k_t_t -= (m_k_a.a * 2);
+        k_t_c -= (m_k_a.a * 2);
     }
+    
+    let k_t_t = k_t_a + k_t_c;
 
     return { 
         diemP1: k_t_a % 1 === 0 ? k_t_a : k_t_a.toFixed(1), 
