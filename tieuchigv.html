@@ -12,7 +12,7 @@ function f_x_l(m_k_a, m_k_b, b_x_l, b_x_d) {
     const h_c_c_g = (c_h) => c_h && c_h.trim() !== "";
     let b_d_k = f_x_a(m_k_a.i, /quốc|tỉnh|nhất.*(xã|cụm|khu|huyện)|nhì.*(cụm|khu|huyện)/i);
     
-    let c_m_a = (!m_k_b.a || m_k_a.a < 1) && 
+    let c_m_a = (!m_k_b.a || m_k_a.a < 2) && 
             b_x_l &&
             (m_k_b.b && f_x_a(m_k_a.b, /tốt/i)) && 
             (m_k_b.c && f_x_a(m_k_a.c, /giỏi/i)) && 
@@ -24,7 +24,7 @@ function f_x_l(m_k_a, m_k_b, b_x_l, b_x_d) {
             (m_k_b.g && f_x_b(m_k_a.g, 'XS')) && 
             h_k_l_g(); 
 
-    let c_m_b = (!m_k_b.a || m_k_a.a < 3) && 
+    let c_m_b = (!m_k_b.a || m_k_a.a < 4) && 
              b_x_l &&
              (m_k_b.b && f_x_a(m_k_a.b, /khá|tốt/i)) && 
              (m_k_b.c && f_x_a(m_k_a.c, /khá|giỏi/i)) && 
@@ -33,7 +33,7 @@ function f_x_l(m_k_a, m_k_b, b_x_l, b_x_d) {
              (m_k_b.j && m_k_a.j >= 95) && (m_k_b.k && m_k_a.k >= 15) && (m_k_b.l && m_k_a.l >= 25) &&
              (m_k_b.g && f_x_b(m_k_a.g, 'Tốt'));
 
-    let c_m_c = (!m_k_b.a || m_k_a.a < 5) && 
+    let c_m_c = (!m_k_b.a || m_k_a.a < 6) && 
             b_x_d && 
             (m_k_b.b && h_c_c_g(m_k_a.b) && !f_x_a(m_k_a.b, /chưa đạt|kém/i)) && 
             (m_k_b.c && h_c_c_g(m_k_a.c) && !f_x_a(m_k_a.c, /yếu|kém/i)) &&
