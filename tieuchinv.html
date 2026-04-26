@@ -1,63 +1,25 @@
 <script>
-function f_x_a_gv(chuoi, bThuc) { 
+function f_x_a_nv(chuoi, bThuc) { 
     return new RegExp(bThuc, 'i').test(chuoi); 
 }
 
-function f_x_b_gv(chuoiKN, mucDo) {
-    if (!chuoiKN || f_x_a_gv(chuoiKN, /không có|không kiêm|khong co|khong kiem/i)) {
+function f_x_b_nv(chuoiKN, mucDo) {
+    if (!chuoiKN || f_x_a_nv(chuoiKN, /không có|không kiêm|khong co|khong kiem/i)) {
         return true; 
     }
     if (mucDo === 'XS') {
-        return f_x_a_gv(chuoiKN, /tốt|xuất sắc|tot|xuat sac/i);
+        return f_x_a_nv(chuoiKN, /tốt|xuất sắc|tot|xuat sac/i);
     }
     if (mucDo === 'Tốt') {
-        return f_x_a_gv(chuoiKN, /khá|tốt|xuất sắc|kha|tot|xuat sac/i);
+        return f_x_a_nv(chuoiKN, /khá|tốt|xuất sắc|kha|tot|xuat sac/i);
     }
     if (mucDo === 'HT') {
-        return !f_x_a_gv(chuoiKN, /chưa|không hoàn|yếu|kém|chua|khong hoan|yeu|kem/i);
+        return !f_x_a_nv(chuoiKN, /chưa|không hoàn|yếu|kém|chua|khong hoan|yeu|kem/i);
     }
     return false;
 }
 
-function f_x_f_gv(idx) {
-    const v_c = document.getElementById(`h_c_${idx}`).value;
-    const v_s = parseInt(document.getElementById(`h_g_${idx}`).value);
-    const v_h = parseFloat(document.getElementById(`h_l_${idx}`).value);
-    const v_l = parseInt(document.getElementById(`h_s_${idx}`).value) || 1;
-    
-    const m_c = { 
-        'QUOCGIA': [18, 16, 14, 12], 
-        'TINH': [12, 10, 8, 6], 
-        'XA': [6, 4, 2, 1] 
-    };
-    
-    let m_g = (typeof v_l_c !== 'undefined' && v_l_c[`DIEM_HS_${v_c}`]) 
-                ? (v_l_c[`DIEM_HS_${v_c}`].split(',').length >= 4 ? v_l_c[`DIEM_HS_${v_c}`].split(',') : m_c[v_c]) 
-                : m_c[v_c];
-                
-    let d_1 = parseFloat(m_g[v_s].toString().trim()) * v_h;
-    let d_t = d_1 * v_l;
-    
-    let c_t = document.getElementById(`h_c_${idx}`).options[document.getElementById(`h_c_${idx}`).selectedIndex].text;
-    let c_g = document.getElementById(`h_g_${idx}`).options[document.getElementById(`h_g_${idx}`).selectedIndex].text;
-    
-    let c_d = `+ ${v_l} HS đạt ${c_g} ${c_t} (${v_h > 1 ? 'Tập thể' : 'Cá nhân'}: ${d_1}đ/giải) = ${d_t} điểm\n`;
-    let c_a = document.getElementById(`h_a_${idx}`);
-    
-    c_a.value = (c_a.value.includes("...") ? "" : c_a.value) + c_d;
-    document.getElementById(`h_t_${idx}`).innerHTML = c_a.value.replace(/\n/g, '<br>');
-    
-    if(typeof f_x_h === 'function') f_x_h();
-}
-
-function f_x_g_gv(idx) { 
-    document.getElementById(`h_a_${idx}`).value = ""; 
-    document.getElementById(`h_t_${idx}`).innerHTML = "..."; 
-    
-    if(typeof f_x_h === 'function') f_x_h(); 
-}
-
-function f_x_l_chinh(dataRows) {
+function f_x_m_chinh(dataRows) {
     let m_k_a = { a: 0, b: '', c: '', d: '', e: 0, f: '', g: '', h: '', i: '', j: 0, k: 0, l: 0, m: 0, n: false };
     let m_k_b = { a: false, b: false, c: false, d: false, e: false, f: false, g: false, h: false, i: false, j: false, k: false, l: false };
     let k_t_c = 0; 
@@ -69,7 +31,7 @@ function f_x_l_chinh(dataRows) {
         let c_g_1 = r.giaTri;
         let c_s_1 = r.so;
         
-        // 1. Nhận diện tính điểm thành phần
+        // 1. Nhận diện tính điểm thành phần (Điểm phần 2)
         if (r.isSelect) {
             k_t_c += r.selectDataP;
         } else if (c_t_1.includes("vở sạch")) {
@@ -86,19 +48,19 @@ function f_x_l_chinh(dataRows) {
             let c_n_1 = c_g_1.match(/\d+([.,]\d+)?/);
             let c_d_1 = c_n_1 ? parseFloat(c_n_1[0].replace(',', '.')) : 0;
             
-            if (f_x_a_gv(c_g_1, /xuất sắc/i)) { 
+            if (f_x_a_nv(c_g_1, /xuất sắc/i)) { 
                 b_x_l = true; 
                 b_x_d = true; 
             } 
-            else if (f_x_a_gv(c_g_1, /tốt/i)) { 
+            else if (f_x_a_nv(c_g_1, /tốt/i)) { 
                 b_x_l = true; 
                 b_x_d = true; 
             } 
-            else if (f_x_a_gv(c_g_1, /chưa hoàn thành|không hoàn thành|cht/i)) { 
+            else if (f_x_a_nv(c_g_1, /chưa hoàn thành|không hoàn thành|cht/i)) { 
                 b_x_l = false; 
                 b_x_d = false; 
             } 
-            else if (f_x_a_gv(c_g_1, /hoàn thành|ht/i)) { 
+            else if (f_x_a_nv(c_g_1, /hoàn thành|ht/i)) { 
                 b_x_l = false; 
                 b_x_d = true; 
             } 
@@ -112,7 +74,7 @@ function f_x_l_chinh(dataRows) {
         }
         
         // 3. Phân bổ các tiêu chí
-        if (c_t_1.includes("phê bình")) { 
+        if (c_t_1.includes("phê bình") || c_t_1.includes("nhắc nhở")) { 
             m_k_a.a = c_s_1; 
             m_k_b.a = true; 
         }
@@ -128,32 +90,6 @@ function f_x_l_chinh(dataRows) {
             m_k_a.d = c_g_1; 
             m_k_b.d = true; 
         }
-        else if (c_t_1.includes("vở sạch")) { 
-            m_k_a.e = c_s_1; 
-            m_k_b.e = true; 
-        }
-        else if (c_t_1.includes("giáo viên giỏi") || c_t_1.includes("gvdg")) { 
-            m_k_a.f = c_g_1; 
-            m_k_b.f = true; 
-        }
-        else if (c_t_1.includes("thành tích") || r.quyChe === 'Quy chế T.Tích' || r.quyChe === 'Quy chế') { 
-            m_k_a.i = c_g_1; 
-            m_k_b.i = true; 
-        }
-        else if (c_t_1.includes("học sinh") || c_t_1.includes("hs") || c_t_1.includes("tỷ lệ hs")) {
-            if (c_t_1.includes("xuất sắc")) { 
-                m_k_a.k = c_s_1; 
-                m_k_b.k = true; 
-            }
-            else if (c_t_1.includes("tốt")) { 
-                m_k_a.l = c_s_1; 
-                m_k_b.l = true; 
-            }
-            else if ((c_t_1.includes("hoàn thành") || c_t_1.includes("ht")) && !c_t_1.includes("tốt") && !c_t_1.includes("xuất sắc")) { 
-                m_k_a.j = c_s_1; 
-                m_k_b.j = true; 
-            }
-        }
         else if (c_t_1.includes("sáng kiến")) { 
             m_k_a.h = c_g_1; 
             m_k_b.h = true; 
@@ -164,55 +100,38 @@ function f_x_l_chinh(dataRows) {
         }
     });
 
-    const h_k_l_g = () => {
+    const h_k_l_n = () => {
         let v_s = 0;
-        if (m_k_a.e > 60) v_s++; 
-        if (f_x_a_gv(m_k_a.f, /xã|huyện|cụm|khu|tỉnh|quốc/i)) v_s++; 
-        if (f_x_a_gv(m_k_a.i, /quốc|tỉnh|nhất.*(cụm|khu|huyện|xã)/i)) v_s++; 
-        if (m_k_a.k > 20 || m_k_a.l > 25) v_s++; 
-        return v_s >= (8 * 0.3); 
+        if (f_x_a_nv(m_k_a.h, /huyện|tỉnh|quốc/i)) v_s++;
+        if (f_x_a_nv(m_k_a.g, /xuất sắc/i)) v_s++;
+        return v_s >= 1; 
     };
 
-    const h_c_c_g = (c_h) => c_h && c_h.trim() !== "";
-    let b_d_k = f_x_a_gv(m_k_a.i, /quốc|tỉnh|nhất.*(xã|cụm|khu|huyện)|nhì.*(cụm|khu|huyện)/i);
-    
+    const h_c_c_n = (c_h) => c_h && c_h.trim() !== "";
+
     // ĐIỀU KIỆN HOÀN THÀNH XUẤT SẮC
-    let c_m_a = (!m_k_b.a || m_k_a.a < 1) && 
-                b_x_l && 
-                (m_k_b.b && f_x_a_gv(m_k_a.b, /tốt/i)) && 
-                (m_k_b.c && f_x_a_gv(m_k_a.c, /giỏi/i)) && 
-                (m_k_b.d && f_x_a_gv(m_k_a.d, /tốt/i)) && 
-                (m_k_b.e && m_k_a.e >= 60) && 
-                (m_k_b.f && f_x_a_gv(m_k_a.f, /trường|xã|huyện|cụm|khu|tỉnh|quốc/i)) && 
-                (m_k_b.i && m_k_a.i.trim() !== "" && b_d_k) && 
-                (m_k_b.j && m_k_a.j >= 100) && 
-                (m_k_b.k && m_k_a.k >= 20) && 
-                (m_k_b.l && m_k_a.l >= 25) && 
-                (m_k_b.g && f_x_b_gv(m_k_a.g, 'XS')) && 
-                h_k_l_g(); 
+    let c_m_a = (!m_k_b.a || m_k_a.a < 2) && 
+                (b_x_l || (m_k_a.n && m_k_a.m >= 180)) && 
+                (!m_k_b.c || f_x_a_nv(m_k_a.c, /xuất sắc/i)) && 
+                (!m_k_b.d || f_x_a_nv(m_k_a.d, /tốt|xuất sắc/i)) && 
+                (m_k_b.h && m_k_a.h.trim() !== "" && f_x_a_nv(m_k_a.h, /xã|cụm|huyện|tỉnh|quốc/i)) && 
+                f_x_b_nv(m_k_a.g, 'XS') && 
+                h_k_l_n();
 
     // ĐIỀU KIỆN HOÀN THÀNH TỐT
-    let c_m_b = (!m_k_b.a || m_k_a.a < 3) && 
+    let c_m_b = (!m_k_b.a || m_k_a.a < 4) && 
                 b_x_l && 
-                (m_k_b.b && f_x_a_gv(m_k_a.b, /khá|tốt/i)) && 
-                (m_k_b.c && f_x_a_gv(m_k_a.c, /khá|giỏi/i)) && 
-                (m_k_b.d && f_x_a_gv(m_k_a.d, /khá|tốt/i)) && 
-                (m_k_b.e && m_k_a.e >= 40) && 
-                (m_k_b.j && m_k_a.j >= 95) && 
-                (m_k_b.k && m_k_a.k >= 15) && 
-                (m_k_b.l && m_k_a.l >= 25) && 
-                (m_k_b.g && f_x_b_gv(m_k_a.g, 'Tốt'));
+                (!m_k_b.c || f_x_a_nv(m_k_a.c, /khá|giỏi|xuất sắc/i)) && 
+                (!m_k_b.d || f_x_a_nv(m_k_a.d, /khá|tốt|xuất sắc/i)) && 
+                f_x_b_nv(m_k_a.g, 'Tốt');
 
     // ĐIỀU KIỆN HOÀN THÀNH
-    let c_m_c = (!m_k_b.a || m_k_a.a < 5) && 
+    let c_m_c = (!m_k_b.a || m_k_a.a < 6) && 
                 b_x_d && 
-                (m_k_b.b && h_c_c_g(m_k_a.b) && !f_x_a_gv(m_k_a.b, /chưa đạt|kém/i)) && 
-                (m_k_b.c && h_c_c_g(m_k_a.c) && !f_x_a_gv(m_k_a.c, /yếu|kém/i)) && 
-                (m_k_b.d && h_c_c_g(m_k_a.d) && !f_x_a_gv(m_k_a.d, /chưa đạt|kém/i)) && 
-                (m_k_b.j && m_k_a.j >= 90) && 
-                (m_k_b.k && m_k_a.k >= 10) && 
-                (m_k_b.l && m_k_a.l >= 20) && 
-                (m_k_b.g && f_x_b_gv(m_k_a.g, 'HT'));
+                (!m_k_b.b || (h_c_c_n(m_k_a.b) && !f_x_a_nv(m_k_a.b, /chưa đạt|kém/i))) && 
+                (!m_k_b.c || (h_c_c_n(m_k_a.c) && !f_x_a_nv(m_k_a.c, /yếu|kém/i))) && 
+                (!m_k_b.d || (h_c_c_n(m_k_a.d) && !f_x_a_nv(m_k_a.d, /chưa đạt|kém/i))) && 
+                f_x_b_nv(m_k_a.g, 'HT');
 
     // KẾT QUẢ ĐÁNH GIÁ CUỐI CÙNG
     let k_t = "CHƯA HOÀN THÀNH NHIỆM VỤ"; 
