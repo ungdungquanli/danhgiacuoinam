@@ -180,7 +180,7 @@ function f_x_l_chinh(dataRows) {
     let b_d_k = f_x_a_gv(m_k_a.i, /quốc|tỉnh|nhất.*(xã|cụm|khu|huyện)|nhì.*(cụm|khu|huyện)/i);
     
     // ĐIỀU KIỆN HOÀN THÀNH XUẤT SẮC
-    let c_m_a = (!m_k_b.a || m_k_a.a < 1) && 
+    let c_m_a = (!m_k_b.a || m_k_a.a < 2) && 
                 b_x_l && 
                 (m_k_b.b && f_x_a_gv(m_k_a.b, /tốt/i)) && 
                 (m_k_b.c && f_x_a_gv(m_k_a.c, /giỏi/i)) && 
@@ -195,7 +195,7 @@ function f_x_l_chinh(dataRows) {
                 h_k_l_g(); 
 
     // ĐIỀU KIỆN HOÀN THÀNH TỐT
-    let c_m_b = (!m_k_b.a || m_k_a.a < 3) && 
+    let c_m_b = (!m_k_b.a || m_k_a.a < 4) && 
                 b_x_l && 
                 (m_k_b.b && f_x_a_gv(m_k_a.b, /khá|tốt/i)) && 
                 (m_k_b.c && f_x_a_gv(m_k_a.c, /khá|giỏi/i)) && 
@@ -207,7 +207,7 @@ function f_x_l_chinh(dataRows) {
                 (m_k_b.g && f_x_b_gv(m_k_a.g, 'Tốt'));
 
     // ĐIỀU KIỆN HOÀN THÀNH
-    let c_m_c = (!m_k_b.a || m_k_a.a < 5) && 
+    let c_m_c = (!m_k_b.a || m_k_a.a < 6) && 
                 b_x_d && 
                 (m_k_b.b && h_c_c_g(m_k_a.b) && !f_x_a_gv(m_k_a.b, /chưa đạt|kém/i)) && 
                 (m_k_b.c && h_c_c_g(m_k_a.c) && !f_x_a_gv(m_k_a.c, /yếu|kém/i)) && 
