@@ -234,7 +234,6 @@
         document.getElementById('login-overlay').style.display = 'none';
         document.getElementById('main-ui').style.display = 'block';
         
-        // Cập nhật nhãn phân loại trên Header
         const objNhom = document.getElementById('oChonNhom');
         const tenNhom = objNhom.options[objNhom.selectedIndex].text;
         const theHienNhom = document.getElementById('hienThiNhom');
@@ -270,7 +269,6 @@
     };
 
     function f_x_c() {
-        // Hàm được bảo lưu theo nguyên tắc không xóa logic gốc
         if (!document.getElementById("vungThuHai").classList.contains("a-di")) {
             f_x_d(); 
         } else {
@@ -497,7 +495,8 @@
                 mode: 'no-cors', 
                 body: JSON.stringify({ 
                     w_a: v_l_a, 
-                    w_b: ten_tren_web, 
+                    w_b: v_l_b, 
+                    w_f: ten_tren_web, 
                     w_c: m_k,
                     w_d: v_l_e,
                     w_e: v_l_f
