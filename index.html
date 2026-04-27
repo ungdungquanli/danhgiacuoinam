@@ -242,7 +242,7 @@
     function f_x_logout() {
         sessionStorage.removeItem("HTDG_USER_ID");
         sessionStorage.removeItem("HTDG_NHOM_ID");
-        sessionStorage.removeItem("HTDG_IS_ADMIN"); // Thêm lệnh xóa phiên quản trị viên khi đăng xuất
+        sessionStorage.removeItem("HTDG_IS_ADMIN");
         location.reload();
     }
 
@@ -266,8 +266,8 @@
                 v_l_a = p_c; v_l_b = t_k.y_a; v_l_c = t_k.y_e; v_l_d = t_k.y_c || ""; 
                 document.getElementById("theHienChinh").innerText = t_k.y_b || v_l_b;
                 
-                // --- THÊM MỚI: Lưu Trạng Thái Phân quyền Admin Vào Bộ Nhớ ---
-                let quyenAdmin = (t_k.y_b && t_k.y_b.toLowerCase().includes('admin'));
+                // Mở khóa phân quyền từ Cột D (y_role)
+                let quyenAdmin = (t_k.y_role && t_k.y_role.toLowerCase().includes('admin'));
                 sessionStorage.setItem("HTDG_IS_ADMIN", quyenAdmin ? "true" : "false"); 
                 
                 if (document.getElementById("menu-quan-ly-quyen")) {
@@ -279,7 +279,6 @@
                 if (document.getElementById("menu-tieu-chi-nv")) {
                     document.getElementById("menu-tieu-chi-nv").style.display = quyenAdmin ? "flex" : "none";
                 }
-                // --- KẾT THÚC ---
 
                 f_x_e(t_k.y_d);
                 document.getElementById("vungThuNhat").classList.add("a-di");
