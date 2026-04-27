@@ -77,9 +77,10 @@
             <div class="k-dau">
                 <h2>TRƯỜNG TH&THCS HỢP THÀNH</h2>
                 <h1>KẾT QUẢ ĐÁNH GIÁ VIÊN CHỨC</h1>
+                
                 <div style="margin-top: 15px; display: inline-flex; align-items: center; background: #e9ecef; padding: 5px 15px; border-radius: 20px;">
                     <label for="locNamHoc" style="font-weight: bold; color: var(--mau-c); margin-right: 10px; font-size: 15px;">Năm học:</label>
-                    <select id="locNamHoc" style="padding: 5px 15px; border-radius: 15px; border: 1px solid #ced4da; font-family: inherit; font-size: 15px; color: #dc3545; font-weight: bold; outline: none; cursor: pointer;" onchange="locDuLieuTheoNam()">
+                    <select id="locNamHoc" style="padding: 5px 15px; border-radius: 15px; border: 1px solid #ced4da; font-family: inherit; font-size: 15px; color: #dc3545; font-weight: bold; outline: none; cursor: pointer;">
                         <option value="">-- Chọn năm học --</option>
                     </select>
                 </div>
@@ -105,7 +106,6 @@
 </div>
 
 <script>
-    // Biến toàn cục lưu trữ dữ liệu trả về từ server
     let v_dl_toan_bo = [];
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -118,6 +118,12 @@
         }
         if (document.getElementById("menu-tieu-chi-nv")) {
             document.getElementById("menu-tieu-chi-nv").style.display = quyenAdmin ? "flex" : "none";
+        }
+        
+        // Gắn sự kiện thay đổi an toàn bằng JavaScript thay vì inline HTML
+        const selectNam = document.getElementById("locNamHoc");
+        if(selectNam) {
+            selectNam.addEventListener('change', locDuLieuTheoNam);
         }
         
         taiDuLieuKetQua();
@@ -136,12 +142,12 @@
             
             if (t_k.status === 'success') {
                 v_dl_toan_bo = t_k.d_l_k;
-                napDropdownNamHoc(v_dl_toan_bo); // Nạp tùy chọn năm học
+                napDropdownNamHoc(v_dl_toan_bo); 
                 
                 document.getElementById("h-dang-tai-kq").style.display = "none";
                 document.getElementById("vungKetQua").style.display = "block";
                 
-                locDuLieuTheoNam(); // Chạy bộ lọc lần đầu
+                locDuLieuTheoNam(); 
             } else {
                 document.getElementById("h-dang-tai-kq").innerText = "Chưa có dữ liệu trên hệ thống.";
             }
@@ -150,15 +156,16 @@
         }
     }
 
-    // Hàm tự động trích xuất Năm học không trùng lặp và đẩy vào Select
     function napDropdownNamHoc(d_l) {
         const selectNam = document.getElementById("locNamHoc");
+        selectNam.innerHTML = '<option value="">-- Chọn năm học --</option>'; // Làm sạch danh sách
+        
         let cacNam = new Set();
         d_l.forEach(item => {
             if (item.n_hoc && item.n_hoc.trim() !== "") cacNam.add(item.n_hoc.trim());
         });
         
-        let mangNam = Array.from(cacNam).sort().reverse(); // Năm mới nhất đưa lên đầu
+        let mangNam = Array.from(cacNam).sort().reverse(); 
         mangNam.forEach(nam => {
             let opt = document.createElement("option");
             opt.value = nam;
@@ -166,15 +173,16 @@
             selectNam.appendChild(opt);
         });
         
-        // Tự động chọn năm học đầu tiên (mới nhất) làm mặc định
         if(mangNam.length > 0) {
             selectNam.value = mangNam[0];
         }
     }
 
-    // Hàm Lọc dữ liệu hiển thị bảng theo Năm học
     function locDuLieuTheoNam() {
-        const namChon = document.getElementById("locNamHoc").value;
+        const selectObj = document.getElementById("locNamHoc");
+        if (!selectObj) return;
+        
+        const namChon = selectObj.value.trim(); // Cắt khoảng trắng dư thừa
         const k_b = document.getElementById("bang-ket-qua");
         
         if (!namChon) {
@@ -182,15 +190,19 @@
             return;
         }
         
-        // Lọc mảng
-        let duLieuLoc = v_dl_toan_bo.filter(item => item.n_hoc === namChon);
+        // Thuật toán lọc kết hợp trim() chống sai sót chuỗi
+        let duLieuLoc = v_dl_toan_bo.filter(item => {
+            let checkNam = item.n_hoc ? item.n_hoc.trim() : "";
+            return checkNam === namChon;
+        });
+        
         hienThiBangKetQua(duLieuLoc);
     }
 
     function hienThiBangKetQua(d_l) {
         d_l.sort((a, b) => {
-            let parseA = phanTichXepLoai(a.x_l_q);
-            let parseB = phanTichXepLoai(b.x_l_q);
+            let parseA = phanTichXepLoai(a.x_l_q || "");
+            let parseB = phanTichXepLoai(b.x_l_q || "");
             if (parseA.muc !== parseB.muc) {
                 return parseB.muc - parseA.muc; 
             } else {
@@ -203,13 +215,15 @@
         
         d_l.forEach((item, index) => {
             let colorCode = "#333";
-            if (item.x_l_q.toLowerCase().includes("xuất sắc")) colorCode = "#dc3545"; 
-            else if (item.x_l_q.toLowerCase().includes("tốt")) colorCode = "#0056b3"; 
+            let rawStr = item.x_l_q ? item.x_l_q.toLowerCase() : "";
+            
+            if (rawStr.includes("xuất sắc")) colorCode = "#dc3545"; 
+            else if (rawStr.includes("tốt")) colorCode = "#0056b3"; 
 
             html += `<tr>
                 <td style="text-align: center; font-weight: bold;">${index + 1}</td>
-                <td style="font-weight: bold; color: #1e1e1e;">${item.t_v_c}</td>
-                <td style="color: ${colorCode}; font-weight: 500;">${item.x_l_q}</td>
+                <td style="font-weight: bold; color: #1e1e1e;">${item.t_v_c || ""}</td>
+                <td style="color: ${colorCode}; font-weight: 500; white-space: pre-line;">${item.x_l_q || ""}</td>
             </tr>`;
         });
         
@@ -218,7 +232,7 @@
     }
 
     function phanTichXepLoai(chuoi) {
-        let str = chuoi.toLowerCase();
+        let str = chuoi ? chuoi.toLowerCase() : ""; // Khử lỗi chuỗi null
         let muc = 0; 
         if (str.includes("xuất sắc")) muc = 4;
         else if (str.includes("tốt")) muc = 3;
