@@ -474,7 +474,7 @@
         return html;
     }
 
-    function guiCauHoiAI() {
+    async function guiCauHoiAI() {
         const cauHoi = document.getElementById('aiQueryInput').value.trim();
         const hopPhanHoi = document.getElementById('aiResponseBox');
         const nutGui = document.getElementById('btnSendAI');
@@ -488,30 +488,26 @@
         nutGui.innerHTML = "⏳ Đang tra cứu...";
         hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><span style="color:#666; font-style:italic;">⏳ AI đang quét dữ liệu quy chế, xin vui lòng chờ giây lát...</span>`;
 
-        // Gọi hàm backend qua google.script.run
-        if (typeof google !== 'undefined' && google.script) {
-            google.script.run
-                .withSuccessHandler(res => {
-                    nutGui.disabled = false;
-                    nutGui.innerHTML = "Hỏi AI";
-                    if(res.success) {
-                        const phanHoiDep = formatVanBanAI(res.message);
-                        hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><strong>🤖 AI Trả lời:</strong><br>${phanHoiDep}`;
-                        document.getElementById('aiQueryInput').value = '';
-                    } else {
-                        hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><span style="color:red;"><strong>⚠️ Lỗi:</strong> ${res.message}</span>`;
-                    }
-                })
-                .withFailureHandler(err => {
-                    nutGui.disabled = false;
-                    nutGui.innerHTML = "Hỏi AI";
-                    hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><span style="color:red;"><strong>❌ Lỗi máy chủ:</strong> Không thể kết nối. ${err}</span>`;
-                })
-                .API_TroGiupQuyChe(cauHoi);
-        } else {
+        try {
+            // Sử dụng Fetch API thay cho google.script.run để tương thích với nền tảng Web ngoài
+            const urlGoiAI = `${z_y_a}?z_p_a=h_o_i_a_i&z_p_b=${encodeURIComponent(cauHoi)}`;
+            const response = await fetch(urlGoiAI);
+            const res = await response.json();
+
             nutGui.disabled = false;
             nutGui.innerHTML = "Hỏi AI";
-            hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><span style="color:red;"><strong>❌ Lỗi:</strong> Môi trường hiện tại không hỗ trợ gọi thư viện Google Script. Hãy chạy trên Web App chính thức.</span>`;
+
+            if (res.success) {
+                const phanHoiDep = formatVanBanAI(res.message);
+                hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><strong>🤖 AI Trả lời:</strong><br>${phanHoiDep}`;
+                document.getElementById('aiQueryInput').value = '';
+            } else {
+                hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><span style="color:red;"><strong>⚠️ Lỗi:</strong> ${res.message}</span>`;
+            }
+        } catch (err) {
+            nutGui.disabled = false;
+            nutGui.innerHTML = "Hỏi AI";
+            hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><span style="color:red;"><strong>❌ Lỗi máy chủ:</strong> Không thể kết nối. ${err.message}</span>`;
         }
     }
     
