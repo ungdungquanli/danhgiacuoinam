@@ -114,7 +114,10 @@
             <div id="theHienChinh" style="color: #ffc107; font-weight: bold; text-transform: uppercase; font-size: 14px; margin-bottom: 12px; line-height: 1.3;"></div>
             
             <div style="font-size: 13px; color: #e0e0e0; margin-bottom: 3px;">Phân loại:</div>
-            <div id="hienThiNhom" style="color: #ffc107; font-weight: bold; text-transform: uppercase; font-size: 14px;"></div>
+            <div id="hienThiNhom" style="color: #ffc107; font-weight: bold; text-transform: uppercase; font-size: 14px; margin-bottom: 12px;"></div>
+            
+            <div style="font-size: 13px; color: #e0e0e0; margin-bottom: 3px;">Năm học:</div>
+            <div id="hienThiNamHoc" style="color: #ffc107; font-weight: bold; text-transform: uppercase; font-size: 14px;"></div>
         </div>
 
         <div class="danh-muc-trai">
@@ -249,6 +252,9 @@
     const z_y_a = "https://script.google.com/macros/s/AKfycbynhXlUEopWNlbpbRaD3e50Y0xwevEXIK53VpmOEWMZfhsSnfqxvFctSPeNMRc7709aHw/exec";
     let v_l_a = "", v_l_b = "", v_l_c = {};
     let v_l_d = "", v_l_e = "", v_l_f = "";
+    
+    // Khai báo biến toàn cục chứa Năm học tải về
+    let v_nam_hoc_hien_tai = ""; 
 
     function f_x_c() {
         if (!document.getElementById("vungThuHai").classList.contains("a-di")) f_x_d(); else f_x_h();
@@ -266,7 +272,10 @@
                 v_l_a = p_c; v_l_b = t_k.y_a; v_l_c = t_k.y_e; v_l_d = t_k.y_c || ""; 
                 document.getElementById("theHienChinh").innerText = t_k.y_b || v_l_b;
                 
-                // Mở khóa phân quyền từ Cột D (y_role)
+                // Đồng bộ hiển thị Năm học từ API
+                v_nam_hoc_hien_tai = t_k.y_namhoc || "";
+                if(document.getElementById("hienThiNamHoc")) document.getElementById("hienThiNamHoc").innerText = v_nam_hoc_hien_tai;
+
                 let quyenAdmin = (t_k.y_role && t_k.y_role.toLowerCase().includes('admin'));
                 sessionStorage.setItem("HTDG_IS_ADMIN", quyenAdmin ? "true" : "false"); 
                 
@@ -381,8 +390,10 @@
         
         document.getElementById("o-luu-overlay").style.display = "flex";
         const ten_tren_web = document.getElementById("theHienChinh").innerText || v_l_b;
+        
         try {
-            await fetch(z_y_a, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ w_a: v_l_a, w_b: v_l_b, w_f: ten_tren_web, w_c: m_k, w_d: v_l_e, w_e: v_l_f }) });
+            // CẬP NHẬT: Thêm gói dữ liệu w_g mang theo biến Năm học
+            await fetch(z_y_a, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ w_a: v_l_a, w_b: v_l_b, w_f: ten_tren_web, w_c: m_k, w_d: v_l_e, w_e: v_l_f, w_g: v_nam_hoc_hien_tai }) });
             document.getElementById("o-luu-overlay").style.display = "none"; document.getElementById("o-thong-bao").style.display = "flex";
         } catch (err) { 
             document.getElementById("o-luu-overlay").style.display = "none"; alert("Lỗi mạng khi lưu dữ liệu. Vui lòng kiểm tra kết nối và thử lại."); 
