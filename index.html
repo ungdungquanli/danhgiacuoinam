@@ -11,7 +11,19 @@
     <style>
         :root { --mau-c: #0056b3; --mau-n: #f4f7f6; --mau-t: #333333; }
         body { font-family: 'Times New Roman', Times, serif; background-color: var(--mau-n); color: var(--mau-t); line-height: 1.4; margin: 0; padding: 5px 20px 20px 20px; }
-        .k-ngoai { max-width: 1150px; margin: 0 auto; background: white; padding: 0 30px 25px 30px; border-radius: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; }
+        
+        /* --- KHỐI CSS: BỐ CỤC TỔNG THỂ & MENU DỌC --- */
+        .bo-cuc-tong { display: flex; max-width: 1400px; margin: 0 auto; gap: 20px; padding-top: 0; align-items: flex-start; }
+        
+        .khung-trai { width: 180px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; padding-top: 20px; position: sticky; top: 10px;}
+        .khung-logo { border: 2px solid red; padding: 25px 15px; margin-bottom: 20px; color: red; font-size: 16px; font-family: sans-serif; text-align: center; display: flex; align-items: center; justify-content: center; background: white;}
+        .ten-truong-trai { color: red; font-size: 17px; text-align: center; margin-bottom: 40px; line-height: 1.4; padding: 0 5px;}
+        .danh-muc-trai { width: 100%; display: flex; flex-direction: column; gap: 18px; padding-left: 20px; box-sizing: border-box;}
+        .the-chuyen { color: red; font-size: 16px; text-decoration: none; cursor: pointer; transition: 0.2s; display: block;}
+        .the-chuyen:hover { font-weight: bold; text-decoration: underline; }
+        
+        /* --- KHỐI CSS: NỘI DUNG CHÍNH --- */
+        .k-ngoai { flex: 1; background: white; padding: 0 30px 25px 30px; border-radius: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; width: 100%; box-sizing: border-box;}
         
         .k-header-sticky { position: sticky; top: 0; background: #ffffff; z-index: 1000; padding-top: 15px; padding-bottom: 5px; }
         .logo-goc-trai { position: absolute; top: 15px; left: 0; width: 65px; }
@@ -84,65 +96,81 @@
         </div>
         
         <div style="font-size: 13px; color: #888; text-align: center;">Hệ thống nạp dữ liệu tự động theo định danh chuẩn.</div>
-        <div style="margin-top: 15px; font-size: 14px; color: #888; font-weight: bold;">Phát triển: HOÀNG NGỌC LÂM</div>
+        <div style="margin-top: 15px; font-size: 14px; color: #888; font-weight: bold;">Thiết kế và phát triển<br>Hoàng Ngọc Lâm</div>
     </div>
 </div>
 
-<div class="k-ngoai" id="main-ui" style="display: none;">
-    <div class="k-header-sticky">
-        <img src="https://i.ibb.co/d0JNW94Z/logo-l-a-ch-n6.png" alt="Logo" class="logo-goc-trai">
-        <button class="n-dx" onclick="f_x_logout()">Đăng xuất</button>
+<div id="bo-cuc-he-thong" class="bo-cuc-tong" style="display: none;">
+    
+    <div class="khung-trai">
+        <div class="khung-logo">Logo</div>
+        <div class="ten-truong-trai">Trường TH&THCS Hợp Thành</div>
         
-        <div class="k-dau">
-            <h2>TRƯỜNG TH&THCS HỢP THÀNH</h2>
-            <h1>Hệ Thống Đánh Giá Xếp Loại Viên Chức</h1>
-            <p><i>(Áp dụng từ năm học 2025-2026)</i></p>
-        </div>
-
-        <div id="vungThongTin" style="display: none; justify-content: space-between; align-items: center; border-bottom: 2px solid #ccc; padding-bottom: 6px; margin-top: 8px;">
-            <h3 style="color: var(--mau-c); margin: 0; font-size: 16px;">
-                Dữ liệu: <span id="theHienChinh" style="color: #d9534f; text-transform: uppercase;"></span>
-            </h3>
-            <div style="font-size: 15px; font-weight: bold; color: var(--mau-c);">
-                Phân loại: <span id="hienThiNhom" style="color: #d9534f; text-transform: uppercase;"></span>
-            </div>
+        <div class="danh-muc-trai">
+            <span class="the-chuyen" id="menu-danh-gia">Đánh giá</span>
+            <span class="the-chuyen" id="menu-ket-qua">Kết quả</span>
+            <span class="the-chuyen" id="menu-quan-ly-quyen">Quản lý quyền</span>
+            <span class="the-chuyen" id="menu-tieu-chi-gv">Tiêu chí GV</span>
+            <span class="the-chuyen" id="menu-tieu-chi-nv">Tiêu chí NV</span>
         </div>
     </div>
 
-    <div id="vungThuNhat" style="display: none;"><input type="text" id="oNhapChinh"></div>
-    <div id="h-dang-tai">Đang tự động đối chiếu và tải dữ liệu...</div>
-
-    <div id="vungThuHai" class="a-di">
-        <table>
-            <thead>
-                <tr>
-                    <th width="5%">STT</th>
-                    <th width="30%">Tên tiêu chí</th>
-                    <th width="15%">Thang giá trị</th>
-                    <th width="50%">Kết quả đạt được</th>
-                </tr>
-            </thead>
-            <tbody id="t-b-g"></tbody>
-        </table>
-
-        <div class="v-t-k">
-            <div style="flex: 1.2;">
-                <h3 style="margin: 0 0 5px 0;">DỰ KIẾN KẾT QUẢ ĐÁNH GIÁ:</h3>
-                <div style="font-size: 14px; color: #555;"><i>(Xếp loại xuất sắc phải có 30% các tiêu chí phần 2 vượt chỉ tiêu)</i></div>
-            </div>
+    <div class="k-ngoai" id="main-ui">
+        <div class="k-header-sticky">
+            <img src="https://i.ibb.co/d0JNW94Z/logo-l-a-ch-n6.png" alt="Logo" class="logo-goc-trai">
+            <button class="n-dx" onclick="f_x_logout()">Đăng xuất</button>
             
-            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; color: #d9534f; font-size: 18px; line-height: 1.6;">
-                <div id="vHT1" style="font-size: 18px; font-weight: bold; color: #0056b3;">Tổng điểm phần 1: 0</div>
-                <div id="vHT2" style="font-size: 18px; font-weight: bold; color: #0056b3;">Tổng điểm phần 2: 0</div>
+            <div class="k-dau">
+                <h2>TRƯỜNG TH&THCS HỢP THÀNH</h2>
+                <h1>Hệ Thống Đánh Giá Xếp Loại Viên Chức</h1>
+                <p><i>(Áp dụng từ năm học 2025-2026)</i></p>
             </div>
-            
-            <div class="v-d-g" id="vHT3" style="flex: 1.2;">
-                <div style="font-size: 20px; font-weight: bold; color: #dc3545; text-transform: uppercase; white-space: nowrap;">CHƯA HOÀN THÀNH NHIỆM VỤ</div>
-                <div style="font-size: 18px; color: #b30000; font-weight: bold; margin-top: 5px;">Tổng điểm năm học: 0</div>
+
+            <div id="vungThongTin" style="display: none; justify-content: space-between; align-items: center; border-bottom: 2px solid #ccc; padding-bottom: 6px; margin-top: 8px;">
+                <h3 style="color: var(--mau-c); margin: 0; font-size: 16px;">
+                    Dữ liệu: <span id="theHienChinh" style="color: #d9534f; text-transform: uppercase;"></span>
+                </h3>
+                <div style="font-size: 15px; font-weight: bold; color: var(--mau-c);">
+                    Phân loại: <span id="hienThiNhom" style="color: #d9534f; text-transform: uppercase;"></span>
+                </div>
             </div>
         </div>
 
-        <button class="n-bam n-xanh-l" onclick="f_x_i()">LƯU KẾT QUẢ</button>
+        <div id="vungThuNhat" style="display: none;"><input type="text" id="oNhapChinh"></div>
+        <div id="h-dang-tai">Đang tự động đối chiếu và tải dữ liệu...</div>
+
+        <div id="vungThuHai" class="a-di">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="5%">STT</th>
+                        <th width="30%">Tên tiêu chí</th>
+                        <th width="15%">Thang giá trị</th>
+                        <th width="50%">Kết quả đạt được</th>
+                    </tr>
+                </thead>
+                <tbody id="t-b-g"></tbody>
+            </table>
+
+            <div class="v-t-k">
+                <div style="flex: 1.2;">
+                    <h3 style="margin: 0 0 5px 0;">DỰ KIẾN KẾT QUẢ ĐÁNH GIÁ:</h3>
+                    <div style="font-size: 14px; color: #555;"><i>(Xếp loại xuất sắc phải có 30% các tiêu chí phần 2 vượt chỉ tiêu)</i></div>
+                </div>
+                
+                <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; color: #d9534f; font-size: 18px; line-height: 1.6;">
+                    <div id="vHT1" style="font-size: 18px; font-weight: bold; color: #0056b3;">Tổng điểm phần 1: 0</div>
+                    <div id="vHT2" style="font-size: 18px; font-weight: bold; color: #0056b3;">Tổng điểm phần 2: 0</div>
+                </div>
+                
+                <div class="v-d-g" id="vHT3" style="flex: 1.2;">
+                    <div style="font-size: 20px; font-weight: bold; color: #dc3545; text-transform: uppercase; white-space: nowrap;">CHƯA HOÀN THÀNH NHIỆM VỤ</div>
+                    <div style="font-size: 18px; color: #b30000; font-weight: bold; margin-top: 5px;">Tổng điểm năm học: 0</div>
+                </div>
+            </div>
+
+            <button class="n-bam n-xanh-l" onclick="f_x_i()">LƯU KẾT QUẢ</button>
+        </div>
     </div>
 </div>
 
@@ -179,7 +207,8 @@
 
     function showMainUI(d_danh) {
         document.getElementById('login-overlay').style.display = 'none';
-        document.getElementById('main-ui').style.display = 'block';
+        /* Đã cập nhật dòng hiển thị sang ID bố cục mới theo nguyên tắc vàng */
+        document.getElementById('bo-cuc-he-thong').style.display = 'flex'; 
         const objNhom = document.getElementById('oChonNhom');
         if(document.getElementById('hienThiNhom')) document.getElementById('hienThiNhom').innerText = objNhom.options[objNhom.selectedIndex].text;
         const oNhap = document.getElementById('oNhapChinh');
