@@ -289,8 +289,8 @@
 
     function handleCredentialResponse(response) {
         const payload = decodeJwtResponse(response.credential);
-        const kAttr = "em" + "ail"; 
-        const d_danh = payload[kAttr];
+        //const kAttr = "em" + "ail"; 
+        const d_danh = payload.email;
         const nhomDaChon = document.getElementById('oChonNhom').value;
         sessionStorage.setItem("HTDG_USER_ID", d_danh);
         sessionStorage.setItem("HTDG_NHOM_ID", nhomDaChon);
