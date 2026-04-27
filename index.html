@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="https://i.ibb.co/S46wLjDt/logo-tr-ng-TH-THCS-Hop-Thanh3-removebg-preview.png">
+    <link rel="icon" href="https://i.ibb.co/d0JNW94Z/logo-l-a-ch-n6.png">
     <title>Hệ Thống Đánh Giá Xếp Loại Viên Chức - TH&THCS Hợp Thành</title>
     
     <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -99,7 +99,7 @@
 
 <div id="login-overlay">
     <div class="login-box">
-        <img src="https://i.ibb.co/S46wLjDt/logo-tr-ng-TH-THCS-Hop-Thanh3-removebg-preview.png" width="80" alt="Logo" style="margin-bottom: 15px;">
+        <img src="https://i.ibb.co/d0JNW94Z/logo-l-a-ch-n6.png" width="80" alt="Logo" style="margin-bottom: 15px;">
         <h2 style="color: #b91c1c; margin: 0; text-transform: uppercase;">Hệ Thống Đánh Giá Viên Chức</h2>
         <h3 style="color: #0056b3; margin: 10px 0 25px 0;">Trường TH&THCS Hợp Thành</h3>
         
@@ -126,7 +126,7 @@
     
     <div class="khung-trai">
         <div class="khung-logo">
-            <img src="https://i.ibb.co/S46wLjDt/logo-tr-ng-TH-THCS-Hop-Thanh3-removebg-preview.png" alt="Logo">
+            <img src="https://i.ibb.co/d0JNW94Z/logo-l-a-ch-n6.png" alt="Logo">
         </div>
         <div class="ten-truong-trai">Trường TH&THCS Hợp Thành</div>
         
@@ -454,6 +454,7 @@
 
     // =========================================================================
     // BỔ SUNG: CÁC HÀM XỬ LÝ GIAO TIẾP VỚI TRỢ LÝ AI (Hỗ trợ Quy chế)
+    // TÍCH HỢP FETCH API THEO TIÊU CHUẨN DỰ ÁN SỔ CÔNG VĂN
     // =========================================================================
     function moKhungChatAI() {
         document.getElementById('aiChatModal').style.display = 'flex';
@@ -486,10 +487,10 @@
         // Khóa nút và hiện trạng thái đang xử lý
         nutGui.disabled = true;
         nutGui.innerHTML = "⏳ Đang tra cứu...";
-        hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><span style="color:#666; font-style:italic;">⏳ AI đang quét dữ liệu quy chế, xin vui lòng chờ giây lát...</span>`;
+        hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><br><span style="color:#666; font-style:italic;">⏳ AI đang quét dữ liệu quy chế, xin vui lòng chờ giây lát...</span>`;
 
         try {
-            // Sử dụng Fetch API thay cho google.script.run để tương thích với nền tảng Web ngoài
+            // Thay thế hoàn toàn google.script.run bằng Fetch API (Giải pháp triệt để cho môi trường Web ngoài)
             const urlGoiAI = `${z_y_a}?z_p_a=h_o_i_a_i&z_p_b=${encodeURIComponent(cauHoi)}`;
             const response = await fetch(urlGoiAI);
             const res = await response.json();
@@ -499,15 +500,15 @@
 
             if (res.success) {
                 const phanHoiDep = formatVanBanAI(res.message);
-                hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><strong>🤖 AI Trả lời:</strong><br>${phanHoiDep}`;
+                hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><br><strong>🤖 AI Trả lời:</strong><br>${phanHoiDep}`;
                 document.getElementById('aiQueryInput').value = '';
             } else {
-                hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><span style="color:red;"><strong>⚠️ Lỗi:</strong> ${res.message}</span>`;
+                hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><br><span style="color:red;"><strong>⚠️ Lỗi:</strong> ${res.message}</span>`;
             }
         } catch (err) {
             nutGui.disabled = false;
             nutGui.innerHTML = "Hỏi AI";
-            hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><span style="color:red;"><strong>❌ Lỗi máy chủ:</strong> Không thể kết nối. ${err.message}</span>`;
+            hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><br><span style="color:red;"><strong>❌ Lỗi kết nối:</strong> Không thể kết nối máy chủ Google. ${err.message}</span>`;
         }
     }
     
