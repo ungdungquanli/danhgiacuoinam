@@ -73,6 +73,11 @@
         .n-dong-tb { margin-top: 20px; padding: 10px 30px; background: #198754; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
         .n-dong-tb:hover { background: #146c43; }
 
+        /* BỔ SUNG: CSS CHO UI CẢNH BÁO / LỖI MỚI THAY THẾ ALERT */
+        #ui-canh-bao { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #ffffff; color: #842029; padding: 30px 40px; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); border: 1px solid #f5c2c7; display: none; flex-direction: column; align-items: center; z-index: 10010; text-align: center; border-top: 8px solid #dc3545; min-width: 350px; }
+        .n-dong-cb { margin-top: 20px; padding: 10px 30px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        .n-dong-cb:hover { background: #b02a37; }
+
         /* BỔ SUNG: GIAO DIỆN CHATBOT AI TRỢ GIÚP QUY CHẾ */
         .ai-modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -243,6 +248,15 @@
     <button class="n-dong-tb" onclick="dongThongBao()">Xác nhận</button>
 </div>
 
+<div id="ui-canh-bao">
+    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="#dc3545" viewBox="0 0 16 16" style="margin-bottom: 15px;">
+        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+    </svg>
+    <div style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">THÔNG BÁO HỆ THỐNG</div>
+    <div id="noi-dung-canh-bao" style="font-size: 16px; color: #333; line-height: 1.5;"></div>
+    <button class="n-dong-cb" onclick="dongCanhBaoUI()">Đóng</button>
+</div>
+
 <script>
     window.addEventListener('DOMContentLoaded', () => {
         const loggedUser = sessionStorage.getItem("HTDG_USER_ID");
@@ -252,6 +266,26 @@
         f_x_k('tieuchigv.html');
         f_x_k('tieuchinv.html');
     });
+
+    // =========================================================================
+    // BỔ SUNG: KHỐI HÀM QUẢN LÝ GIAO DIỆN THÔNG BÁO (THAY THẾ ALERT)
+    // =========================================================================
+    let hanhDongSauThongBao = null;
+    
+    function hienThiThongBaoUI(noiDung, callback = null) {
+        document.getElementById("noi-dung-canh-bao").innerHTML = noiDung;
+        document.getElementById("ui-canh-bao").style.display = "flex";
+        hanhDongSauThongBao = callback; // Lưu trữ hàm để gọi sau khi đóng (nếu có)
+    }
+
+    function dongCanhBaoUI() {
+        document.getElementById("ui-canh-bao").style.display = "none";
+        if (typeof hanhDongSauThongBao === 'function') {
+            hanhDongSauThongBao(); 
+            hanhDongSauThongBao = null;
+        }
+    }
+    // =========================================================================
 
     function handleCredentialResponse(response) {
         const payload = decodeJwtResponse(response.credential);
@@ -301,7 +335,13 @@
     async function f_x_d() {
         const p_c = document.getElementById("oNhapChinh").value.trim();
         const p_n = document.getElementById("oChonNhom").value; 
-        if (!p_c) return alert("Hệ thống chưa xác định được định danh!");
+        
+        // ĐÃ THAY THẾ: Gọi UI cảnh báo thay cho alert
+        if (!p_c) {
+            hienThiThongBaoUI("Hệ thống chưa xác định được định danh!");
+            return;
+        }
+        
         f_x_j(true);
         try {
             const res = await fetch(`${z_y_a}?z_p_a=m_k_o&z_p_b=${encodeURIComponent(p_c)}&z_p_c=${p_n}`);
@@ -331,8 +371,14 @@
                 document.getElementById("vungThuHai").classList.remove("a-di");
                 document.getElementById("vungThongTin").style.display = "flex";
                 f_x_h();
-            } else { alert(t_k.message); f_x_logout(); }
-        } catch (err) { alert("Kết nối bị gián đoạn."); f_x_logout(); }
+            } else { 
+                // ĐÃ THAY THẾ: Truyền f_x_logout qua callback để sau khi đóng thông báo hệ thống mới đăng xuất
+                hienThiThongBaoUI(t_k.message, f_x_logout); 
+            }
+        } catch (err) { 
+            // ĐÃ THAY THẾ: Thông báo lỗi mạng
+            hienThiThongBaoUI("Kết nối tới máy chủ bị gián đoạn. Vui lòng tải lại trang.", f_x_logout); 
+        }
         f_x_j(false);
     }
 
@@ -432,7 +478,9 @@
             await fetch(z_y_a, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ w_a: v_l_a, w_b: v_l_b, w_f: ten_tren_web, w_c: m_k, w_d: v_l_e, w_e: v_l_f, w_g: v_nam_hoc_hien_tai }) });
             document.getElementById("o-luu-overlay").style.display = "none"; document.getElementById("o-thong-bao").style.display = "flex";
         } catch (err) { 
-            document.getElementById("o-luu-overlay").style.display = "none"; alert("Lỗi mạng khi lưu dữ liệu. Vui lòng kiểm tra kết nối và thử lại."); 
+            document.getElementById("o-luu-overlay").style.display = "none"; 
+            // ĐÃ THAY THẾ: Thông báo lỗi mạng
+            hienThiThongBaoUI("Lỗi mạng khi lưu dữ liệu. Vui lòng kiểm tra kết nối và thử lại."); 
         }
     }
     
@@ -453,8 +501,7 @@
     }
 
     // =========================================================================
-    // BỔ SUNG: CÁC HÀM XỬ LÝ GIAO TIẾP VỚI TRỢ LÝ AI (Hỗ trợ Quy chế)
-    // TÍCH HỢP LƯU LỊCH SỬ CHAT VÀ TỰ ĐỘNG CUỘN TRANG
+    // CÁC HÀM XỬ LÝ GIAO TIẾP VỚI TRỢ LÝ AI (Hỗ trợ Quy chế)
     // =========================================================================
     function moKhungChatAI() {
         document.getElementById('aiChatModal').style.display = 'flex';
@@ -486,23 +533,21 @@
         const modalBody = document.getElementById('aiModalBody'); 
 
         if(!cauHoi) {
-            alert("Đồng chí vui lòng nhập câu hỏi!"); return;
+            // ĐÃ THAY THẾ: Thông báo người dùng nhập câu hỏi
+            hienThiThongBaoUI("Đồng chí vui lòng nhập câu hỏi!"); 
+            return;
         }
 
-        // Xóa câu chào mặc định nếu có ở lần hỏi đầu tiên
         const welcomeMsg = document.getElementById('aiWelcomeMsg');
         if (welcomeMsg) {
             welcomeMsg.remove();
         }
 
-        // Khóa nút
         nutGui.disabled = true;
         nutGui.innerHTML = "⏳ Đang tra cứu...";
 
-        // Tạo ID duy nhất cho khung trạng thái loading
         const loadingId = "load_" + new Date().getTime();
 
-        // Chèn câu hỏi của người dùng và trạng thái chờ xuống cuối danh sách (Ghi nối tiếp)
         const blockChat = `
             <div style="border-bottom: 1px dashed #93c5fd; padding-bottom: 15px; margin-bottom: 15px;">
                 <div class="ai-user-query">👤 Bạn: ${cauHoi}</div>
@@ -511,7 +556,6 @@
         `;
         hopPhanHoi.insertAdjacentHTML('beforeend', blockChat);
         
-        // Tự động cuộn màn hình xuống dưới cùng
         modalBody.scrollTop = modalBody.scrollHeight;
 
         try {
@@ -522,7 +566,6 @@
             nutGui.disabled = false;
             nutGui.innerHTML = "Hỏi AI";
 
-            // Xóa dòng trạng thái chờ
             const loadingEl = document.getElementById(loadingId);
 
             if (res.success) {
@@ -539,7 +582,6 @@
             if(loadingEl) loadingEl.outerHTML = `<div style="margin-top: 8px; color:red;"><strong>❌ Lỗi kết nối:</strong> Trình duyệt hoặc mạng chặn yêu cầu.</div>`;
         }
 
-        // Cuộn màn hình xuống cuối lại sau khi có câu trả lời
         modalBody.scrollTop = modalBody.scrollHeight;
     }
     
