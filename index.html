@@ -10,27 +10,21 @@
 
     <style>
         :root { --mau-c: #0056b3; --mau-n: #f4f7f6; --mau-t: #333333; }
-        /* Đã điều chỉnh padding của body về 0 để menu có thể đạt 100% chiều cao màn hình */
         body { font-family: 'Times New Roman', Times, serif; background-color: var(--mau-n); color: var(--mau-t); line-height: 1.4; margin: 0; padding: 0; }
         
-        /* --- KHỐI CSS: BỐ CỤC TỔNG THỂ & MENU DỌC --- */
         .bo-cuc-tong { display: flex; max-width: 1400px; margin: 0 auto; align-items: stretch; min-height: 100vh; }
         
-        /* Thiết lập height: 100vh và top: 0 để menu trải dài 100% trang */
         .khung-trai { width: 250px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; padding-top: 25px; position: sticky; top: 0; height: 100vh; background-color: var(--mau-c); padding-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); box-sizing: border-box; overflow-y: auto;}
         .khung-logo { margin-bottom: 15px; display: flex; align-items: center; justify-content: center;}
         .khung-logo img { width: 85px; background: white; border-radius: 50%; padding: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
         .ten-truong-trai { color: #ffffff; font-size: 15px; font-weight: bold; text-align: center; margin-bottom: 20px; line-height: 1.4; padding: 0 15px; text-transform: uppercase; border-bottom: 1px dashed rgba(255, 255, 255, 0.4); padding-bottom: 15px; width: 85%;}
         
-        /* CSS Mới: Cấu trúc menu phẳng, có đường kẻ và icon theo mẫu */
         .danh-muc-trai { width: 100%; display: flex; flex-direction: column; padding: 0; box-sizing: border-box;}
         .the-chuyen { color: #ffffff; font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-decoration: none; cursor: pointer; transition: 0.2s; display: flex; align-items: center; padding: 15px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.15); box-sizing: border-box;}
         .the-chuyen:first-child { border-top: 1px solid rgba(255, 255, 255, 0.15); }
         .the-chuyen:hover { background-color: rgba(255, 255, 255, 0.1); font-weight: 500;}
         .b-tuong { margin-right: 12px; font-size: 18px; display: inline-block; width: 24px; text-align: center;}
         
-        /* --- KHỐI CSS: NỘI DUNG CHÍNH --- */
-        /* Cập nhật: Đưa margin về 0 và bỏ góc bo bên trái để dính liền khối menu */
         .k-ngoai { flex: 1; background: white; padding: 0 30px 25px 30px; border-radius: 0 5px 5px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; width: 100%; box-sizing: border-box; margin: 0;}
         
         .k-header-sticky { position: sticky; top: 0; background: #ffffff; z-index: 1000; padding-top: 15px; padding-bottom: 5px; display: flex; flex-direction: column; align-items: center;}
@@ -124,12 +118,12 @@
         </div>
 
         <div class="danh-muc-trai">
-            <a href="javascript:void(0)" onclick="f_x_c(); return false;" class="the-chuyen" id="menu-danh-gia">
+            <a href="javascript:void(0)" onclick="f_x_c(); return false;" class="the-chuyen" id="menu-danh-gia" style="background-color: rgba(255, 255, 255, 0.15); font-weight: bold; text-decoration: none;">
                 <span class="b-tuong">📝</span> Đánh giá
             </a>
-            <span class="the-chuyen" id="menu-ket-qua">
+            <a href="KetQua.html" class="the-chuyen" id="menu-ket-qua" style="text-decoration: none;">
                 <span class="b-tuong">📈</span> Kết quả
-            </span>
+            </a>
             <span class="the-chuyen" id="menu-quan-ly-quyen">
                 <span class="b-tuong">👥</span> Quản lý quyền
             </span>
@@ -206,6 +200,15 @@
 </div>
 
 <script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const loggedUser = sessionStorage.getItem("HTDG_USER_ID");
+        const savedNhom = sessionStorage.getItem("HTDG_NHOM_ID");
+        if (savedNhom) document.getElementById('oChonNhom').value = savedNhom;
+        if (loggedUser) showMainUI(loggedUser);
+        f_x_k('tieuchigv.html');
+        f_x_k('tieuchinv.html');
+    });
+
     function handleCredentialResponse(response) {
         const payload = decodeJwtResponse(response.credential);
         const kAttr = "em" + "ail"; 
@@ -384,14 +387,6 @@
         } catch (loi) { console.error(loi); }
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-        const loggedUser = sessionStorage.getItem("HTDG_USER_ID");
-        const savedNhom = sessionStorage.getItem("HTDG_NHOM_ID");
-        if (savedNhom) document.getElementById('oChonNhom').value = savedNhom;
-        if (loggedUser) showMainUI(loggedUser);
-        f_x_k('tieuchigv.html');
-        f_x_k('tieuchinv.html');
-    });
 </script>
 </body>
 </html>
