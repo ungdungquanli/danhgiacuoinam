@@ -86,13 +86,13 @@
             background: var(--mau-c); color: white; padding: 15px 20px; font-weight: bold; font-size: 16px;
             display: flex; justify-content: space-between; align-items: center;
         }
-        .ai-modal-body { padding: 20px; flex: 1; max-height: 60vh; overflow-y: auto; background: #f8fbff; }
+        .ai-modal-body { padding: 20px; flex: 1; max-height: 60vh; overflow-y: auto; background: #f8fbff; scroll-behavior: smooth; }
         .ai-modal-footer { padding: 15px; background: #fff; border-top: 1px solid #e5e7eb; display: flex; gap: 10px; }
         .ai-response-box {
             background: #e0f2fe; padding: 15px; border-radius: 8px; margin-bottom: 10px;
             border-left: 4px solid #0284c7; font-size: 15px; color: #1e3a8a; min-height: 60px; line-height: 1.6;
         }
-        .ai-user-query { font-weight: bold; color: #333; margin-bottom: 8px; display: block; border-bottom: 1px dashed #ccc; padding-bottom: 5px;}
+        .ai-user-query { font-weight: bold; color: #333; margin-bottom: 8px; display: block; padding-bottom: 5px;}
     </style>
 </head>
 <body>
@@ -217,16 +217,16 @@
 <div id="aiChatModal" class="ai-modal-overlay">
     <div class="ai-modal-content">
         <div class="ai-modal-header">
-            <span>🤖 Trợ lý AI - Giải đáp Quy chế</span>
+            <span>🤖 Trợ lý AI - Giải đáp Quy chế xếp loại cuối năm</span>
             <button onclick="dongKhungChatAI()" style="background:transparent; border:none; color:white; font-size:18px; cursor:pointer;" title="Đóng">✖</button>
         </div>
-        <div class="ai-modal-body">
+        <div class="ai-modal-body" id="aiModalBody">
             <div id="aiResponseBox" class="ai-response-box">
-                <em>Xin chào bạn! Tôi là trợ lý ảo hỗ trợ giải đáp nhanh các thắc mắc về <b>Quy chế đánh giá xếp loại cuối năm</b>. Vui lòng nhập câu hỏi bên dưới.</em>
+                <div id="aiWelcomeMsg"><em>Xin chào đồng chí! Tôi là trợ lý ảo hỗ trợ giải đáp nhanh các thắc mắc về <b>Quy chế đánh giá xếp loại</b>. Vui lòng nhập câu hỏi bên dưới.</em></div>
             </div>
         </div>
         <div class="ai-modal-footer">
-            <textarea id="aiQueryInput" placeholder="Ví dụ: Tiêu chí xếp loại của giáo viên như thế nào?" style="flex:1; padding:10px; border:1px solid #ccc; border-radius:4px; resize:none; height:45px; font-family:inherit; font-size: 15px;"></textarea>
+            <textarea id="aiQueryInput" placeholder="Ví dụ: Tiêu chí xếp loại của giáo viên thế nào?" style="flex:1; padding:10px; border:1px solid #ccc; border-radius:4px; resize:none; height:45px; font-family:inherit; font-size: 15px;"></textarea>
             <button onclick="guiCauHoiAI()" id="btnSendAI" style="background:var(--mau-c); color:white; border:none; padding:0 25px; border-radius:4px; font-weight:bold; cursor:pointer; font-size: 15px;">Hỏi AI</button>
         </div>
     </div>
@@ -454,7 +454,7 @@
 
     // =========================================================================
     // BỔ SUNG: CÁC HÀM XỬ LÝ GIAO TIẾP VỚI TRỢ LÝ AI (Hỗ trợ Quy chế)
-    // TÍCH HỢP FETCH API & CHỐNG LƯU CACHE TRÌNH DUYỆT
+    // TÍCH HỢP LƯU LỊCH SỬ CHAT VÀ TỰ ĐỘNG CUỘN TRANG
     // =========================================================================
     function moKhungChatAI() {
         document.getElementById('aiChatModal').style.display = 'flex';
@@ -468,10 +468,14 @@
     function formatVanBanAI(text) {
         if (!text) return "";
         let html = text;
+        
+        html = html.replace(/###\s+(.*)/g, '<h4 style="color: #b91c1c; margin-top: 15px; margin-bottom: 5px;">$1</h4>');
+        html = html.replace(/##\s+(.*)/g, '<h3 style="color: #b91c1c; margin-top: 15px; margin-bottom: 5px;">$1</h3>');
         html = html.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #1e3a8a;">$1</strong>');
         html = html.replace(/(^|\n)\s*[\*\-]\s+(.*)/g, '$1<div style="margin-left: 15px; margin-bottom: 5px;">&bull; $2</div>');
         html = html.replace(/\n/g, '<br>');
         html = html.replace(/<\/div><br>/g, '</div>');
+        
         return html;
     }
 
@@ -479,17 +483,38 @@
         const cauHoi = document.getElementById('aiQueryInput').value.trim();
         const hopPhanHoi = document.getElementById('aiResponseBox');
         const nutGui = document.getElementById('btnSendAI');
+        const modalBody = document.getElementById('aiModalBody'); 
 
         if(!cauHoi) {
             alert("Đồng chí vui lòng nhập câu hỏi!"); return;
         }
 
+        // Xóa câu chào mặc định nếu có ở lần hỏi đầu tiên
+        const welcomeMsg = document.getElementById('aiWelcomeMsg');
+        if (welcomeMsg) {
+            welcomeMsg.remove();
+        }
+
+        // Khóa nút
         nutGui.disabled = true;
         nutGui.innerHTML = "⏳ Đang tra cứu...";
-        hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><br><span style="color:#666; font-style:italic;">⏳ AI đang quét dữ liệu quy chế, xin vui lòng chờ giây lát...</span>`;
+
+        // Tạo ID duy nhất cho khung trạng thái loading
+        const loadingId = "load_" + new Date().getTime();
+
+        // Chèn câu hỏi của người dùng và trạng thái chờ xuống cuối danh sách (Ghi nối tiếp)
+        const blockChat = `
+            <div style="border-bottom: 1px dashed #93c5fd; padding-bottom: 15px; margin-bottom: 15px;">
+                <div class="ai-user-query">👤 Bạn: ${cauHoi}</div>
+                <div id="${loadingId}" style="color:#666; font-style:italic; margin-top: 8px;">⏳ AI đang phân tích dữ liệu, xin vui lòng chờ...</div>
+            </div>
+        `;
+        hopPhanHoi.insertAdjacentHTML('beforeend', blockChat);
+        
+        // Tự động cuộn màn hình xuống dưới cùng
+        modalBody.scrollTop = modalBody.scrollHeight;
 
         try {
-            // TÍNH NĂNG MỚI: Thêm đuôi &t=... để ép trình duyệt luôn tải file mới nhất, chặn đứng lỗi Cache ở Ảnh 1
             const urlGoiAI = `${z_y_a}?z_p_a=h_o_i_a_i&z_p_b=${encodeURIComponent(cauHoi)}&t=${new Date().getTime()}`;
             const response = await fetch(urlGoiAI);
             const res = await response.json();
@@ -497,18 +522,25 @@
             nutGui.disabled = false;
             nutGui.innerHTML = "Hỏi AI";
 
+            // Xóa dòng trạng thái chờ
+            const loadingEl = document.getElementById(loadingId);
+
             if (res.success) {
                 const phanHoiDep = formatVanBanAI(res.message);
-                hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><br><strong>🤖 AI Trả lời:</strong><br>${phanHoiDep}`;
+                if(loadingEl) loadingEl.outerHTML = `<div style="margin-top: 8px;"><strong>🤖 AI:</strong><br>${phanHoiDep}</div>`;
                 document.getElementById('aiQueryInput').value = '';
             } else {
-                hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><br><span style="color:red;"><strong>⚠️ Lỗi:</strong> ${res.message}</span>`;
+                if(loadingEl) loadingEl.outerHTML = `<div style="margin-top: 8px; color:red;"><strong>⚠️ Lỗi:</strong> ${res.message}</div>`;
             }
         } catch (err) {
             nutGui.disabled = false;
             nutGui.innerHTML = "Hỏi AI";
-            hopPhanHoi.innerHTML = `<span class="ai-user-query">👤 Bạn: ${cauHoi}</span><br><span style="color:red;"><strong>❌ Lỗi kết nối:</strong> Trình duyệt hoặc mạng chặn yêu cầu. Vui lòng tải lại trang.</span>`;
+            const loadingEl = document.getElementById(loadingId);
+            if(loadingEl) loadingEl.outerHTML = `<div style="margin-top: 8px; color:red;"><strong>❌ Lỗi kết nối:</strong> Trình duyệt hoặc mạng chặn yêu cầu.</div>`;
         }
+
+        // Cuộn màn hình xuống cuối lại sau khi có câu trả lời
+        modalBody.scrollTop = modalBody.scrollHeight;
     }
     
     document.getElementById('aiQueryInput').addEventListener('keypress', function (e) {
