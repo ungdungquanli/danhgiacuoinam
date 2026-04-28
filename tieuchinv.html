@@ -66,7 +66,7 @@ function f_x_m_chinh(dataRows) {
                 m_k_a.m = c_d_1;
             }
             
-            m_k_a.o = c_d_1; // Lưu điểm bình quân gốc để xét mức 180
+            m_k_a.o = c_d_1; // Lưu điểm bình quân gốc
             m_k_a.n = true;
             return; 
         }
@@ -76,7 +76,7 @@ function f_x_m_chinh(dataRows) {
             m_k_a.a = c_s_1; 
             m_k_b.a = true; 
         }
-        else if (c_t_1.includes("hiệu quả")) { // Đổi "chuẩn" sang "hiệu quả"
+        else if (c_t_1.includes("hiệu quả")) { 
             m_k_a.b = c_g_1; 
             m_k_b.b = true; 
         }
@@ -101,9 +101,10 @@ function f_x_m_chinh(dataRows) {
     const h_c_c_n = (c_h) => c_h && c_h.trim() !== "";
 
     // ĐIỀU KIỆN HOÀN THÀNH XUẤT SẮC
+    // Đã cập nhật || (Hoặc) theo yêu cầu mới
     let c_m_a = (!m_k_b.a || m_k_a.a < 2) && 
-                ((b_x_l && m_k_a.n && m_k_a.o >= 180) || (m_k_a.n && m_k_a.m >= 260)) && 
-                (!m_k_b.b || f_x_a_nv(m_k_a.b, /tốt|xuất sắc/i)) && // Điều kiện Hiệu quả công tác bắt buộc từ Tốt
+                (b_x_l || (m_k_a.n && m_k_a.o >= 180) || (m_k_a.n && m_k_a.m >= 260)) && 
+                (!m_k_b.b || f_x_a_nv(m_k_a.b, /tốt|xuất sắc/i)) && 
                 (!m_k_b.c || f_x_a_nv(m_k_a.c, /giỏi|xuất sắc/i)) && 
                 (!m_k_b.d || f_x_a_nv(m_k_a.d, /tốt|xuất sắc/i)) && 
                 (m_k_b.h && m_k_a.h.trim() !== "" && f_x_a_nv(m_k_a.h, /xã|cụm|huyện|tỉnh|quốc/i)) && 
@@ -112,7 +113,7 @@ function f_x_m_chinh(dataRows) {
     // ĐIỀU KIỆN HOÀN THÀNH TỐT
     let c_m_b = (!m_k_b.a || m_k_a.a < 4) && 
                 b_x_l && 
-                (!m_k_b.b || f_x_a_nv(m_k_a.b, /khá|tốt|xuất sắc/i)) && // Điều kiện Hiệu quả công tác bắt buộc từ Khá
+                (!m_k_b.b || f_x_a_nv(m_k_a.b, /khá|tốt|xuất sắc/i)) && 
                 (!m_k_b.c || f_x_a_nv(m_k_a.c, /khá|giỏi|xuất sắc/i)) && 
                 (!m_k_b.d || f_x_a_nv(m_k_a.d, /khá|tốt|xuất sắc/i)) && 
                 f_x_b_nv(m_k_a.g, 'Tốt');
