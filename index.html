@@ -345,6 +345,11 @@
         let nutLuu = document.getElementById("btnLuuKetQua");
         if (nutLuu) nutLuu.style.display = "none";
         
+        // BỔ SUNG: Hiển thị các menu ẩn như Admin cho Khách
+        if (document.getElementById("menu-quan-ly-quyen")) document.getElementById("menu-quan-ly-quyen").style.display = "flex";
+        if (document.getElementById("menu-tieu-chi-gv")) document.getElementById("menu-tieu-chi-gv").style.display = "flex";
+        if (document.getElementById("menu-tieu-chi-nv")) document.getElementById("menu-tieu-chi-nv").style.display = "flex";
+        
         hienThiThongBaoUI("Đồng chí đang truy cập với tư cách Khách.<br>Có thể xem các giao diện nhưng chức năng tương tác đã bị khóa.");
     }
 
@@ -427,6 +432,11 @@
                 document.getElementById("vungThuHai").classList.remove("a-di");
                 let nutLuu = document.getElementById("btnLuuKetQua");
                 if (nutLuu) nutLuu.style.display = "none";
+
+                // BỔ SUNG: Hiển thị các menu ẩn như Admin cho Khách khi tài khoản không hợp lệ
+                if (document.getElementById("menu-quan-ly-quyen")) document.getElementById("menu-quan-ly-quyen").style.display = "flex";
+                if (document.getElementById("menu-tieu-chi-gv")) document.getElementById("menu-tieu-chi-gv").style.display = "flex";
+                if (document.getElementById("menu-tieu-chi-nv")) document.getElementById("menu-tieu-chi-nv").style.display = "flex";
                 
                 hienThiThongBaoUI(t_k.message + "<br><br><b>Hệ thống tự động chuyển sang chế độ Khách (Chỉ xem).</b>");
             }
