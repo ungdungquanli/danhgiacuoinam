@@ -422,7 +422,7 @@
         await f_x_load_guest_template(p_n);
         f_x_j(false);
         
-        hienThiThongBaoUI("Đồng chí đang truy cập với tư cách Khách.<br>Hệ thống hiển thị khung tiêu chí mẫu ở chế độ <b>Chỉ xem</b>, các chức năng tương tác đã bị vô hiệu.");
+        hienThiThongBaoUI("Bạn đang truy cập với tư cách Khách.<br>Hệ thống hiển thị khung tiêu chí mẫu ở chế độ <b>Chỉ xem</b>, các chức năng tương tác đã bị vô hiệu.");
     }
 
     function f_x_logout() {
@@ -494,7 +494,7 @@
                 f_x_h();
             } else if (t_k_khac.status === 'success') {
                 let tenNhomDung = (p_n_khac === 'giaovien') ? "GIÁO VIÊN" : "NHÂN VIÊN";
-                hienThiThongBaoUI("<b>ĐĂNG NHẬP THẤT BẠI</b><br><br>Đồng chí đã chọn sai đối tượng đánh giá!<br>Tài khoản của đồng chí được phân loại là <b>" + tenNhomDung + "</b>.<br>Vui lòng ấn Đóng để hệ thống quay lại giao diện xác thực.", f_x_logout);
+                hienThiThongBaoUI("<b>ĐĂNG NHẬP THẤT BẠI</b><br><br>Bạn đã chọn sai đối tượng đánh giá!<br>Tài khoản của bạn được phân loại là <b>" + tenNhomDung + "</b>.<br>Vui lòng ấn Đóng để hệ thống quay lại giao diện xác thực.", f_x_logout);
                 f_x_j(false);
                 return;
             } else { 
@@ -777,7 +777,7 @@
         const modalBody = document.getElementById('aiModalBody'); 
 
         if(!cauHoi) {
-            hienThiThongBaoUI("Đồng chí vui lòng nhập câu hỏi!"); 
+            hienThiThongBaoUI("Bạn vui lòng nhập câu hỏi!"); 
             return;
         }
 
