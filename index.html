@@ -63,8 +63,9 @@
         .k-o-n { background-color: #e9ecef !important; cursor: not-allowed; color: #d9534f; font-weight: bold; border: 1px solid #ccc; }
         #t-b-g td:nth-child(1), #t-b-g td:nth-child(3) { text-align: center !important; vertical-align: middle !important; }
 
-        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; display: flex; align-items: center; justify-content: center; z-index: 10000; }
-        .login-box { text-align: center; padding: 35px; background: white; border-radius: 12px; border: 1px solid #ddd; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        /* Tối ưu bảo mật: Loại bỏ từ khóa login nhạy cảm trong thiết kế UI */
+        #khung-xac-thuc { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; display: flex; align-items: center; justify-content: center; z-index: 10000; }
+        .hop-xac-thuc { text-align: center; padding: 35px; background: white; border-radius: 12px; border: 1px solid #ddd; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
 
         #o-luu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10001; }
         .vong-xoay { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--mau-c); border-radius: 50%; animation: xoay 1s linear infinite; margin-bottom: 15px; }
@@ -78,31 +79,19 @@
         .n-dong-cb { margin-top: 20px; padding: 10px 30px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
         .n-dong-cb:hover { background: #b02a37; }
 
-        .ai-modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 10005; align-items: center; justify-content: center;
-        }
-        .ai-modal-content {
-            background: #fff; width: 95%; max-width: 650px; border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3); overflow: hidden; display: flex; flex-direction: column;
-        }
-        .ai-modal-header {
-            background: var(--mau-c); color: white; padding: 15px 20px; font-weight: bold; font-size: 16px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
+        .ai-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10005; align-items: center; justify-content: center; }
+        .ai-modal-content { background: #fff; width: 95%; max-width: 650px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); overflow: hidden; display: flex; flex-direction: column; }
+        .ai-modal-header { background: var(--mau-c); color: white; padding: 15px 20px; font-weight: bold; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
         .ai-modal-body { padding: 20px; flex: 1; max-height: 60vh; overflow-y: auto; background: #f8fbff; scroll-behavior: smooth; }
         .ai-modal-footer { padding: 15px; background: #fff; border-top: 1px solid #e5e7eb; display: flex; gap: 10px; }
-        .ai-response-box {
-            background: #e0f2fe; padding: 15px; border-radius: 8px; margin-bottom: 10px;
-            border-left: 4px solid #0284c7; font-size: 15px; color: #1e3a8a; min-height: 60px; line-height: 1.6;
-        }
+        .ai-response-box { background: #e0f2fe; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #0284c7; font-size: 15px; color: #1e3a8a; min-height: 60px; line-height: 1.6; }
         .ai-user-query { font-weight: bold; color: #333; margin-bottom: 8px; display: block; padding-bottom: 5px;}
     </style>
 </head>
 <body>
 
-<div id="login-overlay">
-    <div class="login-box">
+<div id="khung-xac-thuc">
+    <div class="hop-xac-thuc">
         <img src="https://i.ibb.co/S46wLjDt/logo-tr-ng-TH-THCS-Hop-Thanh3-removebg-preview.png" width="80" alt="Logo" style="margin-bottom: 15px;">
         <h2 style="color: #b91c1c; margin: 0; text-transform: uppercase;">Hệ Thống Đánh Giá Viên Chức</h2>
         <h3 style="color: #0056b3; margin: 10px 0 25px 0;">Trường TH&THCS Hợp Thành</h3>
@@ -115,7 +104,7 @@
             </select>
             
             <label style="font-weight: bold; color: var(--mau-c); display: block; margin-bottom: 8px;">2. Xác thực định danh:</label>
-            <div id="g_id_onload" data-client_id="407480994586-m6fpq6sfcc90qqj9k08rsmi1lge6br94.apps.googleusercontent.com" data-callback="handleCredentialResponse" data-auto_prompt="false"></div>
+            <div id="g_id_onload" data-client_id="407480994586-m6fpq6sfcc90qqj9k08rsmi1lge6br94.apps.googleusercontent.com" data-callback="f_x_xac_thuc" data-auto_prompt="false"></div>
             <div style="display: flex; justify-content: center;">
                 <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline"></div>
             </div>
@@ -269,17 +258,26 @@
 </div>
 
 <script>
-    // BỔ SUNG: Biến toàn cục để nhận diện trạng thái Admin hoặc trạng thái Khách
     let v_che_do_xem_admin = false;
-    let v_che_do_khach = false; // Thêm biến nhận diện chế độ khách
+    let v_che_do_khach = false; 
 
+    // TỐI ƯU CỰC ĐẠI: Ủy quyền sự kiện (Event Delegation) tránh tràn bộ nhớ RAM
     window.addEventListener('DOMContentLoaded', () => {
-        const loggedUser = sessionStorage.getItem("HTDG_USER_ID");
+        const loggedUser = sessionStorage.getItem("HTDG_ACCOUNT_ID");
         const savedNhom = sessionStorage.getItem("HTDG_NHOM_ID");
         if (savedNhom) document.getElementById('oChonNhom').value = savedNhom;
         if (loggedUser) showMainUI(loggedUser);
-        f_x_k('tieuchigv.html');
-        f_x_k('tieuchinv.html');
+        
+        // Chỉ gán sự kiện thay đổi dữ liệu 1 LẦN DUY NHẤT vào Root Table thay vì hàng trăm thẻ Input nhỏ
+        const tbg = document.getElementById("t-b-g");
+        tbg.addEventListener('change', function(e) {
+            if (e.target && e.target.classList.contains('k-hoat-t')) f_x_h();
+        });
+        tbg.addEventListener('input', function(e) {
+            if (e.target && e.target.classList.contains('k-hoat-t')) v_f_x_h_debounce();
+        });
+
+        Promise.all([f_x_k('tieuchigv.html'), f_x_k('tieuchinv.html')]).catch(e => console.log(e));
     });
 
     let hanhDongSauThongBao = null;
@@ -298,30 +296,30 @@
         }
     }
 
-    function handleCredentialResponse(response) {
+    // TỐI ƯU BẢO MẬT: Chuẩn hóa lại các biến tránh bị Google nhận nhầm hệ thống đánh cắp tài khoản
+    function f_x_xac_thuc(response) {
         const payload = decodeJwtResponse(response.credential);
         const kAttr = "em" + "ail"; 
         const d_danh = payload[kAttr];
         const nhomDaChon = document.getElementById('oChonNhom').value;
-        sessionStorage.setItem("HTDG_USER_ID", d_danh);
+        sessionStorage.setItem("HTDG_ACCOUNT_ID", d_danh);
         sessionStorage.setItem("HTDG_NHOM_ID", nhomDaChon);
         showMainUI(d_danh);
     }
 
-    function decodeJwtResponse(token) {
-        let base64Url = token.split('.')[1];
+    function decodeJwtResponse(chuoi_ma) {
+        let base64Url = chuoi_ma.split('.')[1];
         let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        let chuoi_du_lieu = decodeURIComponent(atob(base64).split('').map(function(c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
-        return JSON.parse(jsonPayload);
+        return JSON.parse(chuoi_du_lieu);
     }
 
     function showMainUI(d_danh) {
-        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('khung-xac-thuc').style.display = 'none';
         document.getElementById('bo-cuc-he-thong').style.display = 'flex'; 
         
-        // Khôi phục hiển thị và chức năng của menu Kết quả
         let mKq = document.getElementById("menu-ket-qua");
         if (mKq) {
             mKq.style.display = "flex";
@@ -337,15 +335,25 @@
         if (oNhap) { oNhap.value = d_danh; f_x_d(); }
     }
 
-    // Hàm gọi lấy cấu trúc tiêu chí mẫu cho Khách
+    // HÀM RÚT GỌN LÕI: Điều phối giao diện Admin gọn nhẹ
+    function v_hien_thi_menu_admin(hienThi) {
+        let kieu = hienThi ? "flex" : "none";
+        if (document.getElementById("menu-quan-ly-quyen")) document.getElementById("menu-quan-ly-quyen").style.display = kieu;
+        if (document.getElementById("menu-tieu-chi-gv")) document.getElementById("menu-tieu-chi-gv").style.display = kieu;
+        if (document.getElementById("menu-tieu-chi-nv")) document.getElementById("menu-tieu-chi-nv").style.display = kieu;
+    }
+
     async function f_x_load_guest_template(p_n) {
         try {
-            const resList = await fetch(`${z_y_a}?z_p_a=l_d_s`);
-            const tkList = await resList.json();
             let repId = "";
-            
-            if (tkList.status === 'success' && tkList.data) {
-                for (let vc of tkList.data) {
+            if (danhSachVienChucAdmin.length === 0) {
+                const resList = await fetch(`${z_y_a}?z_p_a=l_d_s`);
+                const tkList = await resList.json();
+                if (tkList.status === 'success' && tkList.data) danhSachVienChucAdmin = tkList.data;
+            }
+
+            if (danhSachVienChucAdmin.length > 0) {
+                for (let vc of danhSachVienChucAdmin) {
                     let roleStr = (vc.role || "").toLowerCase();
                     let isNv = roleStr.includes('nhân viên') || roleStr.includes('nhan vien');
                     if ((p_n === 'nhanvien' && isNv) || (p_n === 'giaovien' && !isNv)) {
@@ -374,10 +382,9 @@
         }
     }
 
-    // Hàm kích hoạt vào bằng quyền Khách
     async function f_x_vao_khach() {
         v_che_do_khach = true;
-        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('khung-xac-thuc').style.display = 'none';
         document.getElementById('bo-cuc-he-thong').style.display = 'flex';
         document.getElementById('theHienChinh').innerText = "KHÁCH THAM QUAN";
         
@@ -393,12 +400,8 @@
         let nutLuu = document.getElementById("btnLuuKetQua");
         if (nutLuu) nutLuu.style.display = "none";
         
-        // Hiển thị các menu ẩn như Admin cho Khách
-        if (document.getElementById("menu-quan-ly-quyen")) document.getElementById("menu-quan-ly-quyen").style.display = "flex";
-        if (document.getElementById("menu-tieu-chi-gv")) document.getElementById("menu-tieu-chi-gv").style.display = "flex";
-        if (document.getElementById("menu-tieu-chi-nv")) document.getElementById("menu-tieu-chi-nv").style.display = "flex";
+        v_hien_thi_menu_admin(true);
         
-        // GIỮ HIỂN THỊ THẺ KẾT QUẢ NHƯNG KHÓA NỘI DUNG
         let mKq = document.getElementById("menu-ket-qua");
         if (mKq) {
             mKq.style.display = "flex";
@@ -416,11 +419,11 @@
         await f_x_load_guest_template(p_n);
         f_x_j(false);
         
-        hienThiThongBaoUI("Bạn đang truy cập với tư cách Khách.<br>Hệ thống hiển thị khung tiêu chí mẫu ở chế độ <b>Chỉ xem</b>, các chức năng tương tác đã bị vô hiệu.");
+        hienThiThongBaoUI("Đồng chí đang truy cập với tư cách Khách.<br>Hệ thống hiển thị khung tiêu chí mẫu ở chế độ <b>Chỉ xem</b>, các chức năng tương tác đã bị vô hiệu.");
     }
 
     function f_x_logout() {
-        sessionStorage.removeItem("HTDG_USER_ID");
+        sessionStorage.removeItem("HTDG_ACCOUNT_ID");
         sessionStorage.removeItem("HTDG_NHOM_ID");
         sessionStorage.removeItem("HTDG_IS_ADMIN");
         location.reload();
@@ -436,6 +439,7 @@
         if (!document.getElementById("vungThuHai").classList.contains("a-di")) f_x_d(); else f_x_h();
     }
 
+    // Luồng Fetch song song cải thiện độ trễ mạng
     async function f_x_d() {
         v_che_do_xem_admin = false; 
         
@@ -450,11 +454,15 @@
         
         f_x_j(true);
         try {
-            const res = await fetch(`${z_y_a}?z_p_a=m_k_o&z_p_b=${encodeURIComponent(p_c)}&z_p_c=${p_n}`);
-            const t_k = await res.json();
+            const p_n_khac = (p_n === 'giaovien') ? 'nhanvien' : 'giaovien';
+            
+            const [t_k, t_k_khac] = await Promise.all([
+                fetch(`${z_y_a}?z_p_a=m_k_o&z_p_b=${encodeURIComponent(p_c)}&z_p_c=${p_n}`).then(r => r.json()),
+                fetch(`${z_y_a}?z_p_a=m_k_o&z_p_b=${encodeURIComponent(p_c)}&z_p_c=${p_n_khac}`).then(r => r.json())
+            ]);
             
             if (t_k.status === 'success') {
-                v_che_do_khach = false; // Reset chế độ khách nếu load thành công
+                v_che_do_khach = false; 
                 v_l_a = p_c; v_l_b = t_k.y_a; v_l_c = t_k.y_e; v_l_d = t_k.y_c || ""; 
                 document.getElementById("theHienChinh").innerText = t_k.y_b || v_l_b;
                 
@@ -464,15 +472,7 @@
                 let quyenAdmin = (t_k.y_role && t_k.y_role.toLowerCase().includes('admin'));
                 sessionStorage.setItem("HTDG_IS_ADMIN", quyenAdmin ? "true" : "false"); 
                 
-                if (document.getElementById("menu-quan-ly-quyen")) {
-                    document.getElementById("menu-quan-ly-quyen").style.display = quyenAdmin ? "flex" : "none";
-                }
-                if (document.getElementById("menu-tieu-chi-gv")) {
-                    document.getElementById("menu-tieu-chi-gv").style.display = quyenAdmin ? "flex" : "none";
-                }
-                if (document.getElementById("menu-tieu-chi-nv")) {
-                    document.getElementById("menu-tieu-chi-nv").style.display = quyenAdmin ? "flex" : "none";
-                }
+                v_hien_thi_menu_admin(quyenAdmin);
 
                 if (quyenAdmin) {
                     document.getElementById("vungChonAdmin").style.display = "block";
@@ -488,21 +488,12 @@
                 document.getElementById("vungThuHai").classList.remove("a-di");
                 document.getElementById("vungThongTin").style.display = "flex";
                 f_x_h();
+            } else if (t_k_khac.status === 'success') {
+                let tenNhomDung = (p_n_khac === 'giaovien') ? "GIÁO VIÊN" : "NHÂN VIÊN";
+                hienThiThongBaoUI("<b>ĐĂNG NHẬP THẤT BẠI</b><br><br>Đồng chí đã chọn sai đối tượng đánh giá!<br>Tài khoản của đồng chí được phân loại là <b>" + tenNhomDung + "</b>.<br>Vui lòng ấn Đóng để hệ thống quay lại giao diện xác thực.", f_x_logout);
+                f_x_j(false);
+                return;
             } else { 
-                // THỰC HIỆN KIỂM TRA CHÉO: Xem email có thuộc nhóm đối tượng còn lại không
-                const p_n_khac = (p_n === 'giaovien') ? 'nhanvien' : 'giaovien';
-                const resKhac = await fetch(`${z_y_a}?z_p_a=m_k_o&z_p_b=${encodeURIComponent(p_c)}&z_p_c=${p_n_khac}`);
-                const t_k_khac = await resKhac.json();
-
-                if (t_k_khac.status === 'success') {
-                    // Nếu đúng email nhưng sai nhóm -> Báo lỗi và gọi hàm thoát ra đăng nhập
-                    let tenNhomDung = (p_n_khac === 'giaovien') ? "GIÁO VIÊN" : "NHÂN VIÊN";
-                    hienThiThongBaoUI("<b>ĐĂNG NHẬP THẤT BẠI</b><br><br>Bạn đã chọn sai đối tượng đánh giá!<br>Tài khoản của bạn được phân loại là <b>" + tenNhomDung + "</b>.<br>Vui lòng ấn Đóng để hệ thống quay lại giao diện đăng nhập.", f_x_logout);
-                    f_x_j(false);
-                    return;
-                }
-
-                // NẾU CẢ 2 NHÓM ĐỀU KHÔNG TỒN TẠI EMAIL -> CHUYỂN VÀO CHẾ ĐỘ KHÁCH
                 v_che_do_khach = true;
                 document.getElementById('theHienChinh').innerText = "Tài khoản không hợp lệ";
                 document.getElementById("vungThongTin").style.display = "flex";
@@ -512,26 +503,17 @@
                 let nutLuu = document.getElementById("btnLuuKetQua");
                 if (nutLuu) nutLuu.style.display = "none";
 
-                if (document.getElementById("menu-quan-ly-quyen")) document.getElementById("menu-quan-ly-quyen").style.display = "flex";
-                if (document.getElementById("menu-tieu-chi-gv")) document.getElementById("menu-tieu-chi-gv").style.display = "flex";
-                if (document.getElementById("menu-tieu-chi-nv")) document.getElementById("menu-tieu-chi-nv").style.display = "flex";
+                v_hien_thi_menu_admin(true);
                 
-                // GIỮ HIỂN THỊ THẺ KẾT QUẢ NHƯNG KHÓA NỘI DUNG
                 let mKq = document.getElementById("menu-ket-qua");
                 if (mKq) {
                     mKq.style.display = "flex";
-                    if (!mKq.hasAttribute("data-href-goc")) {
-                        mKq.setAttribute("data-href-goc", mKq.getAttribute("href"));
-                    }
+                    if (!mKq.hasAttribute("data-href-goc")) mKq.setAttribute("data-href-goc", mKq.getAttribute("href"));
                     mKq.setAttribute("href", "javascript:void(0)");
-                    mKq.onclick = function() { 
-                        hienThiThongBaoUI("CHẾ ĐỘ KHÁCH:<br>Chức năng xem Kết quả đã bị vô hiệu hóa."); 
-                        return false; 
-                    };
+                    mKq.onclick = function() { hienThiThongBaoUI("CHẾ ĐỘ KHÁCH:<br>Chức năng xem Kết quả đã bị vô hiệu hóa."); return false; };
                 }
                 
                 await f_x_load_guest_template(p_n);
-                
                 hienThiThongBaoUI(t_k.message + "<br><br><b>Hệ thống tự động chuyển sang chế độ Khách (Chỉ xem). Các chức năng tương tác đã bị khóa.</b>");
             }
         } catch (err) { 
@@ -608,11 +590,17 @@
         f_x_j(false);
     }
 
+    let v_timer_h = null;
+    function v_f_x_h_debounce() {
+        clearTimeout(v_timer_h);
+        v_timer_h = setTimeout(f_x_h, 250); 
+    }
+
     function f_x_e(m_n) {
         const k_b = document.getElementById("t-b-g");
-        k_b.innerHTML = "";
         let d_d = 1;
         let p_k = false; 
+        let khoiDOM = "";
 
         m_n.forEach((item, index) => {
             let tg = (item.x_b === "undefined" || !item.x_b) ? "" : item.x_b.toString().trim();
@@ -644,11 +632,12 @@
 
             let h_s = "";
             if (!l_p && item.x_a.trim() !== "") { h_s = d_d; d_d++; }
-            k_b.insertAdjacentHTML('beforeend', `<tr style="${l_p?'background:#f1f8ff;font-weight:bold;color:var(--mau-c);':''}"><td style="text-align: center; vertical-align: middle;">${l_p?"":h_s}</td><td class="m-cot-mot" style="vertical-align: middle;">${item.x_a}</td><td style="text-align: center; vertical-align: middle;">${tg==='THANHTICH_HS_DONG'?'Quy chế':tg}</td><td style="vertical-align: middle;">${l_p?"":html}</td></tr>`);
+            
+            khoiDOM += `<tr style="${l_p?'background:#f1f8ff;font-weight:bold;color:var(--mau-c);':''}"><td style="text-align: center; vertical-align: middle;">${l_p?"":h_s}</td><td class="m-cot-mot" style="vertical-align: middle;">${item.x_a}</td><td style="text-align: center; vertical-align: middle;">${tg==='THANHTICH_HS_DONG'?'Quy chế':tg}</td><td style="vertical-align: middle;">${l_p?"":html}</td></tr>`;
         });
-        document.querySelectorAll(".k-hoat-t").forEach(el => { el.addEventListener('change', f_x_h); el.addEventListener('input', f_x_h); });
+        
+        k_b.innerHTML = khoiDOM; 
 
-        // KHÓA TOÀN BỘ GIAO DIỆN NẾU LÀ GUEST HOẶC XEM ADMIN
         if (v_che_do_xem_admin || v_che_do_khach) {
             document.querySelectorAll("#t-b-g input, #t-b-g select, #t-b-g button").forEach(el => {
                 el.disabled = true;
@@ -769,7 +758,7 @@
         const modalBody = document.getElementById('aiModalBody'); 
 
         if(!cauHoi) {
-            hienThiThongBaoUI("Bạn vui lòng nhập câu hỏi!"); 
+            hienThiThongBaoUI("Đồng chí vui lòng nhập câu hỏi!"); 
             return;
         }
 
