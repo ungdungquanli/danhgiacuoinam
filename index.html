@@ -73,12 +73,10 @@
         .n-dong-tb { margin-top: 20px; padding: 10px 30px; background: #198754; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
         .n-dong-tb:hover { background: #146c43; }
 
-        /* BỔ SUNG: CSS CHO UI CẢNH BÁO / LỖI MỚI THAY THẾ ALERT */
         #ui-canh-bao { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #ffffff; color: #842029; padding: 30px 40px; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); border: 1px solid #f5c2c7; display: none; flex-direction: column; align-items: center; z-index: 10010; text-align: center; border-top: 8px solid #dc3545; min-width: 350px; }
         .n-dong-cb { margin-top: 20px; padding: 10px 30px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
         .n-dong-cb:hover { background: #b02a37; }
 
-        /* BỔ SUNG: GIAO DIỆN CHATBOT AI TRỢ GIÚP QUY CHẾ */
         .ai-modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); z-index: 10005; align-items: center; justify-content: center;
@@ -177,8 +175,14 @@
             <div class="k-dau">
                 <h2>TRƯỜNG TH&THCS HỢP THÀNH</h2>
                 <h1>Hệ Thống Đánh Giá Xếp Loại Viên Chức</h1>
-                <p><i>(Áp dụng từ năm học 2025-2026)</i></p>
-            </div>
+                
+                <div id="vungHienThiNamHoc"><p><i>(Áp dụng từ năm học 2025-2026)</i></p></div>
+                <div id="vungChonAdmin" style="display: none; margin-top: 8px;">
+                    <select id="oChonUserAdmin" onchange="f_x_admin_chon_user()" class="o-c-kieu" style="width: auto; min-width: 320px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-color: var(--mau-c);">
+                        <option value="">-- Quản trị viên: Chọn nhân sự để tra cứu/đánh giá --</option>
+                    </select>
+                </div>
+                </div>
         </div>
 
         <div id="vungThuNhat" style="display: none;"><input type="text" id="oNhapChinh"></div>
@@ -267,15 +271,12 @@
         f_x_k('tieuchinv.html');
     });
 
-    // =========================================================================
-    // BỔ SUNG: KHỐI HÀM QUẢN LÝ GIAO DIỆN THÔNG BÁO (THAY THẾ ALERT)
-    // =========================================================================
     let hanhDongSauThongBao = null;
     
     function hienThiThongBaoUI(noiDung, callback = null) {
         document.getElementById("noi-dung-canh-bao").innerHTML = noiDung;
         document.getElementById("ui-canh-bao").style.display = "flex";
-        hanhDongSauThongBao = callback; // Lưu trữ hàm để gọi sau khi đóng (nếu có)
+        hanhDongSauThongBao = callback; 
     }
 
     function dongCanhBaoUI() {
@@ -285,7 +286,6 @@
             hanhDongSauThongBao = null;
         }
     }
-    // =========================================================================
 
     function handleCredentialResponse(response) {
         const payload = decodeJwtResponse(response.credential);
@@ -336,7 +336,6 @@
         const p_c = document.getElementById("oNhapChinh").value.trim();
         const p_n = document.getElementById("oChonNhom").value; 
         
-        // ĐÃ THAY THẾ: Gọi UI cảnh báo thay cho alert
         if (!p_c) {
             hienThiThongBaoUI("Hệ thống chưa xác định được định danh!");
             return;
@@ -366,21 +365,104 @@
                     document.getElementById("menu-tieu-chi-nv").style.display = quyenAdmin ? "flex" : "none";
                 }
 
+                // =========================================================================
+                // BỔ SUNG: KÍCH HOẠT VÙNG CHỌN ADMIN ĐỂ ĐỔI DỮ LIỆU
+                // =========================================================================
+                if (quyenAdmin) {
+                    document.getElementById("vungChonAdmin").style.display = "block";
+                    document.getElementById("vungHienThiNamHoc").style.display = "none";
+                    f_x_load_users(); 
+                } else {
+                    document.getElementById("vungChonAdmin").style.display = "none";
+                    document.getElementById("vungHienThiNamHoc").style.display = "block";
+                }
+
                 f_x_e(t_k.y_d);
                 document.getElementById("vungThuNhat").classList.add("a-di");
                 document.getElementById("vungThuHai").classList.remove("a-di");
                 document.getElementById("vungThongTin").style.display = "flex";
                 f_x_h();
             } else { 
-                // ĐÃ THAY THẾ: Truyền f_x_logout qua callback để sau khi đóng thông báo hệ thống mới đăng xuất
                 hienThiThongBaoUI(t_k.message, f_x_logout); 
             }
         } catch (err) { 
-            // ĐÃ THAY THẾ: Thông báo lỗi mạng
             hienThiThongBaoUI("Kết nối tới máy chủ bị gián đoạn. Vui lòng tải lại trang.", f_x_logout); 
         }
         f_x_j(false);
     }
+
+    // =========================================================================
+    // KHỐI SCRIPT BỔ SUNG DÀNH CHO ADMIN
+    // =========================================================================
+    let danhSachVienChucAdmin = [];
+
+    async function f_x_load_users() {
+        try {
+            const res = await fetch(`${z_y_a}?z_p_a=l_d_s`);
+            const t_k = await res.json();
+            if (t_k.status === 'success') {
+                danhSachVienChucAdmin = t_k.data;
+                const selectObj = document.getElementById("oChonUserAdmin");
+                selectObj.innerHTML = '<option value="">-- Quản trị viên: Chọn nhân sự để tra cứu/đánh giá --</option>';
+                
+                danhSachVienChucAdmin.forEach(vc => {
+                    let opt = document.createElement('option');
+                    opt.value = vc.id; // Truyền ID (Mã Cột A)
+                    opt.text = vc.name + (vc.role ? ` - ${vc.role}` : "");
+                    opt.setAttribute('data-role', vc.role);
+                    opt.setAttribute('data-name', vc.name);
+                    selectObj.appendChild(opt);
+                });
+            }
+        } catch (err) {
+            console.error("Lỗi tải danh sách bộ máy nhân sự.");
+        }
+    }
+
+    async function f_x_admin_chon_user() {
+        const selectObj = document.getElementById("oChonUserAdmin");
+        const selectedId = selectObj.value;
+
+        if (!selectedId) return; 
+
+        const selectedOption = selectObj.options[selectObj.selectedIndex];
+        const selectedRoleStr = selectedOption.getAttribute('data-role').toLowerCase();
+        const selectedName = selectedOption.getAttribute('data-name');
+
+        // Phân tách GV/NV chính xác từ Cột D KHAIBAO để điều hướng thuật toán tính điểm
+        let nhomXacDinh = 'giaovien';
+        if (selectedRoleStr.includes('nhân viên') || selectedRoleStr.includes('nhan vien')) {
+            nhomXacDinh = 'nhanvien';
+        }
+
+        // Cập nhật Cột Trái
+        document.getElementById("theHienChinh").innerText = selectedName;
+        document.getElementById("hienThiNhom").innerText = (nhomXacDinh === 'nhanvien') ? "NHÂN VIÊN" : "GIÁO VIÊN";
+        document.getElementById("oChonNhom").value = nhomXacDinh; // Khớp logic nội tại
+
+        f_x_j(true);
+        try {
+            const res = await fetch(`${z_y_a}?z_p_a=admin_load&z_p_b=${encodeURIComponent(selectedId)}&z_p_c=${nhomXacDinh}`);
+            const t_k = await res.json();
+
+            if (t_k.status === 'success') {
+                // Ánh xạ lại biến toàn cục đảm bảo ghi nhận (f_x_i) hoạt động đúng quyền của User đó
+                v_l_b = t_k.y_a; // Mã Sheet
+                v_l_a = t_k.y_acc; // Account của người được chọn (Mấu chốt để bypass bảo mật hàm doPost)
+                v_l_c = t_k.y_e;
+                v_l_d = t_k.y_c || "";
+
+                f_x_e(t_k.y_d); 
+                f_x_h(); 
+            } else {
+                hienThiThongBaoUI(t_k.message);
+            }
+        } catch (err) {
+            hienThiThongBaoUI("Lỗi gián đoạn khi tải dữ liệu viên chức.");
+        }
+        f_x_j(false);
+    }
+    // =========================================================================
 
     function f_x_e(m_n) {
         const k_b = document.getElementById("t-b-g");
@@ -479,7 +561,6 @@
             document.getElementById("o-luu-overlay").style.display = "none"; document.getElementById("o-thong-bao").style.display = "flex";
         } catch (err) { 
             document.getElementById("o-luu-overlay").style.display = "none"; 
-            // ĐÃ THAY THẾ: Thông báo lỗi mạng
             hienThiThongBaoUI("Lỗi mạng khi lưu dữ liệu. Vui lòng kiểm tra kết nối và thử lại."); 
         }
     }
@@ -500,9 +581,6 @@
         } catch (loi) { console.error(loi); }
     }
 
-    // =========================================================================
-    // CÁC HÀM XỬ LÝ GIAO TIẾP VỚI TRỢ LÝ AI (Hỗ trợ Quy chế)
-    // =========================================================================
     function moKhungChatAI() {
         document.getElementById('aiChatModal').style.display = 'flex';
         document.getElementById('aiQueryInput').value = '';
@@ -533,7 +611,6 @@
         const modalBody = document.getElementById('aiModalBody'); 
 
         if(!cauHoi) {
-            // ĐÃ THAY THẾ: Thông báo người dùng nhập câu hỏi
             hienThiThongBaoUI("Đồng chí vui lòng nhập câu hỏi!"); 
             return;
         }
