@@ -261,6 +261,9 @@
     let v_che_do_xem_admin = false;
     let v_che_do_khach = false; 
 
+    let danhSachVienChucAdmin = [];
+    let v_bo_nho_dem_admin = {}; // BỘ NHỚ ĐỆM TỐI ƯU TỐC ĐỘ (CACHE)
+
     // TỐI ƯU CỰC ĐẠI: Ủy quyền sự kiện (Event Delegation) tránh tràn bộ nhớ RAM
     window.addEventListener('DOMContentLoaded', () => {
         const loggedUser = sessionStorage.getItem("HTDG_ACCOUNT_ID");
@@ -419,13 +422,14 @@
         await f_x_load_guest_template(p_n);
         f_x_j(false);
         
-        hienThiThongBaoUI("Bạn đang truy cập với tư cách Khách.<br>Hệ thống hiển thị khung tiêu chí mẫu ở chế độ <b>Chỉ xem</b>, các chức năng tương tác đã bị vô hiệu.");
+        hienThiThongBaoUI("Đồng chí đang truy cập với tư cách Khách.<br>Hệ thống hiển thị khung tiêu chí mẫu ở chế độ <b>Chỉ xem</b>, các chức năng tương tác đã bị vô hiệu.");
     }
 
     function f_x_logout() {
         sessionStorage.removeItem("HTDG_ACCOUNT_ID");
         sessionStorage.removeItem("HTDG_NHOM_ID");
         sessionStorage.removeItem("HTDG_IS_ADMIN");
+        v_bo_nho_dem_admin = {}; // XÓA BỘ NHỚ ĐỆM KHI ĐĂNG XUẤT
         location.reload();
     }
 
@@ -490,7 +494,7 @@
                 f_x_h();
             } else if (t_k_khac.status === 'success') {
                 let tenNhomDung = (p_n_khac === 'giaovien') ? "GIÁO VIÊN" : "NHÂN VIÊN";
-                hienThiThongBaoUI("<b>ĐĂNG NHẬP THẤT BẠI</b><br><br>Bạn đã chọn sai đối tượng đánh giá!<br>Tài khoản của bạn được phân loại là <b>" + tenNhomDung + "</b>.<br>Vui lòng ấn Đóng để hệ thống quay lại giao diện xác thực.", f_x_logout);
+                hienThiThongBaoUI("<b>ĐĂNG NHẬP THẤT BẠI</b><br><br>Đồng chí đã chọn sai đối tượng đánh giá!<br>Tài khoản của đồng chí được phân loại là <b>" + tenNhomDung + "</b>.<br>Vui lòng ấn Đóng để hệ thống quay lại giao diện xác thực.", f_x_logout);
                 f_x_j(false);
                 return;
             } else { 
@@ -521,8 +525,6 @@
         }
         f_x_j(false);
     }
-
-    let danhSachVienChucAdmin = [];
 
     async function f_x_load_users() {
         try {
@@ -568,12 +570,26 @@
         document.getElementById("hienThiNhom").innerText = (nhomXacDinh === 'nhanvien') ? "NHÂN VIÊN" : "GIÁO VIÊN";
         document.getElementById("oChonNhom").value = nhomXacDinh; 
 
+        // KIỂM TRA BỘ NHỚ ĐỆM (TẢI TỨC THÌ NẾU ĐÃ TẢI TRƯỚC ĐÓ)
+        if (v_bo_nho_dem_admin[selectedId]) {
+            let t_k = v_bo_nho_dem_admin[selectedId];
+            v_l_b = t_k.y_a; 
+            v_l_a = t_k.y_acc; 
+            v_l_c = t_k.y_e;
+            v_l_d = t_k.y_c || "";
+            f_x_e(t_k.y_d); 
+            f_x_h();
+            return;
+        }
+
         f_x_j(true);
         try {
             const res = await fetch(`${z_y_a}?z_p_a=admin_load&z_p_b=${encodeURIComponent(selectedId)}&z_p_c=${nhomXacDinh}`);
             const t_k = await res.json();
 
             if (t_k.status === 'success') {
+                v_bo_nho_dem_admin[selectedId] = t_k; // LƯU DỮ LIỆU VÀO BỘ NHỚ ĐỆM
+
                 v_l_b = t_k.y_a; 
                 v_l_a = t_k.y_acc; 
                 v_l_c = t_k.y_e;
@@ -705,6 +721,9 @@
         
         try {
             await fetch(z_y_a, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ w_a: v_l_a, w_b: v_l_b, w_f: ten_tren_web, w_c: m_k, w_d: v_l_e, w_e: v_l_f, w_g: v_nam_hoc_hien_tai }) });
+            
+            v_bo_nho_dem_admin = {}; // LÀM SẠCH BỘ NHỚ ĐỆM SAU KHI LƯU ĐỂ TRÁNH LỆCH DỮ LIỆU CŨ
+
             document.getElementById("o-luu-overlay").style.display = "none"; document.getElementById("o-thong-bao").style.display = "flex";
         } catch (err) { 
             document.getElementById("o-luu-overlay").style.display = "none"; 
@@ -758,7 +777,7 @@
         const modalBody = document.getElementById('aiModalBody'); 
 
         if(!cauHoi) {
-            hienThiThongBaoUI("Bạn vui lòng nhập câu hỏi!"); 
+            hienThiThongBaoUI("Đồng chí vui lòng nhập câu hỏi!"); 
             return;
         }
 
