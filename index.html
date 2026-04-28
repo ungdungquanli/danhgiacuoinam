@@ -15,6 +15,7 @@
         .bo-cuc-tong { display: flex; max-width: 1400px; margin: 0 auto; align-items: stretch; min-height: 100vh; }
         
         .khung-trai { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; padding-top: 25px; position: sticky; top: 0; height: 100vh; background-color: var(--mau-c); padding-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); box-sizing: border-box; overflow-y: auto;}
+        
         .khung-logo { margin-bottom: 15px; display: flex; align-items: center; justify-content: center;}
         .khung-logo img { width: 85px; background: white; border-radius: 50%; padding: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
         .ten-truong-trai { color: #ffffff; font-size: 15px; font-weight: bold; text-align: center; margin-bottom: 5px; line-height: 1.4; padding: 0 15px; text-transform: uppercase; border-bottom: 1px dashed rgba(255, 255, 255, 0.4); padding-bottom: 15px; width: 85%;}
@@ -325,19 +326,18 @@
         if (oNhap) { oNhap.value = d_danh; f_x_d(); }
     }
 
-    // BỔ SUNG: Hàm kích hoạt vào bằng quyền Khách
-    function f_x_vao_khach() {
+    // SỬA ĐỔI LỚN: Hàm kích hoạt vào bằng quyền Khách, gọi máy chủ lấy mảng tiêu chí mẫu
+    async function f_x_vao_khach() {
         v_che_do_khach = true;
         document.getElementById('login-overlay').style.display = 'none';
         document.getElementById('bo-cuc-he-thong').style.display = 'flex';
-        document.getElementById('theHienChinh').innerText = "Khách tham quan";
+        document.getElementById('theHienChinh').innerText = "KHÁCH THAM QUAN";
         
         const objNhom = document.getElementById('oChonNhom');
+        const p_n = objNhom.value;
         document.getElementById('hienThiNhom').innerText = objNhom.options[objNhom.selectedIndex].text;
         
         document.getElementById("vungThongTin").style.display = "flex";
-        
-        document.getElementById("t-b-g").innerHTML = "<tr><td colspan='4' style='text-align: center; color: #dc3545; font-weight: bold; padding: 20px;'>CHẾ ĐỘ KHÁCH: Giao diện chỉ xem. Hệ thống không tải dữ liệu vì chưa đăng nhập.</td></tr>";
         
         document.getElementById("vungThuNhat").classList.add("a-di");
         document.getElementById("vungThuHai").classList.remove("a-di");
@@ -345,12 +345,30 @@
         let nutLuu = document.getElementById("btnLuuKetQua");
         if (nutLuu) nutLuu.style.display = "none";
         
-        // BỔ SUNG: Hiển thị các menu ẩn như Admin cho Khách
+        // Hiển thị đầy đủ menu như quyền Admin
         if (document.getElementById("menu-quan-ly-quyen")) document.getElementById("menu-quan-ly-quyen").style.display = "flex";
         if (document.getElementById("menu-tieu-chi-gv")) document.getElementById("menu-tieu-chi-gv").style.display = "flex";
         if (document.getElementById("menu-tieu-chi-nv")) document.getElementById("menu-tieu-chi-nv").style.display = "flex";
         
-        hienThiThongBaoUI("Đồng chí đang truy cập với tư cách Khách.<br>Có thể xem các giao diện nhưng chức năng tương tác đã bị khóa.");
+        // Thực hiện truy vấn đến máy chủ bằng định danh giả để nhận về cấu trúc mảng tiêu chí (y_d)
+        f_x_j(true);
+        try {
+            const res = await fetch(`${z_y_a}?z_p_a=m_k_o&z_p_b=khach_tham_quan&z_p_c=${p_n}`);
+            const t_k = await res.json();
+            
+            // Xử lý nạp tiêu chí nếu máy chủ có trả về mẫu
+            if (t_k.y_d && t_k.y_d.length > 0) {
+                f_x_e(t_k.y_d);
+                f_x_h();
+            } else {
+                document.getElementById("t-b-g").innerHTML = "<tr><td colspan='4' style='text-align: center; color: #dc3545; font-weight: bold; padding: 20px;'>CHẾ ĐỘ KHÁCH: Chưa tải được dữ liệu mẫu tiêu chí từ máy chủ.</td></tr>";
+            }
+        } catch (e) {
+            document.getElementById("t-b-g").innerHTML = "<tr><td colspan='4' style='text-align: center; color: #dc3545; font-weight: bold; padding: 20px;'>CHẾ ĐỘ KHÁCH: Lỗi kết nối tải mẫu tiêu chí.</td></tr>";
+        }
+        f_x_j(false);
+        
+        hienThiThongBaoUI("Đồng chí đang truy cập với tư cách Khách.<br>Hệ thống hiển thị khung tiêu chí mẫu ở chế độ <b>Chỉ xem</b>, các chức năng tương tác đã bị khóa.");
     }
 
     function f_x_logout() {
@@ -376,7 +394,6 @@
         const p_c = document.getElementById("oNhapChinh").value.trim();
         const p_n = document.getElementById("oChonNhom").value; 
         
-        // SỬA ĐỔI: Chặn thông báo lỗi nếu đang ở chế độ khách
         if (!p_c) {
             if (v_che_do_khach) return; 
             hienThiThongBaoUI("Hệ thống chưa xác định được định danh!");
@@ -423,20 +440,28 @@
                 document.getElementById("vungThongTin").style.display = "flex";
                 f_x_h();
             } else { 
-                // SỬA ĐỔI: Chuyển sang chế độ khách thay vì logout khi định danh không có trong CSDL
+                // SỬA ĐỔI: Chuyển sang chế độ khách và nạp dữ liệu tiêu chí thay vì báo rỗng khi định danh sai
                 v_che_do_khach = true;
                 document.getElementById('theHienChinh').innerText = "Tài khoản không hợp lệ";
                 document.getElementById("vungThongTin").style.display = "flex";
-                document.getElementById("t-b-g").innerHTML = "<tr><td colspan='4' style='text-align: center; color: #dc3545; font-weight: bold; padding: 20px;'>Tài khoản của đồng chí không có trong danh sách hệ thống.<br>Giao diện tự động chuyển sang chế độ chỉ xem.</td></tr>";
+                
                 document.getElementById("vungThuNhat").classList.add("a-di");
                 document.getElementById("vungThuHai").classList.remove("a-di");
                 let nutLuu = document.getElementById("btnLuuKetQua");
                 if (nutLuu) nutLuu.style.display = "none";
 
-                // BỔ SUNG: Hiển thị các menu ẩn như Admin cho Khách khi tài khoản không hợp lệ
+                // Hiển thị các menu ẩn như Admin cho Khách khi tài khoản không hợp lệ
                 if (document.getElementById("menu-quan-ly-quyen")) document.getElementById("menu-quan-ly-quyen").style.display = "flex";
                 if (document.getElementById("menu-tieu-chi-gv")) document.getElementById("menu-tieu-chi-gv").style.display = "flex";
                 if (document.getElementById("menu-tieu-chi-nv")) document.getElementById("menu-tieu-chi-nv").style.display = "flex";
+                
+                // Hiển thị danh mục tiêu chí nếu máy chủ có xuất ra mảng y_d trong t_k khi báo lỗi
+                if (t_k.y_d && t_k.y_d.length > 0) {
+                    f_x_e(t_k.y_d);
+                    f_x_h();
+                } else {
+                    document.getElementById("t-b-g").innerHTML = "<tr><td colspan='4' style='text-align: center; color: #dc3545; font-weight: bold; padding: 20px;'>Tài khoản của đồng chí không hợp lệ.<br>Máy chủ không trả về cấu trúc tiêu chí mẫu để hiển thị.</td></tr>";
+                }
                 
                 hienThiThongBaoUI(t_k.message + "<br><br><b>Hệ thống tự động chuyển sang chế độ Khách (Chỉ xem).</b>");
             }
@@ -554,7 +579,7 @@
         });
         document.querySelectorAll(".k-hoat-t").forEach(el => { el.addEventListener('change', f_x_h); el.addEventListener('input', f_x_h); });
 
-        // SỬA ĐỔI: Khóa giao diện nếu đang ở chế độ xem Admin HOẶC chế độ khách
+        // KHÓA TOÀN BỘ GIAO DIỆN NẾU LÀ GUEST
         if (v_che_do_xem_admin || v_che_do_khach) {
             document.querySelectorAll("#t-b-g input, #t-b-g select, #t-b-g button").forEach(el => {
                 el.disabled = true;
