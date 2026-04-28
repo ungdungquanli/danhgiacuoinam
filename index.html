@@ -321,8 +321,15 @@
         document.getElementById('login-overlay').style.display = 'none';
         document.getElementById('bo-cuc-he-thong').style.display = 'flex'; 
         
-        // Khôi phục hiển thị menu Kết quả nếu trước đó bị ẩn do chế độ Khách
-        if (document.getElementById("menu-ket-qua")) document.getElementById("menu-ket-qua").style.display = "flex";
+        // Khôi phục hiển thị và chức năng của menu Kết quả
+        let mKq = document.getElementById("menu-ket-qua");
+        if (mKq) {
+            mKq.style.display = "flex";
+            if (mKq.hasAttribute("data-href-goc")) {
+                mKq.setAttribute("href", mKq.getAttribute("data-href-goc"));
+            }
+            mKq.onclick = null;
+        }
 
         const objNhom = document.getElementById('oChonNhom');
         if(document.getElementById('hienThiNhom')) document.getElementById('hienThiNhom').innerText = objNhom.options[objNhom.selectedIndex].text;
@@ -353,7 +360,6 @@
                 const t_k_admin = await resAdmin.json();
                 
                 if (t_k_admin.status === 'success' && t_k_admin.y_d) {
-                    // Xóa trắng kết quả cá nhân của người mượn mẫu
                     let blankData = t_k_admin.y_d.map(item => ({ ...item, x_c: "" }));
                     f_x_e(blankData);
                     f_x_h();
@@ -392,14 +398,25 @@
         if (document.getElementById("menu-tieu-chi-gv")) document.getElementById("menu-tieu-chi-gv").style.display = "flex";
         if (document.getElementById("menu-tieu-chi-nv")) document.getElementById("menu-tieu-chi-nv").style.display = "flex";
         
-        // KHÓA THẺ MENU KẾT QUẢ
-        if (document.getElementById("menu-ket-qua")) document.getElementById("menu-ket-qua").style.display = "none";
+        // GIỮ HIỂN THỊ THẺ KẾT QUẢ NHƯNG KHÓA NỘI DUNG
+        let mKq = document.getElementById("menu-ket-qua");
+        if (mKq) {
+            mKq.style.display = "flex";
+            if (!mKq.hasAttribute("data-href-goc")) {
+                mKq.setAttribute("data-href-goc", mKq.getAttribute("href"));
+            }
+            mKq.setAttribute("href", "javascript:void(0)");
+            mKq.onclick = function() { 
+                hienThiThongBaoUI("CHẾ ĐỘ KHÁCH:<br>Chức năng xem Kết quả đã bị vô hiệu hóa."); 
+                return false; 
+            };
+        }
         
         f_x_j(true);
         await f_x_load_guest_template(p_n);
         f_x_j(false);
         
-        hienThiThongBaoUI("Đồng chí đang truy cập với tư cách Khách.<br>Thẻ menu <b>Kết quả</b> đã bị khóa. Hệ thống hiển thị khung tiêu chí mẫu ở chế độ <b>Chỉ xem</b>, các chức năng tương tác đã bị vô hiệu.");
+        hienThiThongBaoUI("Đồng chí đang truy cập với tư cách Khách.<br>Hệ thống hiển thị khung tiêu chí mẫu ở chế độ <b>Chỉ xem</b>, các chức năng tương tác đã bị vô hiệu.");
     }
 
     function f_x_logout() {
@@ -435,6 +452,7 @@
         try {
             const res = await fetch(`${z_y_a}?z_p_a=m_k_o&z_p_b=${encodeURIComponent(p_c)}&z_p_c=${p_n}`);
             const t_k = await res.json();
+            
             if (t_k.status === 'success') {
                 v_che_do_khach = false; // Reset chế độ khách nếu load thành công
                 v_l_a = p_c; v_l_b = t_k.y_a; v_l_c = t_k.y_e; v_l_d = t_k.y_c || ""; 
@@ -471,7 +489,20 @@
                 document.getElementById("vungThongTin").style.display = "flex";
                 f_x_h();
             } else { 
-                // Chuyển sang chế độ khách nếu định danh không tồn tại
+                // THỰC HIỆN KIỂM TRA CHÉO: Xem email có thuộc nhóm đối tượng còn lại không
+                const p_n_khac = (p_n === 'giaovien') ? 'nhanvien' : 'giaovien';
+                const resKhac = await fetch(`${z_y_a}?z_p_a=m_k_o&z_p_b=${encodeURIComponent(p_c)}&z_p_c=${p_n_khac}`);
+                const t_k_khac = await resKhac.json();
+
+                if (t_k_khac.status === 'success') {
+                    // Nếu đúng email nhưng sai nhóm -> Báo lỗi và gọi hàm thoát ra đăng nhập
+                    let tenNhomDung = (p_n_khac === 'giaovien') ? "GIÁO VIÊN" : "NHÂN VIÊN";
+                    hienThiThongBaoUI("<b>ĐĂNG NHẬP THẤT BẠI</b><br><br>Đồng chí đã chọn sai đối tượng đánh giá!<br>Tài khoản của đồng chí được phân loại là <b>" + tenNhomDung + "</b>.<br>Vui lòng ấn Đóng để hệ thống quay lại giao diện đăng nhập.", f_x_logout);
+                    f_x_j(false);
+                    return;
+                }
+
+                // NẾU CẢ 2 NHÓM ĐỀU KHÔNG TỒN TẠI EMAIL -> CHUYỂN VÀO CHẾ ĐỘ KHÁCH
                 v_che_do_khach = true;
                 document.getElementById('theHienChinh').innerText = "Tài khoản không hợp lệ";
                 document.getElementById("vungThongTin").style.display = "flex";
@@ -485,12 +516,23 @@
                 if (document.getElementById("menu-tieu-chi-gv")) document.getElementById("menu-tieu-chi-gv").style.display = "flex";
                 if (document.getElementById("menu-tieu-chi-nv")) document.getElementById("menu-tieu-chi-nv").style.display = "flex";
                 
-                // KHÓA THẺ MENU KẾT QUẢ
-                if (document.getElementById("menu-ket-qua")) document.getElementById("menu-ket-qua").style.display = "none";
+                // GIỮ HIỂN THỊ THẺ KẾT QUẢ NHƯNG KHÓA NỘI DUNG
+                let mKq = document.getElementById("menu-ket-qua");
+                if (mKq) {
+                    mKq.style.display = "flex";
+                    if (!mKq.hasAttribute("data-href-goc")) {
+                        mKq.setAttribute("data-href-goc", mKq.getAttribute("href"));
+                    }
+                    mKq.setAttribute("href", "javascript:void(0)");
+                    mKq.onclick = function() { 
+                        hienThiThongBaoUI("CHẾ ĐỘ KHÁCH:<br>Chức năng xem Kết quả đã bị vô hiệu hóa."); 
+                        return false; 
+                    };
+                }
                 
                 await f_x_load_guest_template(p_n);
                 
-                hienThiThongBaoUI(t_k.message + "<br><br><b>Hệ thống tự động chuyển sang chế độ Khách (Chỉ xem). Menu Kết quả đã bị khóa.</b>");
+                hienThiThongBaoUI(t_k.message + "<br><br><b>Hệ thống tự động chuyển sang chế độ Khách (Chỉ xem). Các chức năng tương tác đã bị khóa.</b>");
             }
         } catch (err) { 
             hienThiThongBaoUI("Kết nối tới máy chủ bị gián đoạn. Vui lòng tải lại trang.", f_x_logout); 
