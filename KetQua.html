@@ -220,6 +220,8 @@
                 <div style="opacity: 0.9; margin-bottom: 2px;">Xin chào đồng chí:</div>
                 <div class="hl-text" id="ui-ten-hien-thi">...</div>
                 <div style="opacity: 0.9; margin-top: 5px;">Xếp loại: <span class="hl-text" style="font-size: 13px;" id="ui-xep-loai">...</span></div>
+                <!-- Bổ sung tính năng hiển thị vị trí xếp hạng -->
+                <div style="opacity: 0.9; margin-top: 3px;">Đứng thứ: <span class="hl-text" style="font-size: 14px;" id="ui-dung-thu">...</span></div>
                 <div style="opacity: 0.9; margin-top: 3px;">Phân loại: <span class="hl-text" style="font-size: 13px;" id="ui-phan-loai">...</span></div>
                 <div style="opacity: 0.9; margin-top: 3px;">Năm học: <span class="hl-text" style="font-size: 13px;" id="ui-nam-hoc">...</span></div>
             </div>
@@ -332,41 +334,61 @@
             }
         }
 
-        // Hàm trích xuất Xếp loại, Phân loại, và Năm học từ dữ liệu tổng để điền vào menu trái
+        // Đã cập nhật toàn diện hàm này: Lọc và sắp xếp để lấy chính xác STT của người dùng trong bảng dữ liệu
         function capNhatXepLoaiMenuTrai(tenGoi) {
             let namChon = document.getElementById("locNamHoc").value;
-            // Nếu dropdown chưa có giá trị, mượn tạm giá trị đang hiển thị trên giao diện
+            // Nếu dropdown chưa có giá trị, lấy tạm giá trị đang hiển thị
             if (!namChon) {
                 namChon = document.getElementById("ui-nam-hoc").innerText;
             } else {
-                // Đồng bộ năm học từ dropdown sang khung vàng
+                // Đồng bộ năm học hiển thị theo năm đang lọc
                 document.getElementById("ui-nam-hoc").innerText = namChon;
             }
 
-            // Với Khách tham quan thì chỉ cần cập nhật Năm học, các thông tin khác giữ nguyên
             if (tenGoi === "..." || tenGoi === "KHÁCH") return;
 
             let xepLoai = "CHƯA ĐÁNH GIÁ";
             let phanLoai = document.getElementById("ui-phan-loai").innerText;
+            let dungThu = "--"; // Mặc định hiển thị nếu năm đó người dùng không có kết quả
 
             if (v_dl_toan_bo && v_dl_toan_bo.length > 0) {
-                // Lọc tìm chính xác bản ghi của người này trong năm học tương ứng
-                let userRecord = v_dl_toan_bo.find(item => item.t_v_c === tenGoi && item.n_hoc === namChon);
+                // 1. Lọc danh sách riêng cho năm học được chọn
+                let danhSachTheoNam = v_dl_toan_bo.filter(item => {
+                    let checkNam = item.n_hoc ? item.n_hoc.trim() : "";
+                    return checkNam === namChon;
+                });
                 
-                if (userRecord) {
-                    // Trích xuất toàn bộ chuỗi để giữ nguyên được mức xếp loại và số điểm
+                // 2. Tái tạo thao tác sắp xếp (sort) giống hệt hàm hienThiBangKetQua
+                danhSachTheoNam.sort((a, b) => {
+                    let parseA = phanTichXepLoai(a.x_l_q || "");
+                    let parseB = phanTichXepLoai(b.x_l_q || "");
+                    if (parseA.muc !== parseB.muc) {
+                        return parseB.muc - parseA.muc;
+                    } else {
+                        return parseB.diem - parseA.diem;
+                    }
+                });
+
+                // 3. Tra cứu vị trí index để quy ra số thứ tự (STT)
+                let userIndex = danhSachTheoNam.findIndex(item => item.t_v_c === tenGoi);
+                
+                if (userIndex !== -1) {
+                    let userRecord = danhSachTheoNam[userIndex];
                     xepLoai = userRecord.x_l_q || "CHƯA ĐÁNH GIÁ";
-                    // Đồng bộ vai trò phân loại ứng với năm đó
                     phanLoai = userRecord.p_l || phanLoai;
+                    dungThu = userIndex + 1; // Số thứ tự đứng trong bảng
                 } else {
-                    // Nếu không có dữ liệu năm nay, thử tìm bản ghi ở năm khác để điền tạm Phân loại
+                    // Nếu năm nay không có dữ liệu, dò tìm lại ở năm khác để giữ nguyên chức danh Phân loại
                     let userAnyYear = v_dl_toan_bo.find(item => item.t_v_c === tenGoi);
                     if (userAnyYear && userAnyYear.p_l) {
                         phanLoai = userAnyYear.p_l;
                     }
                 }
             }
+            
+            // Gán giá trị sau khi xử lý thành công
             document.getElementById("ui-xep-loai").innerText = xepLoai;
+            document.getElementById("ui-dung-thu").innerText = dungThu;
             document.getElementById("ui-phan-loai").innerText = phanLoai;
         }
 
@@ -430,7 +452,7 @@
             
             hienThiBangKetQua(duLieuLoc);
 
-            // Đồng bộ lại Xếp loại, Phân loại, và Năm học cá nhân khi thay đổi năm trên Dropdown
+            // Đồng bộ lại toàn bộ thông tin cá nhân (STT, Xếp loại, Năm) ngay khi có thay đổi bộ lọc
             let ten = document.getElementById("ui-ten-hien-thi").innerText;
             capNhatXepLoaiMenuTrai(ten);
         }
