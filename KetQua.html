@@ -27,7 +27,8 @@
             min-height: 100vh;
         }
         .khung-trai {
-            width: 250px;
+            /* Đã nâng kích thước menu lên 280px để thông tin không bị gãy dòng */
+            width: 280px;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
@@ -68,7 +69,7 @@
             padding-bottom: 15px;
             width: 85%;
         }
-        /* CSS Bổ sung: Khối thông tin người dùng */
+        /* Khối thông tin người dùng được căn chỉnh lại chuẩn xác */
         .thong-tin-user {
             text-align: center;
             color: #ffffff;
@@ -101,10 +102,9 @@
             transition: 0.2s;
             display: flex;
             align-items: center;
-            padding: 15px 20px;
+            padding: 15px 25px; /* Nới rộng lề cho thanh menu lớn */
             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
             box-sizing: border-box;
-            border-left: 4px solid transparent; /* Chuẩn bị sẵn cho hiệu ứng active */
         }
         .the-chuyen:first-child {
             border-top: 1px solid rgba(255, 255, 255, 0.15);
@@ -113,11 +113,11 @@
             background-color: rgba(255, 255, 255, 0.1);
             font-weight: 500;
         }
-        /* CSS Bổ sung: Trạng thái menu đang chọn */
+        /* Đã loại bỏ viền lệch, trả lại hiệu ứng chuẩn cho menu được chọn */
         .the-chuyen.active {
-            background-color: rgba(255, 255, 255, 0.15);
+            background-color: rgba(255, 255, 255, 0.2);
             font-weight: bold;
-            border-left: 4px solid #ffc107;
+            color: #ffc107;
         }
         .b-tuong {
             margin-right: 12px;
@@ -153,7 +153,7 @@
             top: 15px;
             right: 0;
             padding: 6px 15px;
-            background: #6c757d;
+            background: #dc3545; /* Đổi màu nút Đăng xuất thành đỏ chuẩn */
             color: white;
             border: none;
             border-radius: 4px;
@@ -161,9 +161,10 @@
             font-family: inherit;
             font-size: 14px;
             font-weight: bold;
+            transition: 0.2s;
         }
         .n-dx:hover {
-            background: #5a6268;
+            background: #c82333;
         }
         .k-dau {
             text-align: center;
@@ -214,17 +215,18 @@
             <div class="ten-truong-trai">Trường TH&THCS Hợp Thành</div>
             
             <div class="thong-tin-user">
-                <div style="opacity: 0.9;">Dữ liệu:</div>
+                <div style="opacity: 0.9; margin-bottom: 2px;">Xin chào đồng chí:</div>
                 <div class="hl-text" id="ui-ten-hien-thi">...</div>
+                <div style="opacity: 0.9; margin-top: 5px;">Tổ/BP: <span class="hl-text" style="font-size: 13px;" id="ui-bo-phan">...</span></div>
                 <div style="opacity: 0.9; margin-top: 3px;">Phân loại: <span class="hl-text" style="font-size: 13px;" id="ui-phan-loai">...</span></div>
-                <div style="opacity: 0.9;">Năm học: <span class="hl-text" style="font-size: 13px;" id="ui-nam-hoc">...</span></div>
+                <div style="opacity: 0.9; margin-top: 3px;">Năm học: <span class="hl-text" style="font-size: 13px;" id="ui-nam-hoc">...</span></div>
             </div>
 
             <div class="danh-muc-trai">
                 <a href="index.html" class="the-chuyen" id="menu-danh-gia">
                     <span class="b-tuong">📝</span> Đánh giá
                 </a>
-                <a href="KetQua.html" class="the-chuyen active" id="menu-ket-qua">
+                <a href="javascript:void(0)" class="the-chuyen active" id="menu-ket-qua">
                     <span class="b-tuong">📈</span> Kết quả
                 </a>
                 <span class="the-chuyen" id="menu-quan-ly-quyen" style="display: none;">
@@ -243,7 +245,7 @@
         </div>
         <div class="k-ngoai" id="main-ui">
             <div class="k-header-sticky">
-                <button class="n-dx" onclick="f_x_logout()">Quay lại Đánh giá</button>
+                <button class="n-dx" onclick="f_x_logout()">Đăng xuất</button>
                 <div class="k-dau">
                     <h2>TRƯỜNG TH&THCS HỢP THÀNH</h2>
                     <h1>KẾT QUẢ ĐÁNH GIÁ VIÊN CHỨC</h1>
@@ -279,7 +281,6 @@
         let v_dl_toan_bo = [];
 
         window.addEventListener('DOMContentLoaded', () => {
-            // Hiển thị Menu Admin nếu có quyền
             let quyenAdmin = sessionStorage.getItem("HTDG_IS_ADMIN") === "true";
             if (document.getElementById("menu-quan-ly-quyen")) {
                 document.getElementById("menu-quan-ly-quyen").style.display = quyenAdmin ? "flex" : "none";
@@ -291,7 +292,6 @@
                 document.getElementById("menu-tieu-chi-nv").style.display = quyenAdmin ? "flex" : "none";
             }
             
-            // Tự động điền dữ liệu User vào Menu trái (Lấy từ Session mà index.html đã lưu)
             dienThongTinNguoiDung();
 
             const selectNam = document.getElementById("locNamHoc");
@@ -302,19 +302,22 @@
             taiDuLieuKetQua();
         });
 
-        // HÀM MỚI: Điền dữ liệu người dùng
         function dienThongTinNguoiDung() {
-            // Lấy các key thông dụng mà hệ thống có thể đang lưu phiên
             let ten = sessionStorage.getItem("USER_NAME") || sessionStorage.getItem("HTDG_NAME") || "KHÁCH";
+            // Lấy bổ sung biến bộ phận lưu trong session
+            let bophan = sessionStorage.getItem("USER_DEPT") || sessionStorage.getItem("HTDG_BOPHAN") || "CHƯA RÕ"; 
             let role = sessionStorage.getItem("USER_ROLE") || sessionStorage.getItem("HTDG_ROLE") || "CHƯA RÕ";
             let nam = sessionStorage.getItem("USER_YEAR") || sessionStorage.getItem("HTDG_NAMHOC") || "2025-2026";
 
             document.getElementById("ui-ten-hien-thi").innerText = ten;
+            document.getElementById("ui-bo-phan").innerText = bophan;
             document.getElementById("ui-phan-loai").innerText = role;
             document.getElementById("ui-nam-hoc").innerText = nam;
         }
 
+        // Đã cập nhật chức năng Đăng xuất: Xóa phiên và nạp lại trang index
         function f_x_logout() {
+            sessionStorage.clear();
             window.location.href = 'index.html';
         }
 
