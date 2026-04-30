@@ -790,8 +790,14 @@
         return html;
     }
 
-    // Hàm bổ sung: Xử lý sao chép văn bản thuần túy của AI vào bộ nhớ tạm
-    function copyVanBanAI(textToCopy, btnElement) {
+    // Hàm bổ sung: Xử lý sao chép văn bản thuần túy của AI (loại bỏ hoàn toàn thẻ HTML)
+    function copyVanBanAI(elementId, btnElement) {
+        const textElement = document.getElementById(elementId);
+        if (!textElement) return;
+        
+        // Thuộc tính innerText tự động làm sạch HTML, chỉ lấy văn bản hiển thị
+        const textToCopy = textElement.innerText;
+        
         navigator.clipboard.writeText(textToCopy).then(() => {
             let originalText = btnElement.innerHTML;
             btnElement.innerHTML = "✅ Đã copy!";
@@ -816,7 +822,7 @@
             return;
         }
 
-        // Đã cập nhật: Làm rỗng ô nhập liệu ngay sau khi ấn gửi
+        // Đã cập nhật: Xóa ngay ô nhập liệu ngay khi bắt đầu gửi câu hỏi
         oNhap.value = '';
 
         const welcomeMsg = document.getElementById('aiWelcomeMsg');
@@ -852,14 +858,12 @@
             if (res.success) {
                 const phanHoiDep = formatVanBanAI(res.message);
                 
-                // Đã cập nhật: Bổ sung nút Copy câu trả lời
-                // Gắn dữ liệu văn bản gốc (res.message) vào thuộc tính onclick bằng cách chuyển an toàn qua chuỗi
-                const copyCode = `copyVanBanAI(decodeURIComponent('${encodeURIComponent(res.message)}'), this)`;
-                
+                // Đã cập nhật: Bọc nội dung AI vào div có ID và gọi hàm lấy innerText để copy thuần túy
                 if(loadingEl) loadingEl.outerHTML = `
                     <div style="margin-top: 8px;">
-                        <strong>🤖 AI:</strong><br>${phanHoiDep}
-                        <button class="btn-copy-ai" onclick="${copyCode}" title="Sao chép nội dung">
+                        <strong>🤖 AI:</strong><br>
+                        <div id="content-${loadingId}">${phanHoiDep}</div>
+                        <button class="btn-copy-ai" onclick="copyVanBanAI('content-${loadingId}', this)" title="Sao chép nội dung thuần túy">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                                 <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
                             </svg>
