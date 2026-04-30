@@ -60,13 +60,30 @@
             font-size: 15px;
             font-weight: bold;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             line-height: 1.4;
             padding: 0 15px;
             text-transform: uppercase;
             border-bottom: 1px dashed rgba(255, 255, 255, 0.4);
             padding-bottom: 15px;
             width: 85%;
+        }
+        /* CSS Bổ sung: Khối thông tin người dùng */
+        .thong-tin-user {
+            text-align: center;
+            color: #ffffff;
+            font-size: 13px;
+            margin-bottom: 20px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.4);
+            padding-bottom: 15px;
+            width: 85%;
+            line-height: 1.6;
+        }
+        .thong-tin-user .hl-text {
+            color: #ffc107;
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
         }
         .danh-muc-trai {
             width: 100%;
@@ -87,6 +104,7 @@
             padding: 15px 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
             box-sizing: border-box;
+            border-left: 4px solid transparent; /* Chuẩn bị sẵn cho hiệu ứng active */
         }
         .the-chuyen:first-child {
             border-top: 1px solid rgba(255, 255, 255, 0.15);
@@ -94,6 +112,12 @@
         .the-chuyen:hover {
             background-color: rgba(255, 255, 255, 0.1);
             font-weight: 500;
+        }
+        /* CSS Bổ sung: Trạng thái menu đang chọn */
+        .the-chuyen.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            font-weight: bold;
+            border-left: 4px solid #ffc107;
         }
         .b-tuong {
             margin-right: 12px;
@@ -188,11 +212,19 @@
                 <img src="https://i.ibb.co/S46wLjDt/logo-tr-ng-TH-THCS-Hop-Thanh3-removebg-preview.png" alt="Logo">
             </div>
             <div class="ten-truong-trai">Trường TH&THCS Hợp Thành</div>
+            
+            <div class="thong-tin-user">
+                <div style="opacity: 0.9;">Dữ liệu:</div>
+                <div class="hl-text" id="ui-ten-hien-thi">...</div>
+                <div style="opacity: 0.9; margin-top: 3px;">Phân loại: <span class="hl-text" style="font-size: 13px;" id="ui-phan-loai">...</span></div>
+                <div style="opacity: 0.9;">Năm học: <span class="hl-text" style="font-size: 13px;" id="ui-nam-hoc">...</span></div>
+            </div>
+
             <div class="danh-muc-trai">
                 <a href="index.html" class="the-chuyen" id="menu-danh-gia">
                     <span class="b-tuong">📝</span> Đánh giá
                 </a>
-                <a href="KetQua.html" class="the-chuyen" id="menu-ket-qua">
+                <a href="KetQua.html" class="the-chuyen active" id="menu-ket-qua">
                     <span class="b-tuong">📈</span> Kết quả
                 </a>
                 <span class="the-chuyen" id="menu-quan-ly-quyen" style="display: none;">
@@ -247,6 +279,7 @@
         let v_dl_toan_bo = [];
 
         window.addEventListener('DOMContentLoaded', () => {
+            // Hiển thị Menu Admin nếu có quyền
             let quyenAdmin = sessionStorage.getItem("HTDG_IS_ADMIN") === "true";
             if (document.getElementById("menu-quan-ly-quyen")) {
                 document.getElementById("menu-quan-ly-quyen").style.display = quyenAdmin ? "flex" : "none";
@@ -258,6 +291,9 @@
                 document.getElementById("menu-tieu-chi-nv").style.display = quyenAdmin ? "flex" : "none";
             }
             
+            // Tự động điền dữ liệu User vào Menu trái (Lấy từ Session mà index.html đã lưu)
+            dienThongTinNguoiDung();
+
             const selectNam = document.getElementById("locNamHoc");
             if(selectNam) {
                 selectNam.addEventListener('change', locDuLieuTheoNam);
@@ -265,6 +301,18 @@
             
             taiDuLieuKetQua();
         });
+
+        // HÀM MỚI: Điền dữ liệu người dùng
+        function dienThongTinNguoiDung() {
+            // Lấy các key thông dụng mà hệ thống có thể đang lưu phiên
+            let ten = sessionStorage.getItem("USER_NAME") || sessionStorage.getItem("HTDG_NAME") || "KHÁCH";
+            let role = sessionStorage.getItem("USER_ROLE") || sessionStorage.getItem("HTDG_ROLE") || "CHƯA RÕ";
+            let nam = sessionStorage.getItem("USER_YEAR") || sessionStorage.getItem("HTDG_NAMHOC") || "2025-2026";
+
+            document.getElementById("ui-ten-hien-thi").innerText = ten;
+            document.getElementById("ui-phan-loai").innerText = role;
+            document.getElementById("ui-nam-hoc").innerText = nam;
+        }
 
         function f_x_logout() {
             window.location.href = 'index.html';
