@@ -305,7 +305,6 @@
             }
         });
 
-        // Đã cập nhật: Đồng bộ thông tin cá nhân trực tiếp từ máy chủ để khắc phục lỗi thiếu dữ liệu phiên
         async function dienThongTinNguoiDung() {
             let d_danh = sessionStorage.getItem("HTDG_ACCOUNT_ID");
             let nhom = sessionStorage.getItem("HTDG_NHOM_ID") || "giaovien";
@@ -333,23 +332,42 @@
             }
         }
 
-        // Hàm trích xuất Xếp loại từ dữ liệu tổng để điền vào menu trái
+        // Hàm trích xuất Xếp loại, Phân loại, và Năm học từ dữ liệu tổng để điền vào menu trái
         function capNhatXepLoaiMenuTrai(tenGoi) {
+            let namChon = document.getElementById("locNamHoc").value;
+            // Nếu dropdown chưa có giá trị, mượn tạm giá trị đang hiển thị trên giao diện
+            if (!namChon) {
+                namChon = document.getElementById("ui-nam-hoc").innerText;
+            } else {
+                // Đồng bộ năm học từ dropdown sang khung vàng
+                document.getElementById("ui-nam-hoc").innerText = namChon;
+            }
+
+            // Với Khách tham quan thì chỉ cần cập nhật Năm học, các thông tin khác giữ nguyên
+            if (tenGoi === "..." || tenGoi === "KHÁCH") return;
+
             let xepLoai = "CHƯA ĐÁNH GIÁ";
+            let phanLoai = document.getElementById("ui-phan-loai").innerText;
+
             if (v_dl_toan_bo && v_dl_toan_bo.length > 0) {
-                let namChon = document.getElementById("locNamHoc").value || document.getElementById("ui-nam-hoc").innerText;
+                // Lọc tìm chính xác bản ghi của người này trong năm học tương ứng
                 let userRecord = v_dl_toan_bo.find(item => item.t_v_c === tenGoi && item.n_hoc === namChon);
                 
-                if (!userRecord) {
-                    userRecord = v_dl_toan_bo.find(item => item.t_v_c === tenGoi);
-                }
-                
-                if (userRecord && userRecord.x_l_q) {
-                    // Trích xuất kết quả bằng cách lấy phần chữ trước dấu ':' (Ví dụ: Hoàn thành xuất sắc)
-                    xepLoai = userRecord.x_l_q.split(":")[0].trim(); 
+                if (userRecord) {
+                    // Trích xuất toàn bộ chuỗi để giữ nguyên được mức xếp loại và số điểm
+                    xepLoai = userRecord.x_l_q || "CHƯA ĐÁNH GIÁ";
+                    // Đồng bộ vai trò phân loại ứng với năm đó
+                    phanLoai = userRecord.p_l || phanLoai;
+                } else {
+                    // Nếu không có dữ liệu năm nay, thử tìm bản ghi ở năm khác để điền tạm Phân loại
+                    let userAnyYear = v_dl_toan_bo.find(item => item.t_v_c === tenGoi);
+                    if (userAnyYear && userAnyYear.p_l) {
+                        phanLoai = userAnyYear.p_l;
+                    }
                 }
             }
             document.getElementById("ui-xep-loai").innerText = xepLoai;
+            document.getElementById("ui-phan-loai").innerText = phanLoai;
         }
 
         function f_x_logout() {
@@ -412,11 +430,9 @@
             
             hienThiBangKetQua(duLieuLoc);
 
-            // Đồng bộ lại Xếp loại cá nhân khi người dùng đổi năm học trên hệ thống
+            // Đồng bộ lại Xếp loại, Phân loại, và Năm học cá nhân khi thay đổi năm trên Dropdown
             let ten = document.getElementById("ui-ten-hien-thi").innerText;
-            if (ten !== "..." && ten !== "KHÁCH") {
-                capNhatXepLoaiMenuTrai(ten);
-            }
+            capNhatXepLoaiMenuTrai(ten);
         }
 
         function hienThiBangKetQua(d_l) {
