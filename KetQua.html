@@ -302,15 +302,19 @@
             taiDuLieuKetQua();
         });
 
+       // Hàm trích xuất và hiển thị thông tin cá nhân của viên chức từ phiên làm việc
         function dienThongTinNguoiDung() {
             let ten = sessionStorage.getItem("USER_NAME") || sessionStorage.getItem("HTDG_NAME") || "KHÁCH";
-            // Lấy bổ sung biến bộ phận lưu trong session
-            let bophan = sessionStorage.getItem("USER_DEPT") || sessionStorage.getItem("HTDG_BOPHAN") || "CHƯA RÕ"; 
+            
+            // Đã đổi tên biến thành xeploai và cập nhật khóa tìm kiếm để khớp với Kết quả xếp loại
+            let xeploai = sessionStorage.getItem("USER_XEPLOAI") || sessionStorage.getItem("HTDG_XEPLOAI") || sessionStorage.getItem("USER_DEPT") || sessionStorage.getItem("HTDG_BOPHAN") || "CHƯA RÕ"; 
+            
             let role = sessionStorage.getItem("USER_ROLE") || sessionStorage.getItem("HTDG_ROLE") || "CHƯA RÕ";
-            let nam = sessionStorage.getItem("USER_YEAR") || sessionStorage.getItem("HTDG_NAMHOC") || "2025-2026";
+            let nam = sessionStorage.getItem("USER_YEAR") || sessionStorage.getItem("HTDG_NAMHOC") || "CHƯA RÕ";
 
+            // Gắn dữ liệu vào các thẻ HTML tương ứng
             document.getElementById("ui-ten-hien-thi").innerText = ten;
-            document.getElementById("ui-bo-phan").innerText = bophan;
+            document.getElementById("ui-xep-loai").innerText = xeploai;
             document.getElementById("ui-phan-loai").innerText = role;
             document.getElementById("ui-nam-hoc").innerText = nam;
         }
