@@ -86,6 +86,26 @@
         .ai-modal-footer { padding: 15px; background: #fff; border-top: 1px solid #e5e7eb; display: flex; gap: 10px; }
         .ai-response-box { background: #e0f2fe; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #0284c7; font-size: 15px; color: #1e3a8a; min-height: 60px; line-height: 1.6; }
         .ai-user-query { font-weight: bold; color: #333; margin-bottom: 8px; display: block; padding-bottom: 5px;}
+        
+        /* Bổ sung class CSS cho nút copy AI */
+        .btn-copy-ai {
+            background: none;
+            border: none;
+            color: #0284c7;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+        .btn-copy-ai:hover {
+            background: #bae6fd;
+        }
     </style>
 </head>
 <body>
@@ -770,8 +790,23 @@
         return html;
     }
 
+    // Hàm bổ sung: Xử lý sao chép văn bản thuần túy của AI vào bộ nhớ tạm
+    function copyVanBanAI(textToCopy, btnElement) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            let originalText = btnElement.innerHTML;
+            btnElement.innerHTML = "✅ Đã copy!";
+            setTimeout(() => {
+                btnElement.innerHTML = originalText;
+            }, 2000);
+        }).catch(err => {
+            console.error('Không thể sao chép văn bản: ', err);
+            btnElement.innerHTML = "❌ Lỗi copy";
+        });
+    }
+
     async function guiCauHoiAI() {
-        const cauHoi = document.getElementById('aiQueryInput').value.trim();
+        const oNhap = document.getElementById('aiQueryInput');
+        const cauHoi = oNhap.value.trim();
         const hopPhanHoi = document.getElementById('aiResponseBox');
         const nutGui = document.getElementById('btnSendAI');
         const modalBody = document.getElementById('aiModalBody'); 
@@ -780,6 +815,9 @@
             hienThiThongBaoUI("Bạn vui lòng nhập câu hỏi!"); 
             return;
         }
+
+        // Đã cập nhật: Làm rỗng ô nhập liệu ngay sau khi ấn gửi
+        oNhap.value = '';
 
         const welcomeMsg = document.getElementById('aiWelcomeMsg');
         if (welcomeMsg) {
@@ -813,8 +851,21 @@
 
             if (res.success) {
                 const phanHoiDep = formatVanBanAI(res.message);
-                if(loadingEl) loadingEl.outerHTML = `<div style="margin-top: 8px;"><strong>🤖 AI:</strong><br>${phanHoiDep}</div>`;
-                document.getElementById('aiQueryInput').value = '';
+                
+                // Đã cập nhật: Bổ sung nút Copy câu trả lời
+                // Gắn dữ liệu văn bản gốc (res.message) vào thuộc tính onclick bằng cách chuyển an toàn qua chuỗi
+                const copyCode = `copyVanBanAI(decodeURIComponent('${encodeURIComponent(res.message)}'), this)`;
+                
+                if(loadingEl) loadingEl.outerHTML = `
+                    <div style="margin-top: 8px;">
+                        <strong>🤖 AI:</strong><br>${phanHoiDep}
+                        <button class="btn-copy-ai" onclick="${copyCode}" title="Sao chép nội dung">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
+                            </svg>
+                            Copy
+                        </button>
+                    </div>`;
             } else {
                 if(loadingEl) loadingEl.outerHTML = `<div style="margin-top: 8px; color:red;"><strong>⚠️ Lỗi:</strong> ${res.message}</div>`;
             }
