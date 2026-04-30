@@ -27,7 +27,7 @@
             min-height: 100vh;
         }
         .khung-trai {
-            /* Đã nâng kích thước menu lên 280px để thông tin không bị gãy dòng */
+            /* Kích thước menu được giữ ổn định ở mức 300px */
             width: 300px;
             flex-shrink: 0;
             display: flex;
@@ -69,7 +69,6 @@
             padding-bottom: 15px;
             width: 85%;
         }
-        /* Khối thông tin người dùng được căn chỉnh lại chuẩn xác */
         .thong-tin-user {
             text-align: center;
             color: #ffffff;
@@ -102,7 +101,7 @@
             transition: 0.2s;
             display: flex;
             align-items: center;
-            padding: 15px 25px; /* Nới rộng lề cho thanh menu lớn */
+            padding: 15px 25px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
             box-sizing: border-box;
         }
@@ -113,7 +112,6 @@
             background-color: rgba(255, 255, 255, 0.1);
             font-weight: 500;
         }
-        /* Đã loại bỏ viền lệch, trả lại hiệu ứng chuẩn cho menu được chọn */
         .the-chuyen.active {
             background-color: rgba(255, 255, 255, 0.2);
             font-weight: bold;
@@ -153,7 +151,7 @@
             top: 15px;
             right: 0;
             padding: 6px 15px;
-            background: #dc3545; /* Đổi màu nút Đăng xuất thành đỏ chuẩn */
+            background: #dc3545;
             color: white;
             border: none;
             border-radius: 4px;
@@ -217,7 +215,8 @@
             <div class="thong-tin-user">
                 <div style="opacity: 0.9; margin-bottom: 2px;">Xin chào đồng chí:</div>
                 <div class="hl-text" id="ui-ten-hien-thi">...</div>
-                <div style="opacity: 0.9; margin-top: 5px;">Xếp loại: <span class="hl-text" style="font-size: 13px;" id="ui-xep-loai">...</span></div>
+                <!-- Phục hồi lại Tổ/BP để đảm bảo logic và tránh nhầm lẫn dữ liệu -->
+                <div style="opacity: 0.9; margin-top: 5px;">Tổ/BP: <span class="hl-text" style="font-size: 13px;" id="ui-bo-phan">...</span></div>
                 <div style="opacity: 0.9; margin-top: 3px;">Phân loại: <span class="hl-text" style="font-size: 13px;" id="ui-phan-loai">...</span></div>
                 <div style="opacity: 0.9; margin-top: 3px;">Năm học: <span class="hl-text" style="font-size: 13px;" id="ui-nam-hoc">...</span></div>
             </div>
@@ -302,24 +301,23 @@
             taiDuLieuKetQua();
         });
 
-       // Hàm trích xuất và hiển thị thông tin cá nhân của viên chức từ phiên làm việc
+       // Hàm trích xuất thông tin cá nhân. Đã tinh chỉnh để bắt toàn bộ các khóa dự phòng.
         function dienThongTinNguoiDung() {
-            let ten = sessionStorage.getItem("USER_NAME") || sessionStorage.getItem("HTDG_NAME") || "KHÁCH";
+            let ten = sessionStorage.getItem("USER_NAME") || sessionStorage.getItem("HTDG_NAME") || sessionStorage.getItem("HO_TEN") || "KHÁCH";
             
-            // Đã đổi tên biến thành xeploai và cập nhật khóa tìm kiếm để khớp với Kết quả xếp loại
-            let xeploai = sessionStorage.getItem("USER_XEPLOAI") || sessionStorage.getItem("HTDG_XEPLOAI") || sessionStorage.getItem("USER_DEPT") || sessionStorage.getItem("HTDG_BOPHAN") || "CHƯA RÕ"; 
+            // Lấy thông tin bộ phận
+            let bophan = sessionStorage.getItem("USER_DEPT") || sessionStorage.getItem("HTDG_BOPHAN") || sessionStorage.getItem("BO_PHAN") || "CHƯA RÕ"; 
             
-            let role = sessionStorage.getItem("USER_ROLE") || sessionStorage.getItem("HTDG_ROLE") || "CHƯA RÕ";
+            let role = sessionStorage.getItem("USER_ROLE") || sessionStorage.getItem("HTDG_ROLE") || sessionStorage.getItem("PHAN_LOAI") || "CHƯA RÕ";
             let nam = sessionStorage.getItem("USER_YEAR") || sessionStorage.getItem("HTDG_NAMHOC") || "CHƯA RÕ";
 
-            // Gắn dữ liệu vào các thẻ HTML tương ứng
             document.getElementById("ui-ten-hien-thi").innerText = ten;
-            document.getElementById("ui-xep-loai").innerText = xeploai;
+            // Gán lại đúng ID ui-bo-phan
+            document.getElementById("ui-bo-phan").innerText = bophan;
             document.getElementById("ui-phan-loai").innerText = role;
             document.getElementById("ui-nam-hoc").innerText = nam;
         }
 
-        // Đã cập nhật chức năng Đăng xuất: Xóa phiên và nạp lại trang index
         function f_x_logout() {
             sessionStorage.clear();
             window.location.href = 'index.html';
