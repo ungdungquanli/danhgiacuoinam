@@ -27,7 +27,6 @@
             min-height: 100vh;
         }
         .khung-trai {
-            /* Kích thước menu được giữ ổn định ở mức 300px */
             width: 300px;
             flex-shrink: 0;
             display: flex;
@@ -69,15 +68,20 @@
             padding-bottom: 15px;
             width: 85%;
         }
+        
+        /* Đã nâng cấp thành khung viền vàng nổi bật theo đúng hình ảnh cung cấp */
         .thong-tin-user {
             text-align: center;
             color: #ffffff;
             font-size: 13px;
             margin-bottom: 20px;
-            border-bottom: 1px dashed rgba(255, 255, 255, 0.4);
-            padding-bottom: 15px;
+            border: 1px solid #ffc107;
+            background-color: rgba(0, 0, 0, 0.15);
+            border-radius: 6px;
+            padding: 15px 10px;
             width: 85%;
             line-height: 1.6;
+            box-sizing: border-box;
         }
         .thong-tin-user .hl-text {
             color: #ffc107;
@@ -215,8 +219,7 @@
             <div class="thong-tin-user">
                 <div style="opacity: 0.9; margin-bottom: 2px;">Xin chào đồng chí:</div>
                 <div class="hl-text" id="ui-ten-hien-thi">...</div>
-                <!-- Phục hồi lại Tổ/BP để đảm bảo logic và tránh nhầm lẫn dữ liệu -->
-                <div style="opacity: 0.9; margin-top: 5px;">Tổ/BP: <span class="hl-text" style="font-size: 13px;" id="ui-bo-phan">...</span></div>
+                <div style="opacity: 0.9; margin-top: 5px;">Xếp loại: <span class="hl-text" style="font-size: 13px;" id="ui-xep-loai">...</span></div>
                 <div style="opacity: 0.9; margin-top: 3px;">Phân loại: <span class="hl-text" style="font-size: 13px;" id="ui-phan-loai">...</span></div>
                 <div style="opacity: 0.9; margin-top: 3px;">Năm học: <span class="hl-text" style="font-size: 13px;" id="ui-nam-hoc">...</span></div>
             </div>
@@ -278,6 +281,7 @@
 
     <script>
         let v_dl_toan_bo = [];
+        const z_y_a = "https://script.google.com/macros/s/AKfycbynhXlUEopWNlbpbRaD3e50Y0xwevEXIK53VpmOEWMZfhsSnfqxvFctSPeNMRc7709aHw/exec";
 
         window.addEventListener('DOMContentLoaded', () => {
             let quyenAdmin = sessionStorage.getItem("HTDG_IS_ADMIN") === "true";
@@ -291,39 +295,67 @@
                 document.getElementById("menu-tieu-chi-nv").style.display = quyenAdmin ? "flex" : "none";
             }
             
+            // Kích hoạt đồng thời tải dữ liệu chung và dữ liệu cá nhân
             dienThongTinNguoiDung();
+            taiDuLieuKetQua();
 
             const selectNam = document.getElementById("locNamHoc");
             if(selectNam) {
                 selectNam.addEventListener('change', locDuLieuTheoNam);
             }
-            
-            taiDuLieuKetQua();
         });
 
-       // Hàm trích xuất thông tin cá nhân. Đã tinh chỉnh để bắt toàn bộ các khóa dự phòng.
-        function dienThongTinNguoiDung() {
-            let ten = sessionStorage.getItem("USER_NAME") || sessionStorage.getItem("HTDG_NAME") || sessionStorage.getItem("HO_TEN") || "KHÁCH";
+        // Đã cập nhật: Đồng bộ thông tin cá nhân trực tiếp từ máy chủ để khắc phục lỗi thiếu dữ liệu phiên
+        async function dienThongTinNguoiDung() {
+            let d_danh = sessionStorage.getItem("HTDG_ACCOUNT_ID");
+            let nhom = sessionStorage.getItem("HTDG_NHOM_ID") || "giaovien";
             
-            // Lấy thông tin bộ phận
-            let bophan = sessionStorage.getItem("USER_DEPT") || sessionStorage.getItem("HTDG_BOPHAN") || sessionStorage.getItem("BO_PHAN") || "CHƯA RÕ"; 
-            
-            let role = sessionStorage.getItem("USER_ROLE") || sessionStorage.getItem("HTDG_ROLE") || sessionStorage.getItem("PHAN_LOAI") || "CHƯA RÕ";
-            let nam = sessionStorage.getItem("USER_YEAR") || sessionStorage.getItem("HTDG_NAMHOC") || "CHƯA RÕ";
+            if (!d_danh) {
+                document.getElementById("ui-ten-hien-thi").innerText = "KHÁCH";
+                return;
+            }
 
-            document.getElementById("ui-ten-hien-thi").innerText = ten;
-            // Gán lại đúng ID ui-bo-phan
-            document.getElementById("ui-bo-phan").innerText = bophan;
-            document.getElementById("ui-phan-loai").innerText = role;
-            document.getElementById("ui-nam-hoc").innerText = nam;
+            try {
+                const res = await fetch(`${z_y_a}?z_p_a=m_k_o&z_p_b=${encodeURIComponent(d_danh)}&z_p_c=${nhom}`);
+                const t_k = await res.json();
+                
+                if (t_k.status === 'success') {
+                    let ten = t_k.y_b || "CHƯA RÕ";
+                    document.getElementById("ui-ten-hien-thi").innerText = ten;
+                    document.getElementById("ui-phan-loai").innerText = t_k.y_role || "CHƯA RÕ";
+                    document.getElementById("ui-nam-hoc").innerText = t_k.y_namhoc || "CHƯA RÕ";
+                    
+                    // Cập nhật xếp loại lên menu sau khi có thông tin người dùng
+                    capNhatXepLoaiMenuTrai(ten);
+                }
+            } catch (e) {
+                console.error("Lỗi đồng bộ dữ liệu người dùng:", e);
+            }
+        }
+
+        // Hàm trích xuất Xếp loại từ dữ liệu tổng để điền vào menu trái
+        function capNhatXepLoaiMenuTrai(tenGoi) {
+            let xepLoai = "CHƯA ĐÁNH GIÁ";
+            if (v_dl_toan_bo && v_dl_toan_bo.length > 0) {
+                let namChon = document.getElementById("locNamHoc").value || document.getElementById("ui-nam-hoc").innerText;
+                let userRecord = v_dl_toan_bo.find(item => item.t_v_c === tenGoi && item.n_hoc === namChon);
+                
+                if (!userRecord) {
+                    userRecord = v_dl_toan_bo.find(item => item.t_v_c === tenGoi);
+                }
+                
+                if (userRecord && userRecord.x_l_q) {
+                    // Trích xuất kết quả bằng cách lấy phần chữ trước dấu ':' (Ví dụ: Hoàn thành xuất sắc)
+                    xepLoai = userRecord.x_l_q.split(":")[0].trim(); 
+                }
+            }
+            document.getElementById("ui-xep-loai").innerText = xepLoai;
         }
 
         function f_x_logout() {
             sessionStorage.clear();
             window.location.href = 'index.html';
         }
-
-        const z_y_a = "https://script.google.com/macros/s/AKfycbynhXlUEopWNlbpbRaD3e50Y0xwevEXIK53VpmOEWMZfhsSnfqxvFctSPeNMRc7709aHw/exec";
 
         async function taiDuLieuKetQua() {
             try {
@@ -379,6 +411,12 @@
             });
             
             hienThiBangKetQua(duLieuLoc);
+
+            // Đồng bộ lại Xếp loại cá nhân khi người dùng đổi năm học trên hệ thống
+            let ten = document.getElementById("ui-ten-hien-thi").innerText;
+            if (ten !== "..." && ten !== "KHÁCH") {
+                capNhatXepLoaiMenuTrai(ten);
+            }
         }
 
         function hienThiBangKetQua(d_l) {
