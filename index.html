@@ -780,12 +780,19 @@
         if (!text) return "";
         let html = text;
         
-        html = html.replace(/###\s+(.*)/g, '<h4 style="color: #b91c1c; margin-top: 15px; margin-bottom: 5px;">$1</h4>');
-        html = html.replace(/##\s+(.*)/g, '<h3 style="color: #b91c1c; margin-top: 15px; margin-bottom: 5px;">$1</h3>');
+        // Căn chỉnh thu hẹp thẻ Heading
+        html = html.replace(/###\s+(.*)/g, '<h4 style="color: #b91c1c; margin-top: 10px; margin-bottom: 5px;">$1</h4>');
+        html = html.replace(/##\s+(.*)/g, '<h3 style="color: #b91c1c; margin-top: 10px; margin-bottom: 5px;">$1</h3>');
         html = html.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #1e3a8a;">$1</strong>');
         html = html.replace(/(^|\n)\s*[\*\-]\s+(.*)/g, '$1<div style="margin-left: 15px; margin-bottom: 5px;">&bull; $2</div>');
         html = html.replace(/\n/g, '<br>');
+        
+        // Loại bỏ triệt để các thẻ <br> thừa do AI sinh ra bao quanh thẻ block
         html = html.replace(/<\/div><br>/g, '</div>');
+        html = html.replace(/(<br>)+<h3/g, '<h3');
+        html = html.replace(/<\/h3>(<br>)+/g, '</h3>');
+        html = html.replace(/(<br>)+<h4/g, '<h4');
+        html = html.replace(/<\/h4>(<br>)+/g, '</h4>');
         
         return html;
     }
